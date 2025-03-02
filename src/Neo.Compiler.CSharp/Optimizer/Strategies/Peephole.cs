@@ -832,5 +832,98 @@ namespace Neo.Optimizer
                 jumpSourceToTargets, trySourceToTargets,
                 oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
         }
+
+        /// <summary>
+        /// PUSH1 MUL -> No operation (remove both)
+        /// PUSH0 MUL -> DROP PUSH0
+        /// </summary>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
+        /// <returns></returns>
+        [Strategy(Priority = 1 << 9)]
+        public static (NefFile, ContractManifest, JObject?) OptimizePushMul(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+        {
+            ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
+            InstructionCoverage oldContractCoverage = contractInBasicBlocks.coverage;
+            Dictionary<int, Instruction> oldAddressToInstruction = oldContractCoverage.addressToInstructions;
+            (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+                Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+                Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+                (oldContractCoverage.jumpInstructionSourceToTargets,
+                oldContractCoverage.tryInstructionSourceToTargets,
+                oldContractCoverage.jumpTargetToSources);
+            Dictionary<int, int> oldSequencePointAddressToNew = new();
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
+            int currentAddress = 0;
+            foreach ((int oldStartAddr, List<Instruction> basicBlock) in contractInBasicBlocks.sortedListInstructions)
+            {
+                int oldAddr = oldStartAddr;
+                for (int index = 0; index < basicBlock.Count; index++)
+                {
+                    if (index + 1 < basicBlock.Count)
+                    {
+                        Instruction current = basicBlock[index];
+                        Instruction next = basicBlock[index + 1];
+                        
+                        // Case 1: PUSH1 MUL -> No operation (remove both)
+                        if ((current.OpCode == OpCode.PUSH1 || 
+                            (OpCodeTypes.pushInt.Contains(current.OpCode) && 
+                             new System.Numerics.BigInteger(current.Operand.Span) == 1)) && 
+                            next.OpCode == OpCode.MUL)
+                        {
+                            // Skip both instructions - they're effectively a no-op
+                            oldAddr += current.Size + next.Size;
+                            index += 1;
+                            
+                            // If there are jumps to these instructions, retarget them
+                            if (!oldAddressToInstruction.TryGetValue(oldAddr, out Instruction? nextInstruction))
+                            {
+                                nextInstruction = Instruction.RET;
+                                simplifiedInstructionsToAddress.Add(nextInstruction, currentAddress);
+                                currentAddress += nextInstruction.Size;
+                            }
+                            
+                            OptimizedScriptBuilder.RetargetJump(current, nextInstruction,
+                                jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                            continue;
+                        }
+                        
+                        // Case 2: PUSH0 MUL -> DROP PUSH0
+                        if ((current.OpCode == OpCode.PUSH0 || 
+                            (OpCodeTypes.pushInt.Contains(current.OpCode) && 
+                             new System.Numerics.BigInteger(current.Operand.Span) == 0)) && 
+                            next.OpCode == OpCode.MUL)
+                        {
+                            // Replace with DROP PUSH0
+                            Script script = new Script(new byte[] { (byte)OpCode.DROP, (byte)OpCode.PUSH0 });
+                            Instruction drop = script.GetInstruction(0);
+                            simplifiedInstructionsToAddress.Add(drop, currentAddress);
+                            oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                            oldAddr += current.Size;
+                            currentAddress += drop.Size;
+                            
+                            Instruction push0 = script.GetInstruction(drop.Size);
+                            simplifiedInstructionsToAddress.Add(push0, currentAddress);
+                            oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                            oldAddr += next.Size;
+                            currentAddress += push0.Size;
+                            
+                            index += 1;
+                            OptimizedScriptBuilder.RetargetJump(current, drop,
+                                jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                            continue;
+                        }
+                    }
+                    simplifiedInstructionsToAddress.Add(basicBlock[index], currentAddress);
+                    currentAddress += basicBlock[index].Size;
+                    oldAddr += basicBlock[index].Size;
+                }
+            }
+            return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+                simplifiedInstructionsToAddress,
+                jumpSourceToTargets, trySourceToTargets,
+                oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
+        }
     }
 }
