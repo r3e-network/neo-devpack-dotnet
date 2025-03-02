@@ -1065,5 +1065,109 @@ namespace Neo.Optimizer
                 jumpSourceToTargets, trySourceToTargets,
                 oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
         }
+
+        /// <summary>
+        /// BOOLAND NOT -> NOT NOT BOOLOR NOT (De Morgan's law)
+        /// BOOLOR NOT -> NOT NOT BOOLAND NOT (De Morgan's law)
+        /// </summary>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
+        /// <returns></returns>
+        [Strategy(Priority = 1 << 9)]
+        public static (NefFile, ContractManifest, JObject?) OptimizeBooleanOperations(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+        {
+            ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
+            InstructionCoverage oldContractCoverage = contractInBasicBlocks.coverage;
+            Dictionary<int, Instruction> oldAddressToInstruction = oldContractCoverage.addressToInstructions;
+            (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+                Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+                Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+                (oldContractCoverage.jumpInstructionSourceToTargets,
+                oldContractCoverage.tryInstructionSourceToTargets,
+                oldContractCoverage.jumpTargetToSources);
+            Dictionary<int, int> oldSequencePointAddressToNew = new();
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
+            int currentAddress = 0;
+            foreach ((int oldStartAddr, List<Instruction> basicBlock) in contractInBasicBlocks.sortedListInstructions)
+            {
+                int oldAddr = oldStartAddr;
+                for (int index = 0; index < basicBlock.Count; index++)
+                {
+                    if (index + 1 < basicBlock.Count)
+                    {
+                        Instruction current = basicBlock[index];
+                        Instruction next = basicBlock[index + 1];
+                        
+                        // Case 1: BOOLAND NOT -> NOT NOT BOOLOR NOT (De Morgan's law)
+                        if (current.OpCode == OpCode.BOOLAND && next.OpCode == OpCode.NOT)
+                        {
+                            // Replace with NOT NOT BOOLOR NOT
+                            Script script = new Script(new byte[] { (byte)OpCode.NOT, (byte)OpCode.NOT, (byte)OpCode.BOOLOR, (byte)OpCode.NOT });
+                            Instruction not1 = script.GetInstruction(0);
+                            simplifiedInstructionsToAddress.Add(not1, currentAddress);
+                            oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                            currentAddress += not1.Size;
+                            
+                            Instruction not2 = script.GetInstruction(not1.Size);
+                            simplifiedInstructionsToAddress.Add(not2, currentAddress);
+                            currentAddress += not2.Size;
+                            
+                            Instruction boolor = script.GetInstruction(not1.Size + not2.Size);
+                            simplifiedInstructionsToAddress.Add(boolor, currentAddress);
+                            currentAddress += boolor.Size;
+                            
+                            Instruction not3 = script.GetInstruction(not1.Size + not2.Size + boolor.Size);
+                            simplifiedInstructionsToAddress.Add(not3, currentAddress);
+                            oldSequencePointAddressToNew.Add(oldAddr + current.Size, currentAddress);
+                            currentAddress += not3.Size;
+                            
+                            oldAddr += current.Size + next.Size;
+                            index += 1;
+                            OptimizedScriptBuilder.RetargetJump(current, not1,
+                                jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                            continue;
+                        }
+                        
+                        // Case 2: BOOLOR NOT -> NOT NOT BOOLAND NOT (De Morgan's law)
+                        if (current.OpCode == OpCode.BOOLOR && next.OpCode == OpCode.NOT)
+                        {
+                            // Replace with NOT NOT BOOLAND NOT
+                            Script script = new Script(new byte[] { (byte)OpCode.NOT, (byte)OpCode.NOT, (byte)OpCode.BOOLAND, (byte)OpCode.NOT });
+                            Instruction not1 = script.GetInstruction(0);
+                            simplifiedInstructionsToAddress.Add(not1, currentAddress);
+                            oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                            currentAddress += not1.Size;
+                            
+                            Instruction not2 = script.GetInstruction(not1.Size);
+                            simplifiedInstructionsToAddress.Add(not2, currentAddress);
+                            currentAddress += not2.Size;
+                            
+                            Instruction booland = script.GetInstruction(not1.Size + not2.Size);
+                            simplifiedInstructionsToAddress.Add(booland, currentAddress);
+                            currentAddress += booland.Size;
+                            
+                            Instruction not3 = script.GetInstruction(not1.Size + not2.Size + booland.Size);
+                            simplifiedInstructionsToAddress.Add(not3, currentAddress);
+                            oldSequencePointAddressToNew.Add(oldAddr + current.Size, currentAddress);
+                            currentAddress += not3.Size;
+                            
+                            oldAddr += current.Size + next.Size;
+                            index += 1;
+                            OptimizedScriptBuilder.RetargetJump(current, not1,
+                                jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                            continue;
+                        }
+                    }
+                    simplifiedInstructionsToAddress.Add(basicBlock[index], currentAddress);
+                    currentAddress += basicBlock[index].Size;
+                    oldAddr += basicBlock[index].Size;
+                }
+            }
+            return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+                simplifiedInstructionsToAddress,
+                jumpSourceToTargets, trySourceToTargets,
+                oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
+        }
     }
 }
