@@ -52,6 +52,14 @@ internal partial class MethodConvert
             CallMethodWithInstanceExpression(model, method, null, expression.Expression);
             return;
         }
+        
+        // Use TypeConvert to handle enum conversions
+        if (TypeConvert.ConvertType(this, model, sType, tType))
+        {
+            ConvertExpression(model, expression.Expression);
+            return;
+        }
+        
         ConvertExpression(model, expression.Expression);
         switch ((sType.Name, tType.Name))
         {

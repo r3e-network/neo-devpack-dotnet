@@ -54,6 +54,12 @@ internal partial class MethodConvert
                     // Const member field access is handled via ConvertMethodInvocationExpression
                     Push(field.ConstantValue);
                 }
+                else if (field.ContainingType.TypeKind == TypeKind.Enum)
+                {
+                    // Handle enum member access
+                    // Enum members are represented as constants in the Neo VM
+                    Push(field.ConstantValue);
+                }
                 else if (field.IsStatic)
                 {
                     // Have to process the string.Empty specially since it has no AssociatedSymbol

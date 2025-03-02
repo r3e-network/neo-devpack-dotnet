@@ -392,7 +392,18 @@ namespace Neo.Compiler
                         return;
                     if (processed.Add(symbol)) ProcessClass(model, symbol);
                     break;
+                case EnumDeclarationSyntax @enum:
+                    INamedTypeSymbol enumSymbol = model.GetDeclaredSymbol(@enum)!;
+                    if (processed.Add(enumSymbol)) ProcessEnum(model, enumSymbol);
+                    break;
             }
+        }
+
+        private void ProcessEnum(SemanticModel model, INamedTypeSymbol symbol)
+        {
+            // Enums are processed as integer types in the Neo VM
+            // No additional processing is needed here as the enum values are handled
+            // during expression conversion in the MethodConvert class
         }
 
         private void ProcessClass(SemanticModel model, INamedTypeSymbol symbol)
