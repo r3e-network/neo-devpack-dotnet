@@ -773,5 +773,64 @@ namespace Neo.Optimizer
                 jumpSourceToTargets, trySourceToTargets,
                 oldAddressToInstruction);
         }
+        /// <summary>
+        /// PUSH0 SUB -> NEGATE
+        /// </summary>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
+        /// <returns></returns>
+        [Strategy(Priority = 1 << 9)]
+        public static (NefFile, ContractManifest, JObject?) UsePush0Sub(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+        {
+            ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
+            InstructionCoverage oldContractCoverage = contractInBasicBlocks.coverage;
+            Dictionary<int, Instruction> oldAddressToInstruction = oldContractCoverage.addressToInstructions;
+            (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+                Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+                Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+                (oldContractCoverage.jumpInstructionSourceToTargets,
+                oldContractCoverage.tryInstructionSourceToTargets,
+                oldContractCoverage.jumpTargetToSources);
+            Dictionary<int, int> oldSequencePointAddressToNew = new();
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
+            int currentAddress = 0;
+            foreach ((int oldStartAddr, List<Instruction> basicBlock) in contractInBasicBlocks.sortedListInstructions)
+            {
+                int oldAddr = oldStartAddr;
+                for (int index = 0; index < basicBlock.Count; index++)
+                {
+                    if (index + 1 < basicBlock.Count)
+                    {
+                        Instruction current = basicBlock[index];
+                        Instruction next = basicBlock[index + 1];
+                        if ((OpCodeTypes.pushInt.Contains(current.OpCode)
+                         && new System.Numerics.BigInteger(current.Operand.Span) == 0
+                         || current.OpCode == OpCode.PUSH0)
+                         && next.OpCode == OpCode.SUB)
+                        {
+                            Instruction negate = new Script(new byte[] { (byte)OpCode.NEGATE }).GetInstruction(0);
+                            simplifiedInstructionsToAddress.Add(negate, currentAddress);
+                            oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                            oldAddr += current.Size;
+                            oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                            oldAddr += next.Size;
+                            currentAddress += negate.Size;
+                            index += 1;
+                            OptimizedScriptBuilder.RetargetJump(current, negate,
+                                jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                            continue;
+                        }
+                    }
+                    simplifiedInstructionsToAddress.Add(basicBlock[index], currentAddress);
+                    currentAddress += basicBlock[index].Size;
+                    oldAddr += basicBlock[index].Size;
+                }
+            }
+            return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+                simplifiedInstructionsToAddress,
+                jumpSourceToTargets, trySourceToTargets,
+                oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
+        }
     }
 }
