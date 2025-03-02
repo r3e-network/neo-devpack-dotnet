@@ -925,5 +925,145 @@ namespace Neo.Optimizer
                 jumpSourceToTargets, trySourceToTargets,
                 oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
         }
+
+        /// <summary>
+        /// LDLOC STLOC with same index -> No operation (remove both)
+        /// </summary>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
+        /// <returns></returns>
+        [Strategy(Priority = 1 << 10)]
+        public static (NefFile, ContractManifest, JObject?) OptimizeRedundantLocalOps(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+        {
+            ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
+            InstructionCoverage oldContractCoverage = contractInBasicBlocks.coverage;
+            Dictionary<int, Instruction> oldAddressToInstruction = oldContractCoverage.addressToInstructions;
+            (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+                Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+                Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+                (oldContractCoverage.jumpInstructionSourceToTargets,
+                oldContractCoverage.tryInstructionSourceToTargets,
+                oldContractCoverage.jumpTargetToSources);
+            Dictionary<int, int> oldSequencePointAddressToNew = new();
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
+            int currentAddress = 0;
+            foreach ((int oldStartAddr, List<Instruction> basicBlock) in contractInBasicBlocks.sortedListInstructions)
+            {
+                int oldAddr = oldStartAddr;
+                for (int index = 0; index < basicBlock.Count; index++)
+                {
+                    if (index + 1 < basicBlock.Count)
+                    {
+                        Instruction current = basicBlock[index];
+                        Instruction next = basicBlock[index + 1];
+                        
+                        // Check if we have LDLOC followed by STLOC with the same index
+                        if (OpCodeTypes.loadLocalVariables.Contains(current.OpCode) && 
+                            OpCodeTypes.storeLocalVariables.Contains(next.OpCode))
+                        {
+                            byte loadIndex = OpCodeTypes.SlotIndex(current);
+                            byte storeIndex = OpCodeTypes.SlotIndex(next);
+                            
+                            if (loadIndex == storeIndex)
+                            {
+                                // Skip both instructions - they're redundant
+                                oldAddr += current.Size + next.Size;
+                                index += 1;
+                                
+                                // If there are jumps to these instructions, retarget them
+                                if (!oldAddressToInstruction.TryGetValue(oldAddr, out Instruction? nextInstruction))
+                                {
+                                    nextInstruction = Instruction.RET;
+                                    simplifiedInstructionsToAddress.Add(nextInstruction, currentAddress);
+                                    currentAddress += nextInstruction.Size;
+                                }
+                                
+                                OptimizedScriptBuilder.RetargetJump(current, nextInstruction,
+                                    jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                                continue;
+                            }
+                        }
+                    }
+                    simplifiedInstructionsToAddress.Add(basicBlock[index], currentAddress);
+                    currentAddress += basicBlock[index].Size;
+                    oldAddr += basicBlock[index].Size;
+                }
+            }
+            return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+                simplifiedInstructionsToAddress,
+                jumpSourceToTargets, trySourceToTargets,
+                oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
+        }
+
+        /// <summary>
+        /// LDARG STARG with same index -> No operation (remove both)
+        /// </summary>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
+        /// <returns></returns>
+        [Strategy(Priority = 1 << 10)]
+        public static (NefFile, ContractManifest, JObject?) OptimizeRedundantArgOps(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+        {
+            ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
+            InstructionCoverage oldContractCoverage = contractInBasicBlocks.coverage;
+            Dictionary<int, Instruction> oldAddressToInstruction = oldContractCoverage.addressToInstructions;
+            (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+                Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+                Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+                (oldContractCoverage.jumpInstructionSourceToTargets,
+                oldContractCoverage.tryInstructionSourceToTargets,
+                oldContractCoverage.jumpTargetToSources);
+            Dictionary<int, int> oldSequencePointAddressToNew = new();
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
+            int currentAddress = 0;
+            foreach ((int oldStartAddr, List<Instruction> basicBlock) in contractInBasicBlocks.sortedListInstructions)
+            {
+                int oldAddr = oldStartAddr;
+                for (int index = 0; index < basicBlock.Count; index++)
+                {
+                    if (index + 1 < basicBlock.Count)
+                    {
+                        Instruction current = basicBlock[index];
+                        Instruction next = basicBlock[index + 1];
+                        
+                        // Check if we have LDARG followed by STARG with the same index
+                        if (OpCodeTypes.loadArguments.Contains(current.OpCode) && 
+                            OpCodeTypes.storeArguments.Contains(next.OpCode))
+                        {
+                            byte loadIndex = OpCodeTypes.SlotIndex(current);
+                            byte storeIndex = OpCodeTypes.SlotIndex(next);
+                            
+                            if (loadIndex == storeIndex)
+                            {
+                                // Skip both instructions - they're redundant
+                                oldAddr += current.Size + next.Size;
+                                index += 1;
+                                
+                                // If there are jumps to these instructions, retarget them
+                                if (!oldAddressToInstruction.TryGetValue(oldAddr, out Instruction? nextInstruction))
+                                {
+                                    nextInstruction = Instruction.RET;
+                                    simplifiedInstructionsToAddress.Add(nextInstruction, currentAddress);
+                                    currentAddress += nextInstruction.Size;
+                                }
+                                
+                                OptimizedScriptBuilder.RetargetJump(current, nextInstruction,
+                                    jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                                continue;
+                            }
+                        }
+                    }
+                    simplifiedInstructionsToAddress.Add(basicBlock[index], currentAddress);
+                    currentAddress += basicBlock[index].Size;
+                    oldAddr += basicBlock[index].Size;
+                }
+            }
+            return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+                simplifiedInstructionsToAddress,
+                jumpSourceToTargets, trySourceToTargets,
+                oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
+        }
     }
 }
