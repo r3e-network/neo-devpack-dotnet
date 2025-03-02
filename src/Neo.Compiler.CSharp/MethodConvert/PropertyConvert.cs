@@ -55,6 +55,7 @@ internal partial class MethodConvert
                     AccessSlot(OpCode.LDSFLD, backingFieldIndex);
                     break;
                 case MethodKind.PropertySet:
+                case MethodKind.PropertyInit:
                     if (!_inline) AccessSlot(OpCode.LDARG, 0);
                     AccessSlot(OpCode.STSFLD, backingFieldIndex);
                     break;
@@ -74,6 +75,7 @@ internal partial class MethodConvert
                     AddInstruction(OpCode.PICKITEM);
                     break;
                 case MethodKind.PropertySet:
+                case MethodKind.PropertyInit:
                     if (_inline)
                     {
                         Push(backingFieldIndex);

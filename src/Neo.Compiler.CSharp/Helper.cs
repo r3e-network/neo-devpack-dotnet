@@ -150,7 +150,7 @@ namespace Neo.Compiler
             {
                 (AttributeData? attribute, i) = i switch
                 {
-                    IMethodSymbol s => (s.GetAttributesWithInherited().FirstOrDefault(p => p.AttributeClass?.Name == name), s.MethodKind == MethodKind.PropertyGet || s.MethodKind == MethodKind.PropertySet ? s.AssociatedSymbol : s.ContainingSymbol),
+                    IMethodSymbol s => (s.GetAttributesWithInherited().FirstOrDefault(p => p.AttributeClass?.Name == name), s.MethodKind == MethodKind.PropertyGet || s.MethodKind == MethodKind.PropertySet || s.MethodKind == MethodKind.PropertyInit ? s.AssociatedSymbol : s.ContainingSymbol),
                     IPropertySymbol s => (s.GetAttributesWithInherited().FirstOrDefault(p => p.AttributeClass?.Name == name), s.ContainingSymbol),
                     INamedTypeSymbol s => (s.GetAttributesWithInherited().FirstOrDefault(p => p.AttributeClass?.Name == name), s.ContainingSymbol),
                     _ => (i.GetAttributes().FirstOrDefault(p => p.AttributeClass?.Name == name), i.ContainingSymbol),
@@ -337,6 +337,8 @@ namespace Neo.Compiler
                         break;
                     case MethodKind.PropertySet:
                         return "set" + symbol.Name[4..];
+                    case MethodKind.PropertyInit:
+                        return "init" + symbol.Name[4..];
                     case MethodKind.StaticConstructor:
                         return "_initialize";
                 }

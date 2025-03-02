@@ -537,7 +537,7 @@ namespace Neo.Compiler
             {
                 if (symbol.DeclaredAccessibility != Accessibility.Public)
                     export = false;
-                if (symbol.MethodKind != MethodKind.Ordinary && symbol.MethodKind != MethodKind.PropertyGet && symbol.MethodKind != MethodKind.PropertySet)
+                if (symbol.MethodKind != MethodKind.Ordinary && symbol.MethodKind != MethodKind.PropertyGet && symbol.MethodKind != MethodKind.PropertySet && symbol.MethodKind != MethodKind.PropertyInit)
                     return;
             }
             if (export)
