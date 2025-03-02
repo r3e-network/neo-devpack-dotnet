@@ -78,6 +78,35 @@ namespace Neo.Compiler
         /// <param name="engine"> CompilationEngine that contains the compilation syntax tree and compiled methods</param>
         /// <param name="targetContract">Contract to be compiled</param>
         /// <param name="nonDependencies">Classes that is not supposed to be compiled into current target contract.</param>
+        /// <summary>
+        /// Validates input parameters to ensure they meet security requirements.
+        /// </summary>
+        /// <param name="contractName">The name of the contract to validate.</param>
+        /// <param name="supportedStandards">The list of supported standards to validate.</param>
+        /// <exception cref="CompilationException">Thrown when validation fails.</exception>
+        private void ValidateInput(string? contractName, IEnumerable<string>? supportedStandards)
+        {
+            // Validate contract name
+            if (string.IsNullOrEmpty(contractName))
+                throw new CompilationException(null, DiagnosticId.InvalidArgument, "Contract name cannot be null or empty");
+            
+            if (contractName.Length > 128)
+                throw new CompilationException(null, DiagnosticId.InvalidArgument, "Contract name cannot exceed 128 characters");
+            
+            // Validate supported standards
+            if (supportedStandards == null)
+                throw new CompilationException(null, DiagnosticId.InvalidArgument, "Supported standards cannot be null");
+            
+            foreach (var standard in supportedStandards)
+            {
+                if (string.IsNullOrEmpty(standard))
+                    throw new CompilationException(null, DiagnosticId.InvalidArgument, "Standard name cannot be null or empty");
+                
+                if (standard.Length > 32)
+                    throw new CompilationException(null, DiagnosticId.InvalidArgument, "Standard name cannot exceed 32 characters");
+            }
+        }
+
         internal CompilationContext(CompilationEngine engine, INamedTypeSymbol targetContract, System.Collections.Generic.List<INamedTypeSymbol>? nonDependencies = null)
         {
             _engine = engine;
@@ -237,6 +266,9 @@ namespace Neo.Compiler
 
         public ContractManifest CreateManifest()
         {
+            // Validate contract name and supported standards before creating the manifest
+            ValidateInput(ContractName, _supportedStandards);
+            
             JObject json = new()
             {
                 ["name"] = ContractName,
