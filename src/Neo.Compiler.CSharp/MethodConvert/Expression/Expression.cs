@@ -154,6 +154,10 @@ internal partial class MethodConvert
                 // Example: ++x
                 ConvertPrefixUnaryExpression(model, expression);
                 break;
+            case RefExpressionSyntax expression:
+                // Example: ref myVariable
+                ConvertRefExpression(model, expression);
+                break;
             case SwitchExpressionSyntax expression:
                 // Example: x switch { 1 => "One", 2 => "Two", _ => "Other" }
                 ConvertSwitchExpression(model, expression);
@@ -197,6 +201,10 @@ internal partial class MethodConvert
                 // will only return the string name of the class/type. This support is added
                 // to ensure we can process enum parse methods.
                 ConvertTypeOfExpression(model, expression);
+                break;
+            case NameOfExpressionSyntax expression:
+                // Example: nameof(myVariable)
+                ConvertNameOfExpression(model, expression);
                 break;
             default:
                 throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {syntax}");

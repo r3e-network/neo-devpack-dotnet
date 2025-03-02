@@ -41,15 +41,35 @@ namespace Neo.Compiler
         private void ConvertLocalDeclarationStatement(SemanticModel model, LocalDeclarationStatementSyntax syntax)
         {
             if (syntax.IsConst) return;
+            
+            // Check if this is a ref local declaration
+            bool isRef = syntax.Declaration.Type.IsRef;
+            
             foreach (VariableDeclaratorSyntax variable in syntax.Declaration.Variables)
             {
                 ILocalSymbol symbol = (ILocalSymbol)model.GetDeclaredSymbol(variable)!;
-                byte variableIndex = AddLocalVariable(symbol);
+                
+                // Handle ref local variables differently
+                byte variableIndex = isRef ? AddRefLocalVariable(symbol) : AddLocalVariable(symbol);
+                
                 if (variable.Initializer is not null)
                     using (InsertSequencePoint(variable))
                     {
-                        ConvertExpression(model, variable.Initializer.Value);
-                        AccessSlot(OpCode.STLOC, variableIndex);
+                        if (isRef)
+                        {
+                            // For ref locals, we need to store the address of the referenced variable
+                            // First, convert the expression to get the address
+                            ConvertExpression(model, variable.Initializer.Value);
+                            
+                            // Store the address in the ref local variable
+                            AccessSlot(OpCode.STLOC, variableIndex);
+                        }
+                        else
+                        {
+                            // Regular local variable initialization
+                            ConvertExpression(model, variable.Initializer.Value);
+                            AccessSlot(OpCode.STLOC, variableIndex);
+                        }
                     }
             }
         }

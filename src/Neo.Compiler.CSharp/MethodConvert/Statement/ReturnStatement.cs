@@ -45,7 +45,22 @@ namespace Neo.Compiler
             {
                 if (syntax.Expression is not null)
                 {
-                    ConvertExpression(model, syntax.Expression);
+                    // Check if this is a ref return
+                    bool isRefReturn = Symbol.ReturnsByRef || Symbol.ReturnsByRefReadonly;
+                    
+                    if (isRefReturn)
+                    {
+                        // Mark the method as having a ref return
+                        SetRefReturn();
+                        
+                        // For ref returns, we need to return the address of the referenced variable
+                        ConvertExpression(model, syntax.Expression);
+                    }
+                    else
+                    {
+                        // Regular return, convert the expression normally
+                        ConvertExpression(model, syntax.Expression);
+                    }
                 }
 
                 // The following case is not considered:

@@ -146,9 +146,22 @@ internal partial class MethodConvert
             CapturedLocalSymbols.Add(local);
             return AccessSlot(OpCode.LDSFLD, staticIndex);
         }
-        // local variables in current method
-        var index = _localVariables[local];
-        return AccessSlot(OpCode.LDLOC, index);
+        
+        // Check if this is a ref local variable
+        if (IsRefVariable(local))
+        {
+            // For ref locals, we need to load the value at the address
+            // First, get the address stored in the ref local
+            var index = _localVariables[local];
+            AddInstruction(AccessSlot(OpCode.LDLOC, index));
+            
+            // Then, load the value at that address
+            return AddInstruction(OpCode.LDIND);
+        }
+        
+        // Regular local variables in current method
+        var regularIndex = _localVariables[local];
+        return AccessSlot(OpCode.LDLOC, regularIndex);
     }
 
     /// <summary>
@@ -173,8 +186,23 @@ internal partial class MethodConvert
             CapturedLocalSymbols.Add(local);
             return AccessSlot(OpCode.STSFLD, staticIndex);
         }
-        var index = _localVariables[local];
-        return AccessSlot(OpCode.STLOC, index);
+        
+        // Check if this is a ref local variable
+        if (IsRefVariable(local))
+        {
+            // For ref locals, we need to store the value at the address
+            // First, get the address stored in the ref local
+            var index = _localVariables[local];
+            AddInstruction(AccessSlot(OpCode.LDLOC, index));
+            
+            // Then, store the value at that address
+            // The value to store should already be on the stack
+            return AddInstruction(OpCode.STIND);
+        }
+        
+        // Regular local variables
+        var regularIndex = _localVariables[local];
+        return AccessSlot(OpCode.STLOC, regularIndex);
     }
 
     private Instruction AccessSlot(OpCode opcode, byte index)
