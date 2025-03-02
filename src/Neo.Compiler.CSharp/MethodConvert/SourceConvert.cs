@@ -110,13 +110,42 @@ internal partial class MethodConvert
         if (Symbol.MethodKind == MethodKind.Constructor && Symbol.ContainingType.IsRecord)
         {
             _initSlot = true;
-            IFieldSymbol[] fields = Symbol.ContainingType.GetFields();
-            for (byte i = 1; i <= fields.Length; i++)
+            
+            // For positional records, initialize properties from constructor parameters
+            if (recordDeclarationSyntax.ParameterList != null)
             {
-                AddInstruction(OpCode.LDARG0);
-                Push(i - 1);
-                AccessSlot(OpCode.LDARG, i);
-                AddInstruction(OpCode.SETITEM);
+                // Get the parameters from the record declaration
+                var parameters = recordDeclarationSyntax.ParameterList.Parameters;
+                
+                // Initialize each property from the corresponding parameter
+                for (byte i = 0; i < parameters.Count; i++)
+                {
+                    byte paramIndex = (byte)(i + 1); // Parameter indices start at 1 (0 is 'this')
+                    
+                    // Load the instance ('this')
+                    AddInstruction(OpCode.LDARG0);
+                    
+                    // Load the property index
+                    Push(i);
+                    
+                    // Load the parameter value
+                    AccessSlot(OpCode.LDARG, paramIndex);
+                    
+                    // Set the property value
+                    AddInstruction(OpCode.SETITEM);
+                }
+            }
+            // For non-positional records, initialize fields from constructor parameters
+            else
+            {
+                IFieldSymbol[] fields = Symbol.ContainingType.GetFields();
+                for (byte i = 1; i <= fields.Length; i++)
+                {
+                    AddInstruction(OpCode.LDARG0);
+                    Push(i - 1);
+                    AccessSlot(OpCode.LDARG, i);
+                    AddInstruction(OpCode.SETITEM);
+                }
             }
         }
     }
