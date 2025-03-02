@@ -774,4 +774,41 @@ namespace Neo.Optimizer
                 oldAddressToInstruction);
         }
     }
+
+    /// <summary>
+    /// Checks if an arithmetic operation between two BigInteger values would cause an overflow.
+    /// </summary>
+    /// <param name="a">The first BigInteger operand.</param>
+    /// <param name="b">The second BigInteger operand.</param>
+    /// <param name="operation">The operation to perform: "add", "sub", "mul", or "div".</param>
+    /// <returns>True if the operation would cause an overflow, false otherwise.</returns>
+    private static bool IsOverflow(System.Numerics.BigInteger a, System.Numerics.BigInteger b, string operation)
+    {
+        try
+        {
+            switch (operation)
+            {
+                case "add":
+                    _ = checked(a + b);
+                    break;
+                case "sub":
+                    _ = checked(a - b);
+                    break;
+                case "mul":
+                    _ = checked(a * b);
+                    break;
+                case "div":
+                    if (b == 0) return true; // Division by zero
+                    _ = checked(a / b);
+                    break;
+                default:
+                    return false;
+            }
+            return false;
+        }
+        catch (System.OverflowException)
+        {
+            return true;
+        }
+    }
 }
