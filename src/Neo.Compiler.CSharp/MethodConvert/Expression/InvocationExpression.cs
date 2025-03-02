@@ -18,6 +18,7 @@ using Neo.SmartContract;
 using Neo.VM;
 using System;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Neo.Compiler;
 
@@ -75,6 +76,22 @@ internal partial class MethodConvert
     /// </example>
     private void ConvertMethodInvocationExpression(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax expression, ArgumentSyntax[] arguments)
     {
+        // Check if this is an extension method call using instance syntax
+        if (symbol.IsExtensionMethod && expression is MemberAccessExpressionSyntax syntax)
+        {
+            // Get the original (non-reduced) extension method
+            IMethodSymbol originalMethod = symbol.ReducedFrom ?? symbol;
+            
+            // For extension methods called with instance syntax, we need to:
+            // 1. Get the instance expression (which becomes the first argument)
+            // 2. Call the static method with the instance expression as the first argument
+            
+            // Call the static method with the instance expression as the first argument
+            CallMethodWithInstanceExpression(model, originalMethod, syntax.Expression, arguments);
+            return;
+        }
+        
+        // Handle regular method calls
         switch (expression)
         {
             case IdentifierNameSyntax:
