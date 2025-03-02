@@ -774,4 +774,140 @@ namespace Neo.Optimizer
                 oldAddressToInstruction);
         }
     }
+
+    /// <summary>
+    /// Optimizes collection operations by pre-allocating collections with known size and
+    /// batching operations to minimize expensive OpCodes like APPEND (cost: 8192) and SETITEM (cost: 8192).
+    /// </summary>
+    /// <param name="nef">Nef file</param>
+    /// <param name="manifest">Manifest</param>
+    /// <param name="debugInfo">Debug information</param>
+    /// <returns></returns>
+    [Strategy(Priority = 1 << 8)]
+    public static (NefFile, ContractManifest, JObject?) OptimizeCollectionOperations(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+    {
+        ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
+        InstructionCoverage oldContractCoverage = contractInBasicBlocks.coverage;
+        Dictionary<int, Instruction> oldAddressToInstruction = oldContractCoverage.addressToInstructions;
+        (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+            Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+            Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+            (oldContractCoverage.jumpInstructionSourceToTargets,
+            oldContractCoverage.tryInstructionSourceToTargets,
+            oldContractCoverage.jumpTargetToSources);
+        Dictionary<int, int> oldSequencePointAddressToNew = new();
+        System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
+        int currentAddress = 0;
+        
+        foreach ((int oldStartAddr, List<Instruction> basicBlock) in contractInBasicBlocks.sortedListInstructions)
+        {
+            int oldAddr = oldStartAddr;
+            for (int index = 0; index < basicBlock.Count; index++)
+            {
+                // Pattern 1: NEWARRAY0 followed by multiple APPEND operations
+                // Optimize to: PUSH<size> NEWARRAY_T followed by SETITEM operations
+                if (index + 2 < basicBlock.Count &&
+                    (basicBlock[index].OpCode == OpCode.NEWARRAY0 || 
+                     basicBlock[index].OpCode == OpCode.NEWSTRUCT0))
+                {
+                    // Count consecutive APPEND operations
+                    int appendCount = 0;
+                    int startIndex = index + 1;
+                    
+                    // Collect all consecutive APPEND operations
+                    while (startIndex + appendCount < basicBlock.Count && 
+                           basicBlock[startIndex + appendCount].OpCode == OpCode.APPEND)
+                    {
+                        appendCount++;
+                    }
+                    
+                    // If we found at least 2 APPEND operations, optimize
+                    if (appendCount >= 2)
+                    {
+                        // Create a new array with the known size
+                        OpCode newArrayOpCode = basicBlock[index].OpCode == OpCode.NEWARRAY0 ? 
+                                               OpCode.NEWARRAY : OpCode.NEWSTRUCT;
+                        
+                        // Push the size
+                        Push(appendCount, simplifiedInstructionsToAddress, ref currentAddress, ref oldAddr);
+                        
+                        // Create the array
+                        Instruction newArray = new Script(new byte[] { (byte)newArrayOpCode }).GetInstruction(0);
+                        simplifiedInstructionsToAddress.Add(newArray, currentAddress);
+                        oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                        oldAddr += basicBlock[index].Size;
+                        currentAddress += newArray.Size;
+                        
+                        // Add SETITEM operations for each value
+                        for (int i = 0; i < appendCount; i++)
+                        {
+                            // DUP the array reference
+                            Instruction dup = new Script(new byte[] { (byte)OpCode.DUP }).GetInstruction(0);
+                            simplifiedInstructionsToAddress.Add(dup, currentAddress);
+                            currentAddress += dup.Size;
+                            
+                            // Push the index
+                            Push(i, simplifiedInstructionsToAddress, ref currentAddress, ref oldAddr);
+                            
+                            // Skip the APPEND instruction and add the value instruction
+                            oldAddr += basicBlock[startIndex + i].Size;
+                            
+                            // Add SETITEM
+                            Instruction setItem = new Script(new byte[] { (byte)OpCode.SETITEM }).GetInstruction(0);
+                            simplifiedInstructionsToAddress.Add(setItem, currentAddress);
+                            currentAddress += setItem.Size;
+                        }
+                        
+                        // Skip the original instructions
+                        index += appendCount;
+                        
+                        // Retarget any jumps to the first instruction
+                        OptimizedScriptBuilder.RetargetJump(basicBlock[index], newArray,
+                            jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                        
+                        continue;
+                    }
+                }
+                
+                // Pattern 2: Multiple consecutive SETITEM operations on the same array
+                // This could be optimized in the future
+                
+                // If no optimization applied, keep the original instruction
+                simplifiedInstructionsToAddress.Add(basicBlock[index], currentAddress);
+                currentAddress += basicBlock[index].Size;
+                oldAddr += basicBlock[index].Size;
+            }
+        }
+        
+        return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+            simplifiedInstructionsToAddress,
+            jumpSourceToTargets, trySourceToTargets,
+            oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
+    }
+    
+    // Helper method to push integer values onto the stack
+    private static void Push(int value, System.Collections.Specialized.OrderedDictionary instructions, ref int currentAddress, ref int oldAddr)
+    {
+        Instruction pushInstruction;
+        
+        if (value == 0)
+            pushInstruction = new Script(new byte[] { (byte)OpCode.PUSH0 }).GetInstruction(0);
+        else if (value == 1)
+            pushInstruction = new Script(new byte[] { (byte)OpCode.PUSH1 }).GetInstruction(0);
+        else if (value == -1)
+            pushInstruction = new Script(new byte[] { (byte)OpCode.PUSHM1 }).GetInstruction(0);
+        else if (value >= 2 && value <= 16)
+            pushInstruction = new Script(new byte[] { (byte)((byte)OpCode.PUSH2 + (byte)value - 2) }).GetInstruction(0);
+        else
+        {
+            byte[] bytes = System.Numerics.BigInteger.Parse(value.ToString()).ToByteArray();
+            byte[] pushIntBytes = new byte[1 + bytes.Length];
+            pushIntBytes[0] = (byte)OpCode.PUSHINT;
+            Array.Copy(bytes, 0, pushIntBytes, 1, bytes.Length);
+            pushInstruction = new Script(pushIntBytes).GetInstruction(0);
+        }
+        
+        instructions.Add(pushInstruction, currentAddress);
+        currentAddress += pushInstruction.Size;
+    }
 }
