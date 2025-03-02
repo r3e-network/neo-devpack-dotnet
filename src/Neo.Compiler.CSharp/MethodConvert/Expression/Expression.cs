@@ -198,6 +198,10 @@ internal partial class MethodConvert
                 // to ensure we can process enum parse methods.
                 ConvertTypeOfExpression(model, expression);
                 break;
+            case NameOfExpressionSyntax expression:
+                // Example: nameof(myVariable)
+                ConvertNameOfExpression(model, expression);
+                break;
             default:
                 throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {syntax}");
         }
