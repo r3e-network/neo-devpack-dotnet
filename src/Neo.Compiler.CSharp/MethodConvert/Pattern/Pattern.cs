@@ -79,8 +79,20 @@ internal partial class MethodConvert
             case ParenthesizedPatternSyntax parenthesizedPattern:
                 ConvertParenthesizedPatternSyntax(model, parenthesizedPattern, localIndex);
                 break;
+            //Convert recursive pattern to OpCodes.
+            //Example: if (person is { Name: "John", Age: > 18 })
             case RecursivePatternSyntax recursivePattern:
                 ConvertRecursivePattern(model, recursivePattern, localIndex);
+                break;
+            //Convert list pattern to OpCodes.
+            //Example: if (array is [1, 2, 3])
+            case ListPatternSyntax listPattern:
+                ConvertListPattern(model, listPattern, localIndex);
+                break;
+            //Convert slice pattern to OpCodes.
+            //Example: if (array is [1, 2, ..])
+            case SlicePatternSyntax slicePattern:
+                ConvertSlicePattern(model, slicePattern, localIndex);
                 break;
             default:
                 //Example:
