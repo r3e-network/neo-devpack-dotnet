@@ -64,6 +64,8 @@ namespace Neo.Compiler
         private readonly Stack<byte> _exceptionStack = new();
         private readonly Stack<(SwitchLabelSyntax, JumpTarget)[]> _switchStack = new();
         private readonly Stack<bool> _checkedStack = new();
+        // Dictionary to store local functions for the current method
+        private Dictionary<string, JumpTarget> _localFunctions;
 
         #endregion
 

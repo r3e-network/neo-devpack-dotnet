@@ -151,8 +151,10 @@ namespace Neo.Compiler
                 case LocalDeclarationStatementSyntax syntax:
                     ConvertLocalDeclarationStatement(model, syntax);
                     break;
-                // Currently, local function statements are not supported in this context.
-                case LocalFunctionStatementSyntax:
+                // Converts a local function statement, which is a method declared within another method.
+                // Example: int Add(int a, int b) { return a + b; }
+                case LocalFunctionStatementSyntax syntax:
+                    ConvertLocalFunctionStatement(model, syntax);
                     break;
                 // Converts a return statement, used to exit a method and optionally return a value.
                 // Example: return x + y;

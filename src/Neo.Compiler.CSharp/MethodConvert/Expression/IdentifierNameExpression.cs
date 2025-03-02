@@ -46,7 +46,21 @@ internal partial class MethodConvert
     /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/identifier-names">C# identifier naming rules and conventions</seealso>
     private void ConvertIdentifierNameExpression(SemanticModel model, IdentifierNameSyntax expression)
     {
-        ISymbol symbol = model.GetSymbolInfo(expression).Symbol!;
+        ISymbol symbol = model.GetSymbolInfo(expression).Symbol;
+        if (symbol == null)
+        {
+            // Check if this is a local function call
+            string identifierName = expression.Identifier.Text;
+            if (_localFunctions != null && _localFunctions.TryGetValue(identifierName, out JumpTarget target))
+            {
+                // Jump to the local function
+                AddInstruction(OpCode.CALL, target);
+                return;
+            }
+                
+            throw new CompilationException(expression, DiagnosticId.SymbolUnknown, $"The name '{expression}' does not exist in the current context");
+        }
+
         switch (symbol)
         {
             case IFieldSymbol field:
