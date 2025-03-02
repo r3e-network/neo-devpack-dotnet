@@ -576,6 +576,29 @@ internal partial class MethodConvert
         #region BigMul
         RegisterHandler((int x, int y) => Math.BigMul(x, y), HandleMathBigMul);
         #endregion BigMul
+        
+        #region Trigonometric Functions
+        // Sin functions
+        RegisterHandler((double x) => Math.Sin(x), HandleMathSin);
+        RegisterHandler((float x) => MathF.Sin(x), HandleMathSin);
+        RegisterHandler((int x) => Math.Sin(x), HandleMathSin);
+        RegisterHandler((long x) => Math.Sin(x), HandleMathSin);
+        RegisterHandler((BigInteger x) => Math.Sin((double)x), HandleMathSin);
+        
+        // Cos functions
+        RegisterHandler((double x) => Math.Cos(x), HandleMathCos);
+        RegisterHandler((float x) => MathF.Cos(x), HandleMathCos);
+        RegisterHandler((int x) => Math.Cos(x), HandleMathCos);
+        RegisterHandler((long x) => Math.Cos(x), HandleMathCos);
+        RegisterHandler((BigInteger x) => Math.Cos((double)x), HandleMathCos);
+        
+        // Tan functions
+        RegisterHandler((double x) => Math.Tan(x), HandleMathTan);
+        RegisterHandler((float x) => MathF.Tan(x), HandleMathTan);
+        RegisterHandler((int x) => Math.Tan(x), HandleMathTan);
+        RegisterHandler((long x) => Math.Tan(x), HandleMathTan);
+        RegisterHandler((BigInteger x) => Math.Tan((double)x), HandleMathTan);
+        #endregion Trigonometric Functions
     }
 
     private static void RegisterStringHandlers()
