@@ -14,6 +14,7 @@
         <ContentTargetFolders>content</ContentTargetFolders>
         <Nullable>enable</Nullable>
         <NoWarn>$(NoWarn);NU5128</NoWarn>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -25,6 +26,10 @@
     <ItemGroup>
       <ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
       <ProjectReference Include="..\Neo.Disassembler.CSharp\Neo.Disassembler.CSharp.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>

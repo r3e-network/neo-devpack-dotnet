@@ -24,6 +24,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,6 +34,10 @@
 
   <ItemGroup>
     <ProjectReference Include="../Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>

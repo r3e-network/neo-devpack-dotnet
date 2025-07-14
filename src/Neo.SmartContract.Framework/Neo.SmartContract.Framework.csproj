@@ -10,6 +10,7 @@
     <Description>R3E.SmartContract.Framework</Description>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +18,10 @@
       <Pack>true</Pack>
       <PackagePath>src</PackagePath>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>

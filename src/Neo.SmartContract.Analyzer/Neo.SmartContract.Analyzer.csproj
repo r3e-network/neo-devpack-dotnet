@@ -8,10 +8,10 @@
     <IsRoslynComponent>true</IsRoslynComponent>
     <RootNamespace>Neo.SmartContract.Analyzer</RootNamespace>
     <PackageId>R3E.SmartContract.Analyzer</PackageId>
-    <PackAsTool>true</PackAsTool>
     <PackageTags>NEO;Blockchain;Smart Contract;Analyzer</PackageTags>
     <Product>R3E.SmartContract.Analyzer.CSharp</Product>
     <Description>R3E.SmartContract.Analyzer.CSharp</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,5 +28,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>

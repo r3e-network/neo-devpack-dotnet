@@ -22,6 +22,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -36,6 +37,10 @@
     <PackageReference Include="Neo.Json" Version="3.8.2" />
     <PackageReference Include="Neo.VM" Version="3.8.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
