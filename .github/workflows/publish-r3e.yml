@@ -90,15 +90,24 @@ jobs:
         for package in ./nupkgs/R3E*.nupkg; do
           if [[ ! "$package" =~ \.snupkg$ ]]; then
             echo "Publishing $package..."
-            if dotnet nuget push "$package" \
+            
+            # Capture output and exit code separately
+            if output=$(dotnet nuget push "$package" \
               --source https://api.nuget.org/v3/index.json \
               --api-key ${{ secrets.NUGET }} \
-              --skip-duplicate; then
+              --skip-duplicate 2>&1); then
               echo "✓ Successfully published $package"
               ((SUCCESS_COUNT++))
             else
-              echo "✗ Failed to publish $package"
-              ((FAIL_COUNT++))
+              exit_code=$?
+              if [[ "$output" == *"already exists"* ]]; then
+                echo "ℹ Package $package already exists (skipped)"
+                ((SUCCESS_COUNT++))
+              else
+                echo "✗ Failed to publish $package"
+                echo "Error output: $output"
+                ((FAIL_COUNT++))
+              fi
             fi
             echo ""
           fi
