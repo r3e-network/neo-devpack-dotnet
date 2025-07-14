@@ -5,6 +5,7 @@ on:
   push:
     tags:
       - 'v*.*.*-r3e'
+      - 'v*.*.*-r3e-*'
 
 jobs:
   publish:
@@ -23,17 +24,99 @@ jobs:
     - name: Build
       run: dotnet build -c Release
 
-    - name: Pack
-      run: dotnet pack -c Release --no-build -o ./nupkgs
+    - name: Pack all projects
+      run: |
+        echo "Packing all R3E packages..."
+        dotnet pack -c Release --no-build -o ./nupkgs
+        
+        echo "Listing all generated packages:"
+        ls -la ./nupkgs/R3E*.nupkg || echo "No R3E packages found!"
+        
+        echo "Specifically checking for key packages:"
+        ls -la ./nupkgs/R3E.SmartContract.Deploy*.nupkg || echo "R3E.SmartContract.Deploy not found!"
+        ls -la ./nupkgs/R3E.Compiler.CSharp.Tool*.nupkg || echo "R3E.Compiler.CSharp.Tool not found!"
+        ls -la ./nupkgs/R3E.WebGUI.Deploy*.nupkg || echo "R3E.WebGUI.Deploy not found!"
+
+    - name: Pack specific projects if missing
+      run: |
+        # Ensure all critical packages are created
+        if [ ! -f "./nupkgs/R3E.SmartContract.Deploy.*.nupkg" ]; then
+          echo "Packing R3E.SmartContract.Deploy explicitly..."
+          dotnet pack src/Neo.SmartContract.Deploy/Neo.SmartContract.Deploy.csproj -c Release --no-build -o ./nupkgs
+        fi
+        
+        if [ ! -f "./nupkgs/R3E.Compiler.CSharp.Tool.*.nupkg" ]; then
+          echo "Packing R3E.Compiler.CSharp.Tool explicitly..."
+          dotnet pack src/Neo.Compiler.CSharp.Tool/Neo.Compiler.CSharp.Tool.csproj -c Release --no-build -o ./nupkgs
+        fi
+        
+        if [ ! -f "./nupkgs/R3E.WebGUI.Deploy.*.nupkg" ]; then
+          echo "Packing R3E.WebGUI.Deploy explicitly..."
+          dotnet pack src/R3E.WebGUI.Deploy/R3E.WebGUI.Deploy.csproj -c Release --no-build -o ./nupkgs
+        fi
+
+    - name: List all R3E packages to be published
+      run: |
+        echo "Final list of R3E packages to publish:"
+        ls -la ./nupkgs/R3E*.nupkg
+        echo "Total R3E packages: $(ls ./nupkgs/R3E*.nupkg | wc -l)"
 
     - name: Publish R3E packages to NuGet
       run: |
-        # Only push R3E packages, continue on error
-        for package in ./nupkgs/R3E*.nupkg; do
-          echo "Publishing $package..."
-          dotnet nuget push "$package" \
-            --source https://api.nuget.org/v3/index.json \
-            --api-key ${{ secrets.NUGET }} \
-            --skip-duplicate || echo "Failed to publish $package, continuing..."
+        # Publish all R3E packages with detailed logging
+        EXPECTED_PACKAGES=(
+          "R3E.Compiler.CSharp"
+          "R3E.Compiler.CSharp.Tool"
+          "R3E.Disassembler.CSharp"
+          "R3E.SmartContract.Analyzer"
+          "R3E.SmartContract.Deploy"
+          "R3E.SmartContract.Framework"
+          "R3E.SmartContract.Template"
+          "R3E.SmartContract.Testing"
+          "R3E.WebGUI.Deploy"
+          "R3E.WebGUI.Service"
+        )
+        
+        echo "Expected packages to publish:"
+        for pkg in "${EXPECTED_PACKAGES[@]}"; do
+          echo "  - $pkg"
         done
-        echo "Publishing complete. Check above for any failures."
+        
+        echo ""
+        echo "Publishing packages..."
+        SUCCESS_COUNT=0
+        FAIL_COUNT=0
+        
+        for package in ./nupkgs/R3E*.nupkg; do
+          if [[ ! "$package" =~ \.snupkg$ ]]; then
+            echo "Publishing $package..."
+            if dotnet nuget push "$package" \
+              --source https://api.nuget.org/v3/index.json \
+              --api-key ${{ secrets.NUGET }} \
+              --skip-duplicate; then
+              echo "✓ Successfully published $package"
+              ((SUCCESS_COUNT++))
+            else
+              echo "✗ Failed to publish $package"
+              ((FAIL_COUNT++))
+            fi
+            echo ""
+          fi
+        done
+        
+        echo "Publishing complete!"
+        echo "Successfully published: $SUCCESS_COUNT packages"
+        echo "Failed to publish: $FAIL_COUNT packages"
+        
+        # Check if all expected packages were found
+        for expected in "${EXPECTED_PACKAGES[@]}"; do
+          if ! ls ./nupkgs/${expected}.*.nupkg >/dev/null 2>&1; then
+            echo "WARNING: Expected package $expected was not found in output!"
+          fi
+        done
+        
+        # Fail if critical packages are missing
+        if [ ! -f "./nupkgs/R3E.SmartContract.Deploy."*.nupkg ]; then
+          echo "ERROR: R3E.SmartContract.Deploy package not found!"
+          exit 1
+        fi
