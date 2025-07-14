@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/r3e-network/neo-devpack-dotnet/blob/r3e/LICENSE">
+  <a href="https://github.com/r3e-network/r3e-devpack-dotnet/blob/r3e/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href="https://www.nuget.org/packages/R3E.SmartContract.Framework">
@@ -18,8 +18,8 @@
   <a href="https://www.nuget.org/packages/R3E.SmartContract.Framework">
     <img src="https://img.shields.io/nuget/dt/R3E.SmartContract.Framework.svg" alt="NuGet Downloads">
   </a>
-  <a href="https://github.com/r3e-network/neo-devpack-dotnet/releases">
-    <img src="https://img.shields.io/github/v/release/r3e-network/neo-devpack-dotnet?include_prereleases" alt="GitHub Release">
+  <a href="https://github.com/r3e-network/r3e-devpack-dotnet/releases">
+    <img src="https://img.shields.io/github/v/release/r3e-network/r3e-devpack-dotnet?include_prereleases" alt="GitHub Release">
   </a>
   <img src="https://img.shields.io/badge/.NET-9.0-512BD4" alt=".NET Version">
 </p>
@@ -140,7 +140,7 @@ dotnet new install R3E.SmartContract.Template::0.0.1
 Clone the repository with submodules:
 
 ```shell
-git clone --recurse-submodules https://github.com/r3e-network/neo-devpack-dotnet.git
+git clone --recurse-submodules https://github.com/r3e-network/r3e-devpack-dotnet.git
 cd neo-devpack-dotnet
 ```
 
@@ -460,7 +460,7 @@ Each example comes with corresponding unit tests that demonstrate how to properl
 
 For detailed documentation on Neo smart contract development with .NET:
 
-- [R3E Community Edition Repository](https://github.com/r3e-network/neo-devpack-dotnet)
+- [R3E Community Edition Repository](https://github.com/r3e-network/r3e-devpack-dotnet)
 - [Neo Official Documentation](https://docs.neo.org/)
 - [Neo Smart Contract Development Guide](https://docs.neo.org/docs/en-us/develop/write/basics.html)
 - [Official Neo DevPack](https://github.com/neo-project/neo-devpack-dotnet) (upstream project)

@@ -337,4 +337,4 @@ GET /api/webgui/list?page=1&pageSize=10
 
 - API Documentation: `/swagger`
 - Signature Authentication Guide: `SIGNATURE_AUTH.md`
-- GitHub Issues: https://github.com/r3e-network/neo-devpack-dotnet/issues
+- GitHub Issues: https://github.com/r3e-network/r3e-devpack-dotnet/issues

@@ -26,7 +26,7 @@ After deployment, you'll have:
 
 ### Step 1: Clone and Navigate
 ```bash
-git clone https://github.com/r3e-network/neo-devpack-dotnet.git
+git clone https://github.com/r3e-network/r3e-devpack-dotnet.git
 cd neo-devpack-dotnet/src/R3E.WebGUI.Service
 ```
 
@@ -229,7 +229,7 @@ docker-compose -f docker-compose.production.yml up -d
 ## 📞 Support
 
 - **Documentation**: See `/docs/R3E_WEBGUI_SERVICE.md` for complete documentation
-- **Issues**: Report bugs at [GitHub Issues](https://github.com/r3e-network/neo-devpack-dotnet/issues)
+- **Issues**: Report bugs at [GitHub Issues](https://github.com/r3e-network/r3e-devpack-dotnet/issues)
 - **Community**: Join the R3E Discord server
 
 ---

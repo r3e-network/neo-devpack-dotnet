@@ -486,7 +486,7 @@ R3EWebGUI__RateLimiting__WindowMinutes=1
 
 ```bash
 # Clone the repository
-git clone https://github.com/r3e-network/neo-devpack-dotnet.git
+git clone https://github.com/r3e-network/r3e-devpack-dotnet.git
 cd neo-devpack-dotnet/src/R3E.WebGUI.Service
 
 # Initialize database
@@ -564,9 +564,9 @@ This project is licensed under the MIT License - see the [LICENSE](../../LICENSE
 
 ## Support
 
-- 📚 [Documentation](https://github.com/r3e-network/neo-devpack-dotnet/wiki)
-- 🐛 [Issue Tracker](https://github.com/r3e-network/neo-devpack-dotnet/issues)
-- 💬 [Discussions](https://github.com/r3e-network/neo-devpack-dotnet/discussions)
+- 📚 [Documentation](https://github.com/r3e-network/r3e-devpack-dotnet/wiki)
+- 🐛 [Issue Tracker](https://github.com/r3e-network/r3e-devpack-dotnet/issues)
+- 💬 [Discussions](https://github.com/r3e-network/r3e-devpack-dotnet/discussions)
 - 🌐 [Neo Documentation](https://docs.neo.org/)
 
 ## Acknowledgments

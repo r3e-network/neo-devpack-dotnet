@@ -88,7 +88,7 @@ The R3E WebGUI Hosting Service is a production-ready microservice that provides 
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/r3e-network/neo-devpack-dotnet.git
+   git clone https://github.com/r3e-network/r3e-devpack-dotnet.git
    cd neo-devpack-dotnet/src/R3E.WebGUI.Service
    ```
 
@@ -630,7 +630,7 @@ ls -la /path/to/webgui-storage/
 
 For support and questions:
 
-- **GitHub Issues**: [r3e-network/neo-devpack-dotnet](https://github.com/r3e-network/neo-devpack-dotnet/issues)
+- **GitHub Issues**: [r3e-network/r3e-devpack-dotnet](https://github.com/r3e-network/r3e-devpack-dotnet/issues)
 - **Documentation**: [R3E Community Docs](https://docs.r3e-network.com)
 - **Community**: [R3E Discord](https://discord.gg/r3e-community)
 

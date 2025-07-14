@@ -13,8 +13,8 @@
     <PackageId>R3E.WebGUI.Service</PackageId>
     <Title>R3E WebGUI Hosting Service</Title>
     <Authors>R3E Community</Authors>
-    <PackageProjectUrl>https://github.com/r3e-network/neo-devpack-dotnet</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/r3e-network/neo-devpack-dotnet</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/r3e-network/r3e-devpack-dotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/r3e-network/r3e-devpack-dotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>neo;blockchain;smartcontract;webgui;r3e;hosting;docker</PackageTags>
     <PackageLicense>MIT</PackageLicense>

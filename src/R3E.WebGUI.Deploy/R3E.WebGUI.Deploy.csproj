@@ -16,8 +16,8 @@
     <PackageId>R3E.WebGUI.Deploy</PackageId>
     <Title>R3E WebGUI Deploy Tool</Title>
     <Authors>R3E Community</Authors>
-    <PackageProjectUrl>https://github.com/r3e-network/neo-devpack-dotnet</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/r3e-network/neo-devpack-dotnet</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/r3e-network/r3e-devpack-dotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/r3e-network/r3e-devpack-dotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>neo;blockchain;smartcontract;webgui;r3e;cli;deployment;tool</PackageTags>
     <PackageLicense>MIT</PackageLicense>
