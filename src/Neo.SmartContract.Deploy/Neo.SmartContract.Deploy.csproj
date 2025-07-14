@@ -10,10 +10,12 @@
     <PackageTags>NEO;Blockchain;Smart Contract;Deploy;Deployment</PackageTags>
     <Title>Neo Smart Contract Deployment Toolkit</Title>
     <Description>A comprehensive deployment toolkit for Neo N3 smart contracts, providing infrastructure for deploying, initializing, and managing smart contracts.</Description>
-    <Authors>The Neo Project</Authors>
-    <Company>The Neo Project</Company>
+    <Authors>R3E Development Team</Authors>
+    <Company>R3E Community</Company>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/r3e-network/r3e-devpack-dotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/r3e-network/r3e-devpack-dotnet.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>neo.png</PackageIcon>

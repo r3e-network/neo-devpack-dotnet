@@ -4,12 +4,12 @@
   <PropertyGroup>
     <Copyright>2015-2025 The Neo Project (R3E Edition)</Copyright>
     <Company>R3E Development Team</Company>
-    <VersionPrefix>0.0.1</VersionPrefix>
+    <VersionPrefix>0.0.4</VersionPrefix>
     <Authors>R3E Development Team</Authors>
-    <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/r3e-network/r3e-devpack-dotnet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/neo-project/neo-devpack-dotnet.git</RepositoryUrl>
+    <RepositoryUrl>https://github.com/r3e-network/r3e-devpack-dotnet.git</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
