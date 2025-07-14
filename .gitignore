@@ -44,6 +44,17 @@ dlldata.c
 project.lock.json
 artifacts/
 
+# Temporary directories and files
+temp-*/
+test-pack*/
+nupkgs/
+TestResults/
+
+# Backup files
+*.bak
+*.orig
+*.tmp
+
 *_i.c
 *_p.c
 *_i.h
