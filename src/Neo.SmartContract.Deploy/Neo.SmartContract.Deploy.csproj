@@ -47,7 +47,6 @@
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
-    <None Include="..\neo.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
