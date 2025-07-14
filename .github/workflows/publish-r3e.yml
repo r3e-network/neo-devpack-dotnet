@@ -40,17 +40,17 @@ jobs:
     - name: Pack specific projects if missing
       run: |
         # Ensure all critical packages are created
-        if [ ! -f "./nupkgs/R3E.SmartContract.Deploy.*.nupkg" ]; then
+        if ! ls ./nupkgs/R3E.SmartContract.Deploy.*.nupkg >/dev/null 2>&1; then
           echo "Packing R3E.SmartContract.Deploy explicitly..."
           dotnet pack src/Neo.SmartContract.Deploy/Neo.SmartContract.Deploy.csproj -c Release --no-build -o ./nupkgs
         fi
         
-        if [ ! -f "./nupkgs/R3E.Compiler.CSharp.Tool.*.nupkg" ]; then
+        if ! ls ./nupkgs/R3E.Compiler.CSharp.Tool.*.nupkg >/dev/null 2>&1; then
           echo "Packing R3E.Compiler.CSharp.Tool explicitly..."
           dotnet pack src/Neo.Compiler.CSharp.Tool/Neo.Compiler.CSharp.Tool.csproj -c Release --no-build -o ./nupkgs
         fi
         
-        if [ ! -f "./nupkgs/R3E.WebGUI.Deploy.*.nupkg" ]; then
+        if ! ls ./nupkgs/R3E.WebGUI.Deploy.*.nupkg >/dev/null 2>&1; then
           echo "Packing R3E.WebGUI.Deploy explicitly..."
           dotnet pack src/R3E.WebGUI.Deploy/R3E.WebGUI.Deploy.csproj -c Release --no-build -o ./nupkgs
         fi
@@ -116,7 +116,7 @@ jobs:
         done
         
         # Fail if critical packages are missing
-        if [ ! -f "./nupkgs/R3E.SmartContract.Deploy."*.nupkg ]; then
+        if ! ls ./nupkgs/R3E.SmartContract.Deploy.*.nupkg >/dev/null 2>&1; then
           echo "ERROR: R3E.SmartContract.Deploy package not found!"
           exit 1
         fi
