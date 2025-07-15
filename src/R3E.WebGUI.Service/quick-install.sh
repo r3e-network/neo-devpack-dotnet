@@ -21,10 +21,19 @@ echo -e "${YELLOW}This will install the complete R3E WebGUI Service on your serv
 echo -e "${YELLOW}Requirements: Ubuntu/Debian/CentOS, 4GB+ RAM, ports 80,443,8888 available${NC}"
 echo ""
 
+# Check if running in a pipe (non-interactive)
+if [ -t 0 ]; then
+    # Interactive mode - run normally
+    ARGS=""
+else
+    # Non-interactive mode - add -y flag
+    ARGS="-y"
+fi
+
 # Download and run the full setup script
 curl -sSL https://raw.githubusercontent.com/r3e-network/r3e-devpack-dotnet/r3e/src/R3E.WebGUI.Service/setup-r3e-webgui.sh -o /tmp/setup-r3e-webgui.sh
 chmod +x /tmp/setup-r3e-webgui.sh
-/tmp/setup-r3e-webgui.sh
+/tmp/setup-r3e-webgui.sh $ARGS
 
 # Cleanup
 rm -f /tmp/setup-r3e-webgui.sh

@@ -1,6 +1,6 @@
 # Neo N3 Smart Contract DevPack for .NET (R3E Community Edition)
 
-**Version 0.0.1**
+**Version 0.0.4**
 
 <p align="center">
   <a href="https://github.com/r3e-network/">
@@ -36,11 +36,14 @@ The R3E Community maintains this fork of the official Neo DevPack with the goal 
 |---------|---------|-------------|
 | [R3E.SmartContract.Framework](https://www.nuget.org/packages/R3E.SmartContract.Framework/) | ![NuGet](https://img.shields.io/nuget/v/R3E.SmartContract.Framework.svg) | Core framework for Neo smart contracts (R3E edition) |
 | [R3E.SmartContract.Testing](https://www.nuget.org/packages/R3E.SmartContract.Testing/) | ![NuGet](https://img.shields.io/nuget/v/R3E.SmartContract.Testing.svg) | Testing framework for Neo contracts |
-| [R3E.Compiler.CSharp](https://www.nuget.org/packages/R3E.Compiler.CSharp/) | ![NuGet](https://img.shields.io/nuget/v/R3E.Compiler.CSharp.svg) | C# to Neo VM bytecode compiler |
+| [R3E.Compiler.CSharp](https://www.nuget.org/packages/R3E.Compiler.CSharp/) | ![NuGet](https://img.shields.io/nuget/v/R3E.Compiler.CSharp.svg) | C# to Neo VM bytecode compiler with plugin & WebGUI generation |
 | [R3E.Compiler.CSharp.Tool](https://www.nuget.org/packages/R3E.Compiler.CSharp.Tool/) | ![NuGet](https://img.shields.io/nuget/v/R3E.Compiler.CSharp.Tool.svg) | Global CLI tool for compiling Neo contracts |
 | [R3E.SmartContract.Analyzer](https://www.nuget.org/packages/R3E.SmartContract.Analyzer/) | ![NuGet](https://img.shields.io/nuget/v/R3E.SmartContract.Analyzer.svg) | Roslyn analyzers for Neo contract development |
 | [R3E.SmartContract.Template](https://www.nuget.org/packages/R3E.SmartContract.Template/) | ![NuGet](https://img.shields.io/nuget/v/R3E.SmartContract.Template.svg) | Project templates for Neo contracts |
 | [R3E.Disassembler.CSharp](https://www.nuget.org/packages/R3E.Disassembler.CSharp/) | ![NuGet](https://img.shields.io/nuget/v/R3E.Disassembler.CSharp.svg) | Neo VM bytecode disassembler |
+| [R3E.SmartContract.Deploy](https://www.nuget.org/packages/R3E.SmartContract.Deploy/) | ![NuGet](https://img.shields.io/nuget/v/R3E.SmartContract.Deploy.svg) | Deployment toolkit for Neo contracts |
+| [R3E.WebGUI.Deploy](https://www.nuget.org/packages/R3E.WebGUI.Deploy/) | ![NuGet](https://img.shields.io/nuget/v/R3E.WebGUI.Deploy.svg) | WebGUI deployment and hosting tools |
+| [R3E.WebGUI.Service](https://www.nuget.org/packages/R3E.WebGUI.Service/) | ![NuGet](https://img.shields.io/nuget/v/R3E.WebGUI.Service.svg) | WebGUI hosting service |
 
 ## Components
 
@@ -64,8 +67,17 @@ A specialized compiler that translates C# code into Neo Virtual Machine (NeoVM) 
 - Debug information generation
 - Source code generation for contract testing
 - Contract interface generation
-- **Web GUI generation for interactive contract interfaces**
+- **WebGUI generation for interactive contract interfaces**
+  - Automatic HTML/CSS/JS generation from contract manifest
+  - Multiple template support (Standard, NEP-17, NEP-11)
+  - Real-time blockchain data monitoring
+  - Wallet integration (NeoLine, O3, WalletConnect)
+  - Method invocation with gas estimation
 - **Neo N3 plugin generation for CLI integration**
+  - Complete plugin project generation
+  - CLI command wrappers for all contract methods
+  - Type-safe parameter handling
+  - Integration with neo-cli
 - **Available as both a CLI tool and a NuGet library for programmatic compilation**
 
 [![NuGet](https://img.shields.io/nuget/v/R3E.Compiler.CSharp.svg)](https://www.nuget.org/packages/R3E.Compiler.CSharp/)
@@ -106,6 +118,34 @@ A comprehensive deployment toolkit that simplifies the process of deploying and 
 - WIF key support for direct transaction signing
 - Integration with Neo Express for local development
 - Comprehensive error handling and retry mechanisms
+- Deployment record tracking and history
+- Health check services for monitoring
+
+### R3E.WebGUI.Deploy
+
+Deployment tools for WebGUI generation and hosting:
+
+- Generate interactive web interfaces from contract manifests
+- Deploy WebGUIs to R3E hosting service
+- Support for custom templates and themes
+- Integration with deployment toolkit
+
+### R3E.WebGUI.Service
+
+Professional WebGUI hosting service for Neo smart contracts:
+
+- **Multiple hosting options**:
+  - Path-based hosting: `service.neoservicelayer.com/contracts/{name}`
+  - Subdomain-based hosting: `{name}.service.neoservicelayer.com`
+- **JSON-based configuration** with signature authentication
+- **Plugin upload support** with SHA256 verification
+- Real-time contract data monitoring
+- RESTful API with comprehensive documentation
+- SQL Server backend for scalability
+- Docker support for easy deployment
+- SSL/TLS support with Let's Encrypt integration
+- Rate limiting and security headers
+- Health monitoring endpoints
 
 ## Getting Started
 
@@ -120,19 +160,22 @@ A comprehensive deployment toolkit that simplifies the process of deploying and 
 
 ```shell
 # Install the core framework
-dotnet add package R3E.SmartContract.Framework --version 0.0.1
+dotnet add package R3E.SmartContract.Framework --version 0.0.4
 
 # Install the testing framework
-dotnet add package R3E.SmartContract.Testing --version 0.0.1
+dotnet add package R3E.SmartContract.Testing --version 0.0.4
 
 # Install the compiler library
-dotnet add package R3E.Compiler.CSharp --version 0.0.1
+dotnet add package R3E.Compiler.CSharp --version 0.0.4
+
+# Install the deployment toolkit
+dotnet add package R3E.SmartContract.Deploy --version 0.0.4
 
 # Install the compiler global tool
-dotnet tool install -g R3E.Compiler.CSharp.Tool --version 0.0.1
+dotnet tool install -g R3E.Compiler.CSharp.Tool --version 0.0.4
 
 # Install project templates
-dotnet new install R3E.SmartContract.Template::0.0.1
+dotnet new install R3E.SmartContract.Template::0.0.4
 ```
 
 #### Build from Source
@@ -293,6 +336,8 @@ The R3E C# compiler supports the following options:
 | `--nullable` | Sets the nullable context options (Disable, Enable, Annotations, Warnings) |
 | `--checked` | Enables overflow checking for arithmetic operations |
 | `--address-version` | Sets the address version for script hash calculations |
+| `--generate-webgui` | Generates interactive WebGUI for the contract |
+| `--generate-plugin` | Generates Neo CLI plugin for the contract |
 
 ### Testing a Smart Contract
 
@@ -374,6 +419,112 @@ public void TestGasConsumption()
 4. Implement the TestSetup method to compile and initialize the contract
 5. Write test methods for each contract feature or scenario
 
+### Generating WebGUI for Your Contract
+
+The R3E compiler can automatically generate an interactive web interface for your smart contract:
+
+```csharp
+using Neo.Compiler;
+
+// Compile and generate WebGUI
+var engine = new CompilationEngine();
+var contexts = engine.CompileProject("path/to/contract.csproj");
+
+foreach (var context in contexts)
+{
+    var result = context.GenerateWebGui("./webgui-output", new WebGuiOptions
+    {
+        RpcEndpoint = "https://test1.neo.coz.io:443",
+        NetworkMagic = 894710606, // TestNet
+        DarkTheme = true,
+        IncludeMethodInvocation = true,
+        IncludeEventMonitoring = true,
+        IncludeWalletConnection = true
+    });
+    
+    if (result.Success)
+    {
+        Console.WriteLine($"WebGUI generated at: {result.OutputDirectory}");
+    }
+}
+```
+
+### Generating Neo CLI Plugin
+
+Generate a complete Neo CLI plugin for your contract:
+
+```csharp
+using Neo.Compiler;
+
+// Generate plugin after compilation
+var manifest = context.CreateManifest();
+var contractHash = context.GetContractHash();
+
+ContractPluginGenerator.GeneratePlugin(
+    contractName: "MyContract",
+    manifest: manifest,
+    contractHash: contractHash,
+    outputPath: "./plugins"
+);
+```
+
+### Deploying Your Contract
+
+Use the R3E deployment toolkit for simplified contract deployment:
+
+```csharp
+using R3E.SmartContract.Deploy;
+
+// Create deployment toolkit
+var toolkit = new DeploymentToolkit()
+    .SetNetwork("testnet")
+    .SetWifKey("your-wif-key");
+
+// Deploy contract
+var result = await toolkit.DeployAsync("path/to/contract.csproj");
+
+if (result.Success)
+{
+    Console.WriteLine($"Contract deployed at: {result.ContractHash}");
+    Console.WriteLine($"Transaction: {result.TransactionHash}");
+}
+```
+
+### Uploading WebGUI to R3E Service
+
+Deploy your WebGUI to the R3E hosting service for public access:
+
+```csharp
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+
+// Prepare deployment request
+var request = new
+{
+    ContractAddress = "0x1234567890abcdef1234567890abcdef12345678",
+    ContractName = "MyContract",
+    Network = "testnet",
+    DeployerAddress = "NXXxXXxXXxXXxXXxXXxXXxXXxXXxXXxXXx",
+    Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+    Signature = "signature-hex",
+    PublicKey = "public-key-hex"
+};
+
+// Deploy to R3E WebGUI Service
+var httpClient = new HttpClient();
+var response = await httpClient.PostAsync(
+    "https://service.neoservicelayer.com/contracts/api/webgui/deploy-from-manifest",
+    new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")
+);
+
+if (response.IsSuccessStatusCode)
+{
+    var result = await response.Content.ReadAsStringAsync();
+    Console.WriteLine($"WebGUI deployed: {result}");
+}
+```
+
 ### Updating Smart Contracts
 
 The R3E Community Edition provides comprehensive support for updating deployed Neo smart contracts. Here's how to implement and execute contract updates:
@@ -434,6 +585,82 @@ For detailed update documentation, see:
 - [Update Troubleshooting](docs/CONTRACT_UPDATE_TROUBLESHOOTING.md)
 - [Deployment Example with Updates](examples/DeploymentExample/)
 
+## Complete Workflow Example
+
+Here's a complete example demonstrating the full R3E devpack workflow from compilation to deployment with WebGUI:
+
+```csharp
+using Neo.Compiler;
+using R3E.SmartContract.Deploy;
+
+// Step 1: Compile the contract
+var engine = new CompilationEngine();
+var contexts = engine.CompileProject("./MyContract/MyContract.csproj");
+var context = contexts.First();
+
+// Step 2: Generate plugin
+ContractPluginGenerator.GeneratePlugin(
+    contractName: context.ContractName,
+    manifest: context.CreateManifest(),
+    contractHash: context.GetContractHash(),
+    outputPath: "./generated/plugins"
+);
+
+// Step 3: Generate WebGUI
+var webGuiResult = context.GenerateWebGui("./generated/webgui", new WebGuiOptions
+{
+    RpcEndpoint = "https://test1.neo.coz.io:443",
+    NetworkMagic = 894710606,
+    DarkTheme = true,
+    IncludeMethodInvocation = true,
+    IncludeEventMonitoring = true,
+    IncludeWalletConnection = true
+});
+
+// Step 4: Deploy to blockchain
+var toolkit = new DeploymentToolkit()
+    .SetNetwork("testnet")
+    .SetWifKey("your-wif-key");
+
+var deployResult = await toolkit.DeployAsync(
+    nefPath: Path.Combine(context.Options.OutputDirectory, $"{context.ContractName}.nef"),
+    manifestPath: Path.Combine(context.Options.OutputDirectory, $"{context.ContractName}.manifest.json")
+);
+
+// Step 5: Upload WebGUI to R3E Service
+if (deployResult.Success && webGuiResult.Success)
+{
+    // Sign the deployment message
+    var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    var message = $"Deploy WebGUI for contract {deployResult.ContractHash} by {deployerAddress} at {timestamp}";
+    
+    // ... signing logic ...
+    
+    var request = new
+    {
+        ContractAddress = deployResult.ContractHash,
+        ContractName = context.ContractName,
+        Network = "testnet",
+        DeployerAddress = deployerAddress,
+        Timestamp = timestamp,
+        Signature = signature,
+        PublicKey = publicKey
+    };
+    
+    // Deploy to R3E service
+    var response = await httpClient.PostAsJsonAsync(
+        "https://service.neoservicelayer.com/contracts/api/webgui/deploy-from-manifest",
+        request
+    );
+    
+    if (response.IsSuccessStatusCode)
+    {
+        var result = await response.Content.ReadFromJsonAsync<dynamic>();
+        Console.WriteLine($"✅ WebGUI available at: {result.url}");
+    }
+}
+```
+
 ## Examples
 
 The repository includes various example contracts that demonstrate different features and capabilities in the `examples` directory:
@@ -456,6 +683,35 @@ The repository includes various example contracts that demonstrate different fea
 
 Each example comes with corresponding unit tests that demonstrate how to properly test the contract functionality.
 
+## Docker Deployment
+
+The R3E WebGUI Service can be deployed using automated setup scripts:
+
+```bash
+# Quick deployment to service.neoservicelayer.com/contracts
+curl -sSL https://raw.githubusercontent.com/r3e-network/r3e-devpack-dotnet/r3e/src/R3E.WebGUI.Service/setup-contracts-service.sh | sudo bash
+
+# The service will be available at:
+# - API: https://service.neoservicelayer.com/contracts/api/
+# - Swagger: https://service.neoservicelayer.com/contracts/swagger
+# - WebGUIs: https://service.neoservicelayer.com/contracts/{contract-name}
+```
+
+For local development using Docker Compose:
+
+```bash
+# Clone the repository
+git clone https://github.com/r3e-network/r3e-devpack-dotnet.git
+cd r3e-devpack-dotnet/src/R3E.WebGUI.Service
+
+# Start the service locally
+docker-compose up -d
+
+# Local service will be available at:
+# - API: http://localhost:8888
+# - WebGUIs: http://{contract}.localhost
+```
+
 ## Documentation
 
 For detailed documentation on Neo smart contract development with .NET:
@@ -464,6 +720,10 @@ For detailed documentation on Neo smart contract development with .NET:
 - [Neo Official Documentation](https://docs.neo.org/)
 - [Neo Smart Contract Development Guide](https://docs.neo.org/docs/en-us/develop/write/basics.html)
 - [Official Neo DevPack](https://github.com/neo-project/neo-devpack-dotnet) (upstream project)
+- [R3E WebGUI Service API Documentation](https://service.neoservicelayer.com/contracts/swagger)
+- [Deployment Toolkit Documentation](docs/deployment-toolkit.md)
+- [WebGUI Generation Guide](docs/webgui-generation.md)
+- [WebGUI Service Deployment Checklist](src/R3E.WebGUI.Service/DEPLOYMENT-CHECKLIST.md)
 
 ## Contributing
 

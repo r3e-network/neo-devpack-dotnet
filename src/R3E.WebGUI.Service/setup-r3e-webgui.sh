@@ -26,9 +26,9 @@ GITHUB_RAW_URL="https://raw.githubusercontent.com/r3e-network/r3e-devpack-dotnet
 DOCKER_HUB_IMAGE="r3enetwork/r3e-webgui-service:latest"
 
 # Default configuration values
-DEFAULT_BASE_DOMAIN="localhost"
+DEFAULT_BASE_DOMAIN="service.neoservicelayer.com"
 DEFAULT_DB_PASSWORD="R3E_Strong_Pass_2024!"
-DEFAULT_ADMIN_EMAIL="admin@localhost"
+DEFAULT_ADMIN_EMAIL="jimmy@r3e.network"
 
 # Functions
 print_header() {
@@ -261,16 +261,24 @@ configure_environment() {
     cd $INSTALL_DIR
     
     # Collect configuration from user
-    echo ""
-    read -p "Enter your domain name (default: $DEFAULT_BASE_DOMAIN): " BASE_DOMAIN
-    BASE_DOMAIN=${BASE_DOMAIN:-$DEFAULT_BASE_DOMAIN}
-    
-    read -p "Enter admin email for SSL certificates (default: $DEFAULT_ADMIN_EMAIL): " ADMIN_EMAIL
-    ADMIN_EMAIL=${ADMIN_EMAIL:-$DEFAULT_ADMIN_EMAIL}
-    
-    read -sp "Enter database password (default: $DEFAULT_DB_PASSWORD): " DB_PASSWORD
-    echo ""
-    DB_PASSWORD=${DB_PASSWORD:-$DEFAULT_DB_PASSWORD}
+    if [ "$INTERACTIVE" = true ]; then
+        echo ""
+        read -p "Enter your domain name (default: $DEFAULT_BASE_DOMAIN): " BASE_DOMAIN
+        BASE_DOMAIN=${BASE_DOMAIN:-$DEFAULT_BASE_DOMAIN}
+        
+        read -p "Enter admin email for SSL certificates (default: $DEFAULT_ADMIN_EMAIL): " ADMIN_EMAIL
+        ADMIN_EMAIL=${ADMIN_EMAIL:-$DEFAULT_ADMIN_EMAIL}
+        
+        read -sp "Enter database password (default: $DEFAULT_DB_PASSWORD): " DB_PASSWORD
+        echo ""
+        DB_PASSWORD=${DB_PASSWORD:-$DEFAULT_DB_PASSWORD}
+    else
+        # Use defaults in non-interactive mode
+        BASE_DOMAIN=$DEFAULT_BASE_DOMAIN
+        ADMIN_EMAIL=$DEFAULT_ADMIN_EMAIL
+        DB_PASSWORD=$DEFAULT_DB_PASSWORD
+        print_info "Using default configuration values"
+    fi
     
     # Create .env file
     print_step "Creating environment configuration..."
@@ -618,11 +626,15 @@ main() {
     detect_os
     
     # Confirm installation
-    read -p "Continue with installation? (y/N): " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        print_info "Installation cancelled"
-        exit 0
+    if [ "$INTERACTIVE" = true ]; then
+        read -p "Continue with installation? (y/N): " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            print_info "Installation cancelled"
+            exit 0
+        fi
+    else
+        print_info "Running in non-interactive mode (auto-yes)"
     fi
     
     # Run installation steps
@@ -640,6 +652,16 @@ main() {
     setup_cron
     show_completion_info
 }
+
+# Parse command line arguments
+INTERACTIVE=true
+for arg in "$@"; do
+    case $arg in
+        -y|--yes|--non-interactive)
+            INTERACTIVE=false
+            ;;
+    esac
+done
 
 # Run main function
 main "$@"
