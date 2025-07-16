@@ -19,16 +19,16 @@ jobs:
       matrix:
         include:
           - runtime: win-x64
-            output-name: neoc-win-x64.exe
+            output-name: rncc-win-x64.exe
             extension: .exe
           - runtime: linux-x64
-            output-name: neoc-linux-x64
+            output-name: rncc-linux-x64
             extension: ''
           - runtime: osx-x64
-            output-name: neoc-macos-x64
+            output-name: rncc-macos-x64
             extension: ''
           - runtime: osx-arm64
-            output-name: neoc-macos-arm64
+            output-name: rncc-macos-arm64
             extension: ''
 
     steps:
@@ -102,23 +102,23 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref_name }}
-        release_name: Neo Compiler CSharp Tool ${{ github.ref_name }}
+        release_name: R3E Neo Contract Compiler (RNCC) ${{ github.ref_name }}
         body: |
-          # Neo Compiler CSharp Tool Release ${{ github.ref_name }}
+          # R3E Neo Contract Compiler (RNCC) Release ${{ github.ref_name }}
           
-          This release includes self-contained executables for the Neo C# Compiler Tool (neoc) for multiple platforms.
+          This release includes self-contained executables for the R3E Neo Contract Compiler (rncc) for multiple platforms.
           
           ## Downloads
           
           ### Windows
-          - **Windows x64**: `neoc-win-x64.exe`
+          - **Windows x64**: `rncc-win-x64.exe`
           
           ### Linux
-          - **Linux x64**: `neoc-linux-x64`
+          - **Linux x64**: `rncc-linux-x64`
           
           ### macOS
-          - **macOS x64 (Intel)**: `neoc-macos-x64`
-          - **macOS ARM64 (Apple Silicon)**: `neoc-macos-arm64`
+          - **macOS x64 (Intel)**: `rncc-macos-x64`
+          - **macOS ARM64 (Apple Silicon)**: `rncc-macos-arm64`
           
           ## Usage
           
@@ -126,10 +126,10 @@ jobs:
           
           ```bash
           # Linux/macOS
-          ./neoc-linux-x64 <args>
+          ./rncc-linux-x64 <args>
           
           # Windows
-          neoc-win-x64.exe <args>
+          rncc-win-x64.exe <args>
           ```
           
           All binaries are self-contained and do not require .NET Runtime to be installed.
@@ -142,8 +142,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./binaries/neoc-win-x64.exe/neoc-win-x64.exe
-        asset_name: neoc-win-x64.exe
+        asset_path: ./binaries/rncc-win-x64.exe/rncc-win-x64.exe
+        asset_name: rncc-win-x64.exe
         asset_content_type: application/octet-stream
         
     - name: Upload Linux x64 Binary
@@ -152,8 +152,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./binaries/neoc-linux-x64/neoc-linux-x64
-        asset_name: neoc-linux-x64
+        asset_path: ./binaries/rncc-linux-x64/rncc-linux-x64
+        asset_name: rncc-linux-x64
         asset_content_type: application/octet-stream
         
     - name: Upload macOS x64 Binary
@@ -162,8 +162,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./binaries/neoc-macos-x64/neoc-macos-x64
-        asset_name: neoc-macos-x64
+        asset_path: ./binaries/rncc-macos-x64/rncc-macos-x64
+        asset_name: rncc-macos-x64
         asset_content_type: application/octet-stream
         
     - name: Upload macOS ARM64 Binary
@@ -172,8 +172,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./binaries/neoc-macos-arm64/neoc-macos-arm64
-        asset_name: neoc-macos-arm64
+        asset_path: ./binaries/rncc-macos-arm64/rncc-macos-arm64
+        asset_name: rncc-macos-arm64
         asset_content_type: application/octet-stream
 
   build-with-version:
@@ -183,16 +183,16 @@ jobs:
       matrix:
         include:
           - runtime: win-x64
-            output-name: neoc-win-x64.exe
+            output-name: rncc-win-x64.exe
             extension: .exe
           - runtime: linux-x64
-            output-name: neoc-linux-x64
+            output-name: rncc-linux-x64
             extension: ''
           - runtime: osx-x64
-            output-name: neoc-macos-x64
+            output-name: rncc-macos-x64
             extension: ''
           - runtime: osx-arm64
-            output-name: neoc-macos-arm64
+            output-name: rncc-macos-arm64
             extension: ''
 
     steps:

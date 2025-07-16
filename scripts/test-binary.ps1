@@ -1,4 +1,4 @@
-# Test script for Neo Compiler binaries (PowerShell version)
+# Test script for R3E Neo Contract Compiler (RNCC) binaries (PowerShell version)
 # Usage: .\test-binary.ps1 <path-to-binary>
 
 param(
@@ -11,7 +11,7 @@ if (-not (Test-Path $BinaryPath)) {
     exit 1
 }
 
-Write-Host "Testing Neo Compiler binary: $BinaryPath" -ForegroundColor Cyan
+Write-Host "Testing R3E Neo Contract Compiler binary: $BinaryPath" -ForegroundColor Cyan
 Write-Host "=============================================="
 
 # Test 1: Check if binary exists and is executable
