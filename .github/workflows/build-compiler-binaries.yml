@@ -5,6 +5,7 @@ on:
     tags:
       - 'v*'
       - 'compiler-v*'
+      - 'rncc-v*'
   workflow_dispatch:
     inputs:
       version:
