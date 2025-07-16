@@ -1,0 +1,78 @@
+name: Test Compiler Build
+
+on:
+  pull_request:
+    paths:
+      - 'src/Neo.Compiler.CSharp.Tool/**'
+      - '.github/workflows/build-compiler-binaries.yml'
+  workflow_dispatch:
+
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        runtime: [win-x64, linux-x64, osx-x64, osx-arm64]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+        
+    - name: Restore dependencies
+      run: dotnet restore src/Neo.Compiler.CSharp.Tool/Neo.Compiler.CSharp.Tool.csproj
+      
+    - name: Test build for ${{ matrix.runtime }}
+      run: |
+        dotnet publish src/Neo.Compiler.CSharp.Tool/Neo.Compiler.CSharp.Tool.csproj \
+          -c Release \
+          -r ${{ matrix.runtime }} \
+          --self-contained \
+          -p:PublishSingleFile=true \
+          -p:PublishTrimmed=true \
+          -p:EnableCompressionInSingleFile=true \
+          -p:IncludeNativeLibrariesForSelfExtract=true \
+          -p:DebugType=none \
+          -p:DebugSymbols=false \
+          -o ./test-publish/${{ matrix.runtime }}
+          
+    - name: Verify build output
+      run: |
+        ls -la ./test-publish/${{ matrix.runtime }}/
+        if [ "${{ matrix.runtime }}" == "win-x64" ]; then
+          test -f ./test-publish/${{ matrix.runtime }}/rncc.exe
+          echo "Windows executable found: rncc.exe"
+        else
+          test -f ./test-publish/${{ matrix.runtime }}/rncc
+          echo "Unix executable found: rncc"
+        fi
+        
+    - name: Check file size
+      run: |
+        if [ "${{ matrix.runtime }}" == "win-x64" ]; then
+          BINARY_PATH="./test-publish/${{ matrix.runtime }}/rncc.exe"
+        else
+          BINARY_PATH="./test-publish/${{ matrix.runtime }}/rncc"
+        fi
+        
+        SIZE=$(wc -c < "$BINARY_PATH")
+        echo "Binary size for ${{ matrix.runtime }}: $SIZE bytes"
+        
+        # Ensure binary is reasonable size (not too small, not too large)
+        if [ $SIZE -lt 1000000 ]; then
+          echo "Warning: Binary seems too small ($SIZE bytes)"
+          exit 1
+        fi
+        
+        if [ $SIZE -gt 500000000 ]; then
+          echo "Warning: Binary seems too large ($SIZE bytes)"
+          exit 1
+        fi
+        
+        echo "Binary size check passed"

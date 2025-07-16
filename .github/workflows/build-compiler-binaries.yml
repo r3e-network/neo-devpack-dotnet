@@ -1,0 +1,253 @@
+name: Build Compiler Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+      - 'compiler-v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.0.0)'
+        required: false
+        default: 'v1.0.0'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - runtime: win-x64
+            output-name: neoc-win-x64.exe
+            extension: .exe
+          - runtime: linux-x64
+            output-name: neoc-linux-x64
+            extension: ''
+          - runtime: osx-x64
+            output-name: neoc-macos-x64
+            extension: ''
+          - runtime: osx-arm64
+            output-name: neoc-macos-arm64
+            extension: ''
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+        
+    - name: Restore dependencies
+      run: dotnet restore src/Neo.Compiler.CSharp.Tool/Neo.Compiler.CSharp.Tool.csproj
+      
+    - name: Build self-contained executable
+      run: |
+        dotnet publish src/Neo.Compiler.CSharp.Tool/Neo.Compiler.CSharp.Tool.csproj \
+          -c Release \
+          -r ${{ matrix.runtime }} \
+          --self-contained \
+          -p:PublishSingleFile=true \
+          -p:PublishTrimmed=true \
+          -p:EnableCompressionInSingleFile=true \
+          -p:IncludeNativeLibrariesForSelfExtract=true \
+          -p:DebugType=none \
+          -p:DebugSymbols=false \
+          -o ./publish/${{ matrix.runtime }}
+          
+    - name: Rename binary
+      run: |
+        if [ "${{ matrix.runtime }}" == "win-x64" ]; then
+          mv ./publish/${{ matrix.runtime }}/rncc${{ matrix.extension }} ./publish/${{ matrix.runtime }}/${{ matrix.output-name }}
+        else
+          mv ./publish/${{ matrix.runtime }}/rncc ./publish/${{ matrix.runtime }}/${{ matrix.output-name }}
+        fi
+        
+    - name: Make binary executable (non-Windows)
+      if: matrix.runtime != 'win-x64'
+      run: chmod +x ./publish/${{ matrix.runtime }}/${{ matrix.output-name }}
+      
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.output-name }}
+        path: ./publish/${{ matrix.runtime }}/${{ matrix.output-name }}
+        retention-days: 90
+
+  create-release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: ./binaries
+        
+    - name: Display structure of downloaded files
+      run: ls -la ./binaries/*/
+      
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: Neo Compiler CSharp Tool ${{ github.ref_name }}
+        body: |
+          # Neo Compiler CSharp Tool Release ${{ github.ref_name }}
+          
+          This release includes self-contained executables for the Neo C# Compiler Tool (neoc) for multiple platforms.
+          
+          ## Downloads
+          
+          ### Windows
+          - **Windows x64**: `neoc-win-x64.exe`
+          
+          ### Linux
+          - **Linux x64**: `neoc-linux-x64`
+          
+          ### macOS
+          - **macOS x64 (Intel)**: `neoc-macos-x64`
+          - **macOS ARM64 (Apple Silicon)**: `neoc-macos-arm64`
+          
+          ## Usage
+          
+          Download the appropriate binary for your platform and run it directly:
+          
+          ```bash
+          # Linux/macOS
+          ./neoc-linux-x64 <args>
+          
+          # Windows
+          neoc-win-x64.exe <args>
+          ```
+          
+          All binaries are self-contained and do not require .NET Runtime to be installed.
+        draft: false
+        prerelease: false
+        
+    - name: Upload Windows x64 Binary
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./binaries/neoc-win-x64.exe/neoc-win-x64.exe
+        asset_name: neoc-win-x64.exe
+        asset_content_type: application/octet-stream
+        
+    - name: Upload Linux x64 Binary
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./binaries/neoc-linux-x64/neoc-linux-x64
+        asset_name: neoc-linux-x64
+        asset_content_type: application/octet-stream
+        
+    - name: Upload macOS x64 Binary
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./binaries/neoc-macos-x64/neoc-macos-x64
+        asset_name: neoc-macos-x64
+        asset_content_type: application/octet-stream
+        
+    - name: Upload macOS ARM64 Binary
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./binaries/neoc-macos-arm64/neoc-macos-arm64
+        asset_name: neoc-macos-arm64
+        asset_content_type: application/octet-stream
+
+  build-with-version:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && !startsWith(github.ref, 'refs/tags/')
+    strategy:
+      matrix:
+        include:
+          - runtime: win-x64
+            output-name: neoc-win-x64.exe
+            extension: .exe
+          - runtime: linux-x64
+            output-name: neoc-linux-x64
+            extension: ''
+          - runtime: osx-x64
+            output-name: neoc-macos-x64
+            extension: ''
+          - runtime: osx-arm64
+            output-name: neoc-macos-arm64
+            extension: ''
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+        
+    - name: Set version
+      run: |
+        VERSION=${{ github.event.inputs.version }}
+        VERSION_NUMBER=${VERSION#v}
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "VERSION_NUMBER=$VERSION_NUMBER" >> $GITHUB_ENV
+        
+    - name: Restore dependencies
+      run: dotnet restore src/Neo.Compiler.CSharp.Tool/Neo.Compiler.CSharp.Tool.csproj
+      
+    - name: Build self-contained executable with version
+      run: |
+        dotnet publish src/Neo.Compiler.CSharp.Tool/Neo.Compiler.CSharp.Tool.csproj \
+          -c Release \
+          -r ${{ matrix.runtime }} \
+          --self-contained \
+          -p:PublishSingleFile=true \
+          -p:PublishTrimmed=true \
+          -p:EnableCompressionInSingleFile=true \
+          -p:IncludeNativeLibrariesForSelfExtract=true \
+          -p:DebugType=none \
+          -p:DebugSymbols=false \
+          -p:Version=${{ env.VERSION_NUMBER }} \
+          -p:AssemblyVersion=${{ env.VERSION_NUMBER }}.0 \
+          -p:FileVersion=${{ env.VERSION_NUMBER }}.0 \
+          -o ./publish/${{ matrix.runtime }}
+          
+    - name: Rename binary
+      run: |
+        if [ "${{ matrix.runtime }}" == "win-x64" ]; then
+          mv ./publish/${{ matrix.runtime }}/rncc${{ matrix.extension }} ./publish/${{ matrix.runtime }}/${{ matrix.output-name }}
+        else
+          mv ./publish/${{ matrix.runtime }}/rncc ./publish/${{ matrix.runtime }}/${{ matrix.output-name }}
+        fi
+        
+    - name: Make binary executable (non-Windows)
+      if: matrix.runtime != 'win-x64'
+      run: chmod +x ./publish/${{ matrix.runtime }}/${{ matrix.output-name }}
+      
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.output-name }}-${{ env.VERSION }}
+        path: ./publish/${{ matrix.runtime }}/${{ matrix.output-name }}
+        retention-days: 30
