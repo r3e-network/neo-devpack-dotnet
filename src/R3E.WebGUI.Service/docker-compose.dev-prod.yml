@@ -9,7 +9,7 @@ services:
     ports:
       - "8888:8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=R3EWebGUI;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=true
       - R3EWebGUI__BaseDomain=service.neoservicelayer.com
@@ -64,7 +64,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx.secure.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - webgui-storage:/var/www/webgui:ro
       - ./webroot:/var/www/certbot:ro

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Test script for Neo Compiler binaries
+# Test script for R3E Neo Contract Compiler (RNCC) binaries
 # Usage: ./test-binary.sh <path-to-binary>
 
 set -e
@@ -9,7 +9,7 @@ BINARY_PATH="$1"
 
 if [ -z "$BINARY_PATH" ]; then
     echo "Usage: $0 <path-to-binary>"
-    echo "Example: $0 ./neoc-linux-x64"
+    echo "Example: $0 ./rncc-linux-x64"
     exit 1
 fi
 
@@ -18,7 +18,7 @@ if [ ! -f "$BINARY_PATH" ]; then
     exit 1
 fi
 
-echo "Testing Neo Compiler binary: $BINARY_PATH"
+echo "Testing R3E Neo Contract Compiler binary: $BINARY_PATH"
 echo "=============================================="
 
 # Test 1: Check if binary is executable
