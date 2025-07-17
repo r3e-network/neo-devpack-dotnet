@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimization Guide - R3E Neo Contract DevPack</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/docs.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="../index.html" class="logo">
+                    <i class="fas fa-cube"></i>
+                    <span>R3E DevPack</span>
+                </a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="../index.html#features" class="nav-link">Features</a>
+                <a href="getting-started.html" class="nav-link active">Documentation</a>
+                <a href="../api/index.html" class="nav-link">API Reference</a>
+                <a href="../downloads.html" class="nav-link">Downloads</a>
+                <a href="https://github.com/r3e-network/r3e-devpack-dotnet" class="nav-link" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </div>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Documentation Layout -->
+    <div class="docs-layout">
+        <!-- Sidebar -->
+        <aside class="docs-sidebar">
+            <div class="sidebar-header">
+                <h3>Documentation</h3>
+            </div>
+            <nav class="docs-nav">
+                <div class="nav-section">
+                    <h4>Getting Started</h4>
+                    <ul>
+                        <li><a href="getting-started.html" class="nav-item">Introduction</a></li>
+                        <li><a href="getting-started.html#installation" class="nav-item">Installation</a></li>
+                        <li><a href="getting-started.html#first-contract" class="nav-item">Your First Contract</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h4>Optimization</h4>
+                    <ul>
+                        <li><a href="#overview" class="nav-item active">Overview</a></li>
+                        <li><a href="#gas-optimization" class="nav-item">Gas Optimization</a></li>
+                        <li><a href="#code-patterns" class="nav-item">Code Patterns</a></li>
+                        <li><a href="#compiler-options" class="nav-item">Compiler Options</a></li>
+                        <li><a href="#best-practices" class="nav-item">Best Practices</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h4>Guides</h4>
+                    <ul>
+                        <li><a href="compiler-reference.html" class="nav-item">Compiler Reference</a></li>
+                        <li><a href="webgui-service.html" class="nav-item">WebGUI Service</a></li>
+                        <li><a href="security.html" class="nav-item">Security Best Practices</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="docs-content">
+            <article>
+                <h1 id="overview">Smart Contract Optimization Guide</h1>
+                
+                <p class="lead">
+                    Learn how to optimize your Neo smart contracts for gas efficiency, execution speed, 
+                    and contract size using the R3E DevPack compiler optimizations.
+                </p>
+
+                <div class="toc">
+                    <h3>On this page</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#gas-optimization">Gas Optimization</a></li>
+                        <li><a href="#code-patterns">Code Patterns</a></li>
+                        <li><a href="#compiler-options">Compiler Options</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <h2 id="gas-optimization">Gas Optimization Strategies</h2>
+                
+                <p>Neo smart contracts consume GAS for execution. Optimizing gas usage reduces transaction costs and improves user experience.</p>
+
+                <h3>1. Efficient Data Types</h3>
+                
+                <div class="feature-box">
+                    <h4><i class="fas fa-database"></i> Choose Appropriate Data Types</h4>
+                    <pre><code class="language-csharp">// ❌ Inefficient - using string for keys
+private static StorageMap GetBalances() 
+{
+    return new StorageMap(Storage.CurrentContext, "balances");
+}
+
+// ✅ Efficient - using byte array for keys
+private static readonly byte[] BalancePrefix = new byte[] { 0x01 };
+private static BigInteger GetBalance(UInt160 account)
+{
+    return Storage.Get(Storage.CurrentContext, BalancePrefix.Concat(account)).ToBigInteger();
+}</code></pre>
+                </div>
+
+                <h3>2. Minimize Storage Operations</h3>
+                
+                <pre><code class="language-csharp">// ❌ Multiple storage operations
+public static bool Transfer(UInt160 from, UInt160 to, BigInteger amount)
+{
+    var fromBalance = GetBalance(from);
+    var toBalance = GetBalance(to);
+    
+    if (fromBalance < amount) return false;
+    
+    SetBalance(from, fromBalance - amount);  // Storage.Put
+    SetBalance(to, toBalance + amount);      // Storage.Put
+    
+    return true;
+}
+
+// ✅ Optimized with batched operations
+public static bool Transfer(UInt160 from, UInt160 to, BigInteger amount)
+{
+    var fromBalance = GetBalance(from);
+    if (fromBalance < amount) return false;
+    
+    // Batch storage operations
+    var context = Storage.CurrentContext;
+    Storage.Put(context, BalancePrefix.Concat(from), fromBalance - amount);
+    Storage.Put(context, BalancePrefix.Concat(to), GetBalance(to) + amount);
+    
+    return true;
+}</code></pre>
+
+                <h3>3. Early Returns and Validation</h3>
+                
+                <pre><code class="language-csharp">public static bool ComplexOperation(UInt160 user, BigInteger amount)
+{
+    // ✅ Validate early to save gas on failed operations
+    if (!user.IsValid || user.IsZero) return false;
+    if (amount <= 0) return false;
+    if (!Runtime.CheckWitness(user)) return false;
+    
+    // Expensive operations only after validation
+    var balance = GetBalance(user);
+    var limit = CalculateLimit(user); // Expensive calculation
+    
+    if (balance < amount || amount > limit) return false;
+    
+    // Execute main logic
+    return ProcessTransaction(user, amount);
+}</code></pre>
+
+                <h2 id="code-patterns">Efficient Code Patterns</h2>
+
+                <h3>1. Storage Map Patterns</h3>
+                
+                <pre><code class="language-csharp">public class OptimizedContract : SmartContract
+{
+    // ✅ Use byte prefixes for different data types
+    private static readonly byte[] BalancePrefix = new byte[] { 0x01 };
+    private static readonly byte[] AllowancePrefix = new byte[] { 0x02 };
+    private static readonly byte[] MetadataPrefix = new byte[] { 0x03 };
+    
+    // ✅ Efficient storage access
+    private static BigInteger GetBalance(UInt160 account)
+    {
+        return Storage.Get(Storage.CurrentContext, BalancePrefix.Concat(account)).ToBigInteger();
+    }
+    
+    // ✅ Conditional storage (save gas by avoiding zero balance storage)
+    private static void SetBalance(UInt160 account, BigInteger balance)
+    {
+        if (balance > 0)
+            Storage.Put(Storage.CurrentContext, BalancePrefix.Concat(account), balance);
+        else
+            Storage.Delete(Storage.CurrentContext, BalancePrefix.Concat(account));
+    }
+}</code></pre>
+
+                <h3>2. Loop Optimization</h3>
+                
+                <pre><code class="language-csharp">// ❌ Inefficient loop with repeated calculations
+public static BigInteger CalculateTotal(UInt160[] accounts)
+{
+    BigInteger total = 0;
+    for (int i = 0; i < accounts.Length; i++)
+    {
+        var balance = Storage.Get(Storage.CurrentContext, BalancePrefix.Concat(accounts[i])).ToBigInteger();
+        total += balance;
+    }
+    return total;
+}
+
+// ✅ Optimized with cached context and batch operations
+public static BigInteger CalculateTotal(UInt160[] accounts)
+{
+    if (accounts.Length == 0) return 0;
+    
+    var context = Storage.CurrentContext; // Cache context
+    BigInteger total = 0;
+    
+    foreach (var account in accounts)
+    {
+        total += Storage.Get(context, BalancePrefix.Concat(account)).ToBigInteger();
+    }
+    
+    return total;
+}</code></pre>
+
+                <h3>3. Event Optimization</h3>
+                
+                <pre><code class="language-csharp">// ✅ Use specific event types to reduce gas
+[DisplayName("Transfer")]
+public static event Action<UInt160, UInt160, BigInteger> OnTransfer;
+
+[DisplayName("Approval")]
+public static event Action<UInt160, UInt160, BigInteger> OnApproval;
+
+// ✅ Emit events efficiently
+public static void EmitTransfer(UInt160 from, UInt160 to, BigInteger amount)
+{
+    OnTransfer(from, to, amount);
+}</code></pre>
+
+                <h2 id="compiler-options">Compiler Optimization Options</h2>
+                
+                <p>The RNCC compiler provides several optimization levels:</p>
+
+                <h3>Optimization Levels</h3>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('basic-opt')">Basic</button>
+                    <button class="tab" onclick="showTab('experimental-opt')">Experimental</button>
+                    <button class="tab" onclick="showTab('all-opt')">All</button>
+                </div>
+
+                <div class="tab-content">
+                    <div id="basic-opt" class="tab-pane active">
+                        <h4>Basic Optimization</h4>
+                        <pre><code class="language-bash">rncc MyContract.cs --optimize=Basic</code></pre>
+                        <p>Safe optimizations that are well-tested:</p>
+                        <ul>
+                            <li>Dead code elimination</li>
+                            <li>Constant folding</li>
+                            <li>Simple peephole optimizations</li>
+                            <li>Redundant load/store elimination</li>
+                        </ul>
+                    </div>
+                    
+                    <div id="experimental-opt" class="tab-pane">
+                        <h4>Experimental Optimization</h4>
+                        <pre><code class="language-bash">rncc MyContract.cs --optimize=Experimental</code></pre>
+                        <p>Advanced optimizations that may significantly reduce gas:</p>
+                        <ul>
+                            <li>Instruction reordering</li>
+                            <li>Stack optimization</li>
+                            <li>Method inlining for small methods</li>
+                            <li>Loop optimization</li>
+                        </ul>
+                    </div>
+                    
+                    <div id="all-opt" class="tab-pane">
+                        <h4>Maximum Optimization</h4>
+                        <pre><code class="language-bash">rncc MyContract.cs --optimize=All</code></pre>
+                        <p>All available optimizations for production contracts:</p>
+                        <ul>
+                            <li>All Basic + Experimental optimizations</li>
+                            <li>Aggressive method inlining</li>
+                            <li>Advanced pattern matching</li>
+                            <li>Cross-method optimizations</li>
+                            <li>Contract size minimization</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h2 id="best-practices">Best Practices</h2>
+                
+                <div class="info-box">
+                    <h4><i class="fas fa-lightbulb"></i> Gas Optimization Checklist</h4>
+                    <ul>
+                        <li>✅ Use byte arrays instead of strings for storage keys</li>
+                        <li>✅ Validate inputs early to fail fast</li>
+                        <li>✅ Cache storage context in variables</li>
+                        <li>✅ Minimize storage operations</li>
+                        <li>✅ Use conditional storage (delete zero values)</li>
+                        <li>✅ Prefer iteration over recursion</li>
+                        <li>✅ Use specific data types (UInt160 vs ByteString)</li>
+                        <li>✅ Batch storage operations when possible</li>
+                    </ul>
+                </div>
+
+                <h3>Measuring Gas Usage</h3>
+                
+                <pre><code class="language-bash"># Test with different optimization levels
+rncc MyContract.cs --optimize=None -o ./test-none
+rncc MyContract.cs --optimize=Basic -o ./test-basic  
+rncc MyContract.cs --optimize=All -o ./test-all
+
+# Compare contract sizes
+ls -la test-*/MyContract.nef
+
+# Test gas consumption with Neo Express
+neoxp contract invoke MyContract method arg1 arg2</code></pre>
+
+                <h3>Performance Testing</h3>
+                
+                <pre><code class="language-csharp">// Add performance testing to your contract
+public static string GetOptimizationInfo()
+{
+    return $"Contract optimized with RNCC {GetCompilerVersion()}";
+}
+
+#if DEBUG
+public static void BenchmarkMethod()
+{
+    var start = Runtime.Time;
+    // Method to benchmark
+    ComplexOperation();
+    var end = Runtime.Time;
+    
+    Runtime.Log($"Execution time: {end - start}ms");
+}
+#endif</code></pre>
+
+                <div class="feature-box">
+                    <h4><i class="fas fa-chart-line"></i> Optimization Results</h4>
+                    <p>Typical optimization improvements with RNCC:</p>
+                    <ul>
+                        <li><strong>Contract Size:</strong> 15-30% reduction</li>
+                        <li><strong>Gas Consumption:</strong> 10-25% reduction</li>
+                        <li><strong>Execution Speed:</strong> 5-15% improvement</li>
+                        <li><strong>Storage Efficiency:</strong> 20-40% reduction in operations</li>
+                    </ul>
+                </div>
+
+                <div class="next-steps">
+                    <h3>Next Steps</h3>
+                    <div class="next-cards">
+                        <a href="security.html" class="next-card">
+                            <h4>Security Guide</h4>
+                            <p>Learn about smart contract security</p>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="compiler-reference.html" class="next-card">
+                            <h4>Compiler Reference</h4>
+                            <p>Complete RNCC options guide</p>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="examples.html" class="next-card">
+                            <h4>Optimized Examples</h4>
+                            <p>See optimized contract patterns</p>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 R3E Network. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/docs.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+</body>
+</html>

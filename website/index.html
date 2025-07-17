@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R3E Neo Contract DevPack - Complete Development Toolkit for Neo Smart Contracts</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-cube"></i>
+                    <span>R3E DevPack</span>
+                </a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="docs/getting-started.html" class="nav-link">Documentation</a>
+                <a href="api/index.html" class="nav-link">API Reference</a>
+                <a href="downloads.html" class="nav-link">Downloads</a>
+                <a href="https://github.com/r3e-network/r3e-devpack-dotnet" class="nav-link" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </div>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">R3E Neo Contract DevPack</h1>
+                <p class="hero-subtitle">
+                    A comprehensive development toolkit for building, testing, and deploying 
+                    smart contracts on the Neo blockchain
+                </p>
+                <div class="hero-buttons">
+                    <a href="docs/getting-started.html" class="btn btn-primary">
+                        <i class="fas fa-rocket"></i> Get Started
+                    </a>
+                    <a href="downloads.html" class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Download RNCC
+                    </a>
+                </div>
+                <div class="hero-code">
+                    <pre><code class="language-bash"># Install R3E Neo Contract Compiler
+$ wget https://github.com/r3e-network/r3e-devpack-dotnet/releases/latest/download/rncc-linux-x64
+$ chmod +x rncc-linux-x64
+$ ./rncc-linux-x64 MyContract.cs</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">Powerful Features for Neo Development</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>RNCC Compiler</h3>
+                    <p>Advanced C# to Neo VM compiler with optimization, security analysis, and comprehensive artifact generation</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>WebGUI Service</h3>
+                    <p>Automatically generate and host interactive web interfaces for your smart contracts</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Security Analysis</h3>
+                    <p>Built-in security scanning and vulnerability detection for safer smart contracts</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-plug"></i>
+                    </div>
+                    <h3>Plugin Generation</h3>
+                    <p>Generate Neo N3 plugins for seamless integration with Neo nodes</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-terminal"></i>
+                    </div>
+                    <h3>Cross-Platform</h3>
+                    <p>Native binaries for Windows, Linux, macOS (Intel & Apple Silicon)</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3>One-Click Deploy</h3>
+                    <p>Deploy WebGUI interfaces directly to R3E hosting service</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Start Section -->
+    <section class="quickstart">
+        <div class="container">
+            <h2 class="section-title">Quick Start</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Download RNCC</h3>
+                    <p>Get the compiler for your platform</p>
+                    <pre><code># Linux/macOS
+wget https://github.com/r3e-network/r3e-devpack-dotnet/releases/latest/download/rncc-linux-x64
+chmod +x rncc-linux-x64</code></pre>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Write Your Contract</h3>
+                    <p>Create a simple smart contract</p>
+                    <pre><code>using Neo.SmartContract.Framework;
+
+public class HelloWorld : SmartContract
+{
+    public static string SayHello(string name)
+    {
+        return $"Hello, {name}!";
+    }
+}</code></pre>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Compile & Deploy</h3>
+                    <p>Compile with optimization and WebGUI</p>
+                    <pre><code># Compile with all features
+./rncc-linux-x64 HelloWorld.cs \
+  --optimize=All \
+  --generate-webgui \
+  --security-analysis</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WebGUI Demo Section -->
+    <section class="webgui-demo">
+        <div class="container">
+            <h2 class="section-title">WebGUI Service</h2>
+            <p class="section-subtitle">Transform your smart contracts into interactive web applications</p>
+            <div class="demo-container">
+                <div class="demo-info">
+                    <h3>Automatic UI Generation</h3>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Auto-generated forms for contract methods</li>
+                        <li><i class="fas fa-check"></i> Real-time transaction monitoring</li>
+                        <li><i class="fas fa-check"></i> Built-in wallet integration</li>
+                        <li><i class="fas fa-check"></i> Mobile-responsive design</li>
+                        <li><i class="fas fa-check"></i> Custom branding support</li>
+                    </ul>
+                    <a href="docs/webgui-service.html" class="btn btn-primary">Learn More</a>
+                </div>
+                <div class="demo-preview">
+                    <img src="assets/placeholder.svg" alt="WebGUI Preview" class="demo-image">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Documentation Section -->
+    <section class="documentation">
+        <div class="container">
+            <h2 class="section-title">Comprehensive Documentation</h2>
+            <div class="doc-cards">
+                <a href="docs/getting-started.html" class="doc-card">
+                    <i class="fas fa-book"></i>
+                    <h3>Getting Started</h3>
+                    <p>Installation, setup, and your first contract</p>
+                </a>
+                <a href="docs/compiler-reference.html" class="doc-card">
+                    <i class="fas fa-cog"></i>
+                    <h3>Compiler Reference</h3>
+                    <p>Complete guide to RNCC options and features</p>
+                </a>
+                <a href="docs/webgui-service.html" class="doc-card">
+                    <i class="fas fa-window-maximize"></i>
+                    <h3>WebGUI Service</h3>
+                    <p>Deploy and host contract interfaces</p>
+                </a>
+                <a href="api/index.html" class="doc-card">
+                    <i class="fas fa-code-branch"></i>
+                    <h3>API Reference</h3>
+                    <p>Complete API documentation</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>R3E DevPack</h3>
+                    <p>Professional toolkit for Neo smart contract development</p>
+                    <div class="social-links">
+                        <a href="https://github.com/r3e-network/r3e-devpack-dotnet" target="_blank">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="https://twitter.com/r3e_network" target="_blank">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Documentation</h4>
+                    <ul>
+                        <li><a href="docs/getting-started.html">Getting Started</a></li>
+                        <li><a href="docs/compiler-reference.html">Compiler Reference</a></li>
+                        <li><a href="docs/webgui-service.html">WebGUI Service</a></li>
+                        <li><a href="api/index.html">API Reference</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="downloads.html">Downloads</a></li>
+                        <li><a href="docs/examples.html">Examples</a></li>
+                        <li><a href="https://github.com/r3e-network/r3e-devpack-dotnet/issues">Support</a></li>
+                        <li><a href="https://neo.org" target="_blank">Neo Blockchain</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <p>Join our community and stay updated</p>
+                    <a href="https://discord.gg/r3e" class="btn btn-sm btn-outline">
+                        <i class="fab fa-discord"></i> Join Discord
+                    </a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 R3E Network. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

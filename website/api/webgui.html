@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebGUI API Reference - R3E Neo Contract DevPack</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/api.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="../index.html" class="logo">
+                    <i class="fas fa-cube"></i>
+                    <span>R3E DevPack</span>
+                </a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="../index.html#features" class="nav-link">Features</a>
+                <a href="../docs/getting-started.html" class="nav-link">Documentation</a>
+                <a href="index.html" class="nav-link active">API Reference</a>
+                <a href="../downloads.html" class="nav-link">Downloads</a>
+                <a href="https://github.com/r3e-network/r3e-devpack-dotnet" class="nav-link" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </div>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- API Hero -->
+    <section class="api-hero">
+        <div class="container">
+            <h1 class="page-title">WebGUI API Reference</h1>
+            <p class="page-subtitle">Complete REST API documentation for R3E WebGUI Service</p>
+        </div>
+    </section>
+
+    <!-- API Content -->
+    <section class="api-content">
+        <div class="container">
+            <!-- API Overview -->
+            <div class="api-overview">
+                <h2>API Overview</h2>
+                <p>The R3E WebGUI Service provides a REST API for managing smart contract web interfaces.</p>
+                
+                <div class="api-info">
+                    <div class="info-item">
+                        <strong>Base URL:</strong> <code>https://api.r3e-gui.com</code>
+                    </div>
+                    <div class="info-item">
+                        <strong>Authentication:</strong> Bearer Token
+                    </div>
+                    <div class="info-item">
+                        <strong>Content Type:</strong> <code>application/json</code>
+                    </div>
+                    <div class="info-item">
+                        <strong>Rate Limit:</strong> 100 requests/minute
+                    </div>
+                </div>
+            </div>
+
+            <!-- Authentication -->
+            <div class="api-section">
+                <h2>Authentication</h2>
+                <p>All API requests require authentication using a Bearer token:</p>
+                
+                <pre><code class="language-bash">curl -H "Authorization: Bearer YOUR_API_KEY" \
+  https://api.r3e-gui.com/api/webgui</code></pre>
+                
+                <p>Get your API key from the R3E Developer Portal.</p>
+            </div>
+
+            <!-- Endpoints -->
+            <div class="api-section">
+                <h2>Endpoints</h2>
+
+                <!-- Upload WebGUI -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method post">POST</span>
+                        <span class="path">/api/webgui/upload</span>
+                    </div>
+                    <p>Upload a new WebGUI for a smart contract.</p>
+                    
+                    <h4>Request</h4>
+                    <pre><code class="language-bash">curl -X POST "https://api.r3e-gui.com/api/webgui/upload" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: multipart/form-data" \
+  -F "files=@webgui.zip" \
+  -F "contractAddress=0x1234567890abcdef" \
+  -F "network=testnet" \
+  -F "metadata={\"name\":\"My Contract\",\"description\":\"My awesome contract\"}"</code></pre>
+                    
+                    <h4>Parameters</h4>
+                    <table class="params-table">
+                        <tr>
+                            <td><code>files</code></td>
+                            <td>file</td>
+                            <td>Required</td>
+                            <td>WebGUI files (ZIP archive)</td>
+                        </tr>
+                        <tr>
+                            <td><code>contractAddress</code></td>
+                            <td>string</td>
+                            <td>Required</td>
+                            <td>Neo contract script hash</td>
+                        </tr>
+                        <tr>
+                            <td><code>network</code></td>
+                            <td>string</td>
+                            <td>Required</td>
+                            <td>Network: testnet, mainnet</td>
+                        </tr>
+                        <tr>
+                            <td><code>metadata</code></td>
+                            <td>object</td>
+                            <td>Optional</td>
+                            <td>Additional metadata</td>
+                        </tr>
+                    </table>
+                    
+                    <h4>Response</h4>
+                    <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "id": "webgui_abc123",
+    "url": "https://service.neoservicelayer.com/contracts/0x1234567890abcdef",
+    "contractAddress": "0x1234567890abcdef",
+    "network": "testnet",
+    "uploadedAt": "2024-07-17T10:30:00Z"
+  }
+}</code></pre>
+                </div>
+
+                <!-- Get WebGUI -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="path">/api/webgui/{contractAddress}</span>
+                    </div>
+                    <p>Get WebGUI information for a contract.</p>
+                    
+                    <h4>Request</h4>
+                    <pre><code class="language-bash">curl "https://api.r3e-gui.com/api/webgui/0x1234567890abcdef" \
+  -H "Authorization: Bearer YOUR_API_KEY"</code></pre>
+                    
+                    <h4>Response</h4>
+                    <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "id": "webgui_abc123",
+    "contractAddress": "0x1234567890abcdef",
+    "network": "testnet",
+    "url": "https://service.neoservicelayer.com/contracts/0x1234567890abcdef",
+    "metadata": {
+      "name": "My Contract",
+      "description": "My awesome contract",
+      "version": "1.0.0"
+    },
+    "stats": {
+      "views": 150,
+      "lastAccessed": "2024-07-17T09:15:00Z"
+    },
+    "createdAt": "2024-07-17T10:30:00Z",
+    "updatedAt": "2024-07-17T10:30:00Z"
+  }
+}</code></pre>
+                </div>
+
+                <!-- Update WebGUI -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method put">PUT</span>
+                        <span class="path">/api/webgui/{contractAddress}</span>
+                    </div>
+                    <p>Update an existing WebGUI.</p>
+                    
+                    <h4>Request</h4>
+                    <pre><code class="language-bash">curl -X PUT "https://api.r3e-gui.com/api/webgui/0x1234567890abcdef" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: multipart/form-data" \
+  -F "files=@updated-webgui.zip"</code></pre>
+                    
+                    <h4>Response</h4>
+                    <pre><code class="language-json">{
+  "success": true,
+  "message": "WebGUI updated successfully",
+  "data": {
+    "id": "webgui_abc123",
+    "url": "https://service.neoservicelayer.com/contracts/0x1234567890abcdef",
+    "updatedAt": "2024-07-17T11:45:00Z"
+  }
+}</code></pre>
+                </div>
+
+                <!-- Delete WebGUI -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method delete">DELETE</span>
+                        <span class="path">/api/webgui/{contractAddress}</span>
+                    </div>
+                    <p>Delete a WebGUI.</p>
+                    
+                    <h4>Request</h4>
+                    <pre><code class="language-bash">curl -X DELETE "https://api.r3e-gui.com/api/webgui/0x1234567890abcdef" \
+  -H "Authorization: Bearer YOUR_API_KEY"</code></pre>
+                    
+                    <h4>Response</h4>
+                    <pre><code class="language-json">{
+  "success": true,
+  "message": "WebGUI deleted successfully"
+}</code></pre>
+                </div>
+
+                <!-- List WebGUIs -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="path">/api/webgui</span>
+                    </div>
+                    <p>List all WebGUIs for the authenticated user.</p>
+                    
+                    <h4>Request</h4>
+                    <pre><code class="language-bash">curl "https://api.r3e-gui.com/api/webgui?page=1&limit=10&network=testnet" \
+  -H "Authorization: Bearer YOUR_API_KEY"</code></pre>
+                    
+                    <h4>Query Parameters</h4>
+                    <table class="params-table">
+                        <tr>
+                            <td><code>page</code></td>
+                            <td>integer</td>
+                            <td>Optional</td>
+                            <td>Page number (default: 1)</td>
+                        </tr>
+                        <tr>
+                            <td><code>limit</code></td>
+                            <td>integer</td>
+                            <td>Optional</td>
+                            <td>Items per page (default: 20)</td>
+                        </tr>
+                        <tr>
+                            <td><code>network</code></td>
+                            <td>string</td>
+                            <td>Optional</td>
+                            <td>Filter by network</td>
+                        </tr>
+                    </table>
+                    
+                    <h4>Response</h4>
+                    <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "webguis": [
+      {
+        "id": "webgui_abc123",
+        "contractAddress": "0x1234567890abcdef",
+        "network": "testnet",
+        "url": "https://service.neoservicelayer.com/contracts/0x1234567890abcdef",
+        "metadata": {
+          "name": "My Contract"
+        },
+        "createdAt": "2024-07-17T10:30:00Z"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 5,
+      "pages": 1
+    }
+  }
+}</code></pre>
+                </div>
+
+                <!-- Get Stats -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="path">/api/stats/{contractAddress}</span>
+                    </div>
+                    <p>Get usage statistics for a WebGUI.</p>
+                    
+                    <h4>Request</h4>
+                    <pre><code class="language-bash">curl "https://api.r3e-gui.com/api/stats/0x1234567890abcdef?period=7d" \
+  -H "Authorization: Bearer YOUR_API_KEY"</code></pre>
+                    
+                    <h4>Response</h4>
+                    <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "contractAddress": "0x1234567890abcdef",
+    "period": "7d",
+    "stats": {
+      "totalViews": 1250,
+      "uniqueVisitors": 89,
+      "avgSessionDuration": 180,
+      "topPages": [
+        {
+          "path": "/",
+          "views": 800
+        },
+        {
+          "path": "/transfer",
+          "views": 350
+        }
+      ],
+      "dailyStats": [
+        {
+          "date": "2024-07-17",
+          "views": 245,
+          "visitors": 23
+        }
+      ]
+    }
+  }
+}</code></pre>
+                </div>
+            </div>
+
+            <!-- Error Responses -->
+            <div class="api-section">
+                <h2>Error Responses</h2>
+                <p>The API uses standard HTTP status codes and returns errors in JSON format:</p>
+                
+                <div class="error-examples">
+                    <h4>400 Bad Request</h4>
+                    <pre><code class="language-json">{
+  "success": false,
+  "error": {
+    "code": "INVALID_REQUEST",
+    "message": "Invalid contract address format",
+    "details": {
+      "field": "contractAddress",
+      "value": "invalid_address"
+    }
+  }
+}</code></pre>
+                    
+                    <h4>401 Unauthorized</h4>
+                    <pre><code class="language-json">{
+  "success": false,
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "Invalid or missing API key"
+  }
+}</code></pre>
+                    
+                    <h4>404 Not Found</h4>
+                    <pre><code class="language-json">{
+  "success": false,
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "WebGUI not found for contract address"
+  }
+}</code></pre>
+                    
+                    <h4>429 Too Many Requests</h4>
+                    <pre><code class="language-json">{
+  "success": false,
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "Rate limit exceeded. Try again in 60 seconds.",
+    "retryAfter": 60
+  }
+}</code></pre>
+                </div>
+            </div>
+
+            <!-- JavaScript SDK -->
+            <div class="api-section">
+                <h2>JavaScript SDK</h2>
+                <p>Use the official JavaScript SDK for easier integration:</p>
+                
+                <h4>Installation</h4>
+                <pre><code class="language-bash">npm install @r3e/webgui-sdk</code></pre>
+                
+                <h4>Usage</h4>
+                <pre><code class="language-javascript">import { WebGUIClient } from '@r3e/webgui-sdk';
+
+const client = new WebGUIClient({
+  apiKey: 'YOUR_API_KEY',
+  baseUrl: 'https://api.r3e-gui.com'
+});
+
+// Upload WebGUI
+const result = await client.upload({
+  files: webguiFiles,
+  contractAddress: '0x1234567890abcdef',
+  network: 'testnet',
+  metadata: {
+    name: 'My Contract',
+    description: 'My awesome contract'
+  }
+});
+
+console.log('WebGUI URL:', result.url);
+
+// Get WebGUI info
+const webgui = await client.get('0x1234567890abcdef');
+console.log('WebGUI info:', webgui);
+
+// Get stats
+const stats = await client.getStats('0x1234567890abcdef', '7d');
+console.log('Usage stats:', stats);</code></pre>
+            </div>
+
+            <!-- Webhooks -->
+            <div class="api-section">
+                <h2>Webhooks</h2>
+                <p>Configure webhooks to receive real-time notifications:</p>
+                
+                <h4>Webhook Events</h4>
+                <ul>
+                    <li><code>webgui.uploaded</code> - WebGUI uploaded</li>
+                    <li><code>webgui.updated</code> - WebGUI updated</li>
+                    <li><code>webgui.deleted</code> - WebGUI deleted</li>
+                    <li><code>webgui.accessed</code> - WebGUI accessed by user</li>
+                </ul>
+                
+                <h4>Webhook Payload</h4>
+                <pre><code class="language-json">{
+  "event": "webgui.uploaded",
+  "timestamp": "2024-07-17T10:30:00Z",
+  "data": {
+    "id": "webgui_abc123",
+    "contractAddress": "0x1234567890abcdef",
+    "network": "testnet",
+    "url": "https://service.neoservicelayer.com/contracts/0x1234567890abcdef"
+  }
+}</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>R3E DevPack</h3>
+                    <p>Professional toolkit for Neo smart contract development</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="../docs/getting-started.html">Getting Started</a></li>
+                        <li><a href="../downloads.html">Downloads</a></li>
+                        <li><a href="https://github.com/r3e-network/r3e-devpack-dotnet">GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 R3E Network. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+</body>
+</html>

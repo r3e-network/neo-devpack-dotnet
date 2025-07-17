@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examples - R3E Neo Contract DevPack</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/docs.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="../index.html" class="logo">
+                    <i class="fas fa-cube"></i>
+                    <span>R3E DevPack</span>
+                </a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="../index.html#features" class="nav-link">Features</a>
+                <a href="getting-started.html" class="nav-link active">Documentation</a>
+                <a href="../api/index.html" class="nav-link">API Reference</a>
+                <a href="../downloads.html" class="nav-link">Downloads</a>
+                <a href="https://github.com/r3e-network/r3e-devpack-dotnet" class="nav-link" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </div>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Documentation Layout -->
+    <div class="docs-layout">
+        <!-- Sidebar -->
+        <aside class="docs-sidebar">
+            <div class="sidebar-header">
+                <h3>Documentation</h3>
+            </div>
+            <nav class="docs-nav">
+                <div class="nav-section">
+                    <h4>Examples</h4>
+                    <ul>
+                        <li><a href="#overview" class="nav-item active">Overview</a></li>
+                        <li><a href="#token" class="nav-item">NEP-17 Token</a></li>
+                        <li><a href="#nft" class="nav-item">NEP-11 NFT</a></li>
+                        <li><a href="#oracle" class="nav-item">Oracle Contract</a></li>
+                        <li><a href="#dao" class="nav-item">DAO Contract</a></li>
+                        <li><a href="#defi" class="nav-item">DeFi Examples</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h4>Guides</h4>
+                    <ul>
+                        <li><a href="getting-started.html" class="nav-item">Getting Started</a></li>
+                        <li><a href="compiler-reference.html" class="nav-item">Compiler Reference</a></li>
+                        <li><a href="webgui-service.html" class="nav-item">WebGUI Service</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="docs-content">
+            <article>
+                <h1 id="overview">Smart Contract Examples</h1>
+                
+                <p class="lead">
+                    Explore real-world smart contract examples built with R3E DevPack. Each example includes
+                    full source code, compilation instructions, and WebGUI integration.
+                </p>
+
+                <div class="toc">
+                    <h3>On this page</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#token">NEP-17 Token</a></li>
+                        <li><a href="#nft">NEP-11 NFT</a></li>
+                        <li><a href="#oracle">Oracle Contract</a></li>
+                        <li><a href="#dao">DAO Contract</a></li>
+                        <li><a href="#defi">DeFi Examples</a></li>
+                    </ul>
+                </div>
+
+                <h2 id="token">NEP-17 Token Contract</h2>
+                
+                <p>A complete implementation of the NEP-17 token standard with additional features:</p>
+
+                <pre><code class="language-csharp">using Neo;
+using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
+using System;
+using System.Numerics;
+
+namespace TokenContract
+{
+    [DisplayName("MyToken")]
+    [ManifestExtra("Author", "R3E Developer")]
+    [ManifestExtra("Email", "dev@r3e.network")]
+    [ManifestExtra("Description", "Advanced NEP-17 Token with minting and burning")]
+    [ContractPermission("*", "onNEP17Payment")]
+    [SupportedStandards("NEP-17")]
+    public class MyToken : SmartContract
+    {
+        #region Token Settings
+        static readonly string TokenName = "MyToken";
+        static readonly string TokenSymbol = "MYT";
+        static readonly byte Decimals = 8;
+        static readonly BigInteger TotalSupply = 100_000_000_00000000; // 100M tokens
+        static readonly BigInteger MaxSupply = 1_000_000_000_00000000; // 1B tokens max
+        #endregion
+
+        #region Storage Keys
+        static readonly byte[] TotalSupplyKey = new byte[] { 0x00 };
+        static readonly byte[] BalancePrefix = new byte[] { 0x01 };
+        static readonly byte[] ContractOwnerKey = new byte[] { 0x02 };
+        static readonly byte[] PauseKey = new byte[] { 0x03 };
+        #endregion
+
+        #region Events
+        [DisplayName("Transfer")]
+        public static event Action<UInt160, UInt160, BigInteger> OnTransfer;
+
+        [DisplayName("Mint")]
+        public static event Action<UInt160, BigInteger> OnMint;
+
+        [DisplayName("Burn")]
+        public static event Action<UInt160, BigInteger> OnBurn;
+        #endregion
+
+        #region Owner Management
+        [InitialValue("NiHYtfX8SdAQQJYf4fVvfcvfQQddH8WMLH", ContractParameterType.Hash160)]
+        static readonly UInt160 InitialOwner = default;
+
+        public static UInt160 GetOwner()
+        {
+            var owner = Storage.Get(Storage.CurrentContext, ContractOwnerKey);
+            return owner?.Length == 20 ? (UInt160)owner : InitialOwner;
+        }
+
+        public static bool SetOwner(UInt160 newOwner)
+        {
+            if (!IsOwner()) return false;
+            if (!newOwner.IsValid || newOwner.IsZero) return false;
+            
+            Storage.Put(Storage.CurrentContext, ContractOwnerKey, newOwner);
+            return true;
+        }
+
+        private static bool IsOwner()
+        {
+            return Runtime.CheckWitness(GetOwner());
+        }
+        #endregion
+
+        #region NEP-17 Implementation
+        public static string Symbol() => TokenSymbol;
+        public static byte Decimals() => Decimals;
+
+        public static BigInteger TotalSupply()
+        {
+            return Storage.Get(Storage.CurrentContext, TotalSupplyKey).ToBigInteger();
+        }
+
+        public static BigInteger BalanceOf(UInt160 account)
+        {
+            if (!account.IsValid || account.IsZero)
+                throw new ArgumentException("Invalid account");
+            
+            return GetBalance(account);
+        }
+
+        public static bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object data)
+        {
+            if (!from.IsValid || !to.IsValid) 
+                throw new ArgumentException("Invalid address");
+            if (amount <= 0) 
+                throw new ArgumentException("Amount must be positive");
+            if (IsPaused()) 
+                throw new InvalidOperationException("Contract is paused");
+            if (!Runtime.CheckWitness(from)) 
+                return false;
+            
+            var fromBalance = GetBalance(from);
+            if (fromBalance < amount) return false;
+            
+            // Update balances
+            SetBalance(from, fromBalance - amount);
+            SetBalance(to, GetBalance(to) + amount);
+            
+            OnTransfer(from, to, amount);
+            
+            // Call onNEP17Payment if receiver is a contract
+            if (ContractManagement.GetContract(to) != null)
+                Contract.Call(to, "onNEP17Payment", CallFlags.All, from, amount, data);
+            
+            return true;
+        }
+        #endregion
+
+        #region Token Management
+        public static bool Mint(UInt160 to, BigInteger amount)
+        {
+            if (!IsOwner()) return false;
+            if (!to.IsValid || to.IsZero) 
+                throw new ArgumentException("Invalid recipient");
+            if (amount <= 0) 
+                throw new ArgumentException("Amount must be positive");
+            
+            var currentSupply = TotalSupply();
+            var newSupply = currentSupply + amount;
+            
+            if (newSupply > MaxSupply) 
+                throw new InvalidOperationException("Exceeds maximum supply");
+            
+            Storage.Put(Storage.CurrentContext, TotalSupplyKey, newSupply);
+            SetBalance(to, GetBalance(to) + amount);
+            
+            OnTransfer(null, to, amount);
+            OnMint(to, amount);
+            
+            return true;
+        }
+
+        public static bool Burn(BigInteger amount)
+        {
+            var from = (UInt160)Runtime.ExecutingScriptHash;
+            if (!Runtime.CheckWitness(from)) return false;
+            if (amount <= 0) 
+                throw new ArgumentException("Amount must be positive");
+            
+            var balance = GetBalance(from);
+            if (balance < amount) return false;
+            
+            SetBalance(from, balance - amount);
+            Storage.Put(Storage.CurrentContext, TotalSupplyKey, TotalSupply() - amount);
+            
+            OnTransfer(from, null, amount);
+            OnBurn(from, amount);
+            
+            return true;
+        }
+        #endregion
+
+        #region Pause Functionality
+        public static bool Pause()
+        {
+            if (!IsOwner()) return false;
+            Storage.Put(Storage.CurrentContext, PauseKey, 1);
+            return true;
+        }
+
+        public static bool Unpause()
+        {
+            if (!IsOwner()) return false;
+            Storage.Delete(Storage.CurrentContext, PauseKey);
+            return true;
+        }
+
+        public static bool IsPaused()
+        {
+            return Storage.Get(Storage.CurrentContext, PauseKey).ToBigInteger() == 1;
+        }
+        #endregion
+
+        #region Contract Management
+        public static bool Update(ByteString nefFile, string manifest)
+        {
+            if (!IsOwner()) return false;
+            ContractManagement.Update(nefFile, manifest);
+            return true;
+        }
+
+        public static bool Destroy()
+        {
+            if (!IsOwner()) return false;
+            ContractManagement.Destroy();
+            return true;
+        }
+        #endregion
+
+        #region Private Helpers
+        private static BigInteger GetBalance(UInt160 account)
+        {
+            return Storage.Get(Storage.CurrentContext, BalancePrefix.Concat(account)).ToBigInteger();
+        }
+
+        private static void SetBalance(UInt160 account, BigInteger balance)
+        {
+            if (balance <= 0)
+                Storage.Delete(Storage.CurrentContext, BalancePrefix.Concat(account));
+            else
+                Storage.Put(Storage.CurrentContext, BalancePrefix.Concat(account), balance);
+        }
+        #endregion
+
+        #region Contract Initialization
+        public static void _deploy(object data, bool update)
+        {
+            if (!update)
+            {
+                Storage.Put(Storage.CurrentContext, TotalSupplyKey, TotalSupply);
+                Storage.Put(Storage.CurrentContext, ContractOwnerKey, InitialOwner);
+                SetBalance(InitialOwner, TotalSupply);
+                OnTransfer(null, InitialOwner, TotalSupply);
+            }
+        }
+        #endregion
+    }
+}</code></pre>
+
+                <div class="info-box">
+                    <h4><i class="fas fa-terminal"></i> Compilation & Deployment</h4>
+                    <pre><code class="language-bash"># Compile with optimization and WebGUI
+rncc MyToken.cs \
+  --optimize=All \
+  --generate-webgui \
+  --security-analysis \
+  -o ./dist
+
+# Deploy to TestNet
+neo-cli
+neo> open wallet token-wallet.json
+neo> deploy dist/MyToken.nef dist/MyToken.manifest.json
+
+# Deploy WebGUI
+rncc MyToken.cs \
+  --deploy-webgui \
+  --contract-address=0x[your-contract-hash] \
+  --network=testnet</code></pre>
+                </div>
+
+                <h2 id="nft">NEP-11 NFT Contract</h2>
+                
+                <p>A complete NFT implementation with metadata and enumeration support:</p>
+
+                <pre><code class="language-csharp">using Neo;
+using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
+using System;
+using System.Numerics;
+
+namespace NFTContract
+{
+    [DisplayName("MyNFT")]
+    [ManifestExtra("Author", "R3E Developer")]
+    [ManifestExtra("Description", "Advanced NEP-11 NFT with metadata")]
+    [ContractPermission("*", "onNEP11Payment")]
+    [SupportedStandards("NEP-11")]
+    public class MyNFT : SmartContract
+    {
+        #region NFT Settings
+        static readonly string CollectionName = "My NFT Collection";
+        static readonly string CollectionSymbol = "MNFT";
+        static readonly byte Decimals = 0; // NFTs are non-divisible
+        static readonly BigInteger MaxSupply = 10000;
+        #endregion
+
+        #region Storage Prefixes
+        static readonly byte[] TotalSupplyKey = new byte[] { 0x00 };
+        static readonly byte[] TokensOfPrefix = new byte[] { 0x01 };
+        static readonly byte[] OwnerOfPrefix = new byte[] { 0x02 };
+        static readonly byte[] BalancePrefix = new byte[] { 0x03 };
+        static readonly byte[] PropertiesPrefix = new byte[] { 0x04 };
+        static readonly byte[] TokenCounterKey = new byte[] { 0x05 };
+        static readonly byte[] ContractOwnerKey = new byte[] { 0x06 };
+        static readonly byte[] BaseURIKey = new byte[] { 0x07 };
+        #endregion
+
+        #region Events
+        [DisplayName("Transfer")]
+        public static event Action<UInt160, UInt160, BigInteger, ByteString> OnTransfer;
+
+        [DisplayName("Mint")]
+        public static event Action<UInt160, ByteString, Map<string, object>> OnMint;
+        #endregion
+
+        #region NEP-11 Implementation
+        public static string Symbol() => CollectionSymbol;
+        public static byte Decimals() => Decimals;
+
+        public static BigInteger TotalSupply()
+        {
+            return Storage.Get(Storage.CurrentContext, TotalSupplyKey).ToBigInteger();
+        }
+
+        public static BigInteger BalanceOf(UInt160 owner)
+        {
+            if (!owner.IsValid || owner.IsZero)
+                throw new ArgumentException("Invalid owner");
+            
+            return Storage.Get(Storage.CurrentContext, BalancePrefix.Concat(owner)).ToBigInteger();
+        }
+
+        public static Iterator<ByteString> TokensOf(UInt160 owner)
+        {
+            if (!owner.IsValid || owner.IsZero)
+                throw new ArgumentException("Invalid owner");
+            
+            return Storage.Find(Storage.CurrentContext, TokensOfPrefix.Concat(owner), FindOptions.KeysOnly);
+        }
+
+        public static UInt160 OwnerOf(ByteString tokenId)
+        {
+            var owner = Storage.Get(Storage.CurrentContext, OwnerOfPrefix.Concat(tokenId));
+            if (owner == null) throw new ArgumentException("Token does not exist");
+            return (UInt160)owner;
+        }
+
+        public static bool Transfer(UInt160 to, ByteString tokenId, object data)
+        {
+            if (!to.IsValid || to.IsZero)
+                throw new ArgumentException("Invalid recipient");
+            
+            var owner = OwnerOf(tokenId);
+            if (!Runtime.CheckWitness(owner)) return false;
+            
+            // Update ownership
+            Storage.Put(Storage.CurrentContext, OwnerOfPrefix.Concat(tokenId), to);
+            
+            // Update balances
+            UpdateBalance(owner, -1);
+            UpdateBalance(to, 1);
+            
+            // Update tokens mapping
+            Storage.Delete(Storage.CurrentContext, TokensOfPrefix.Concat(owner).Concat(tokenId));
+            Storage.Put(Storage.CurrentContext, TokensOfPrefix.Concat(to).Concat(tokenId), 1);
+            
+            OnTransfer(owner, to, 1, tokenId);
+            
+            // Call onNEP11Payment if receiver is contract
+            if (ContractManagement.GetContract(to) != null)
+                Contract.Call(to, "onNEP11Payment", CallFlags.All, owner, 1, tokenId, data);
+            
+            return true;
+        }
+
+        public static Map<string, object> Properties(ByteString tokenId)
+        {
+            var props = Storage.Get(Storage.CurrentContext, PropertiesPrefix.Concat(tokenId));
+            if (props == null) throw new ArgumentException("Token does not exist");
+            return (Map<string, object>)StdLib.Deserialize(props);
+        }
+
+        public static Iterator<ByteString> Tokens()
+        {
+            return Storage.Find(Storage.CurrentContext, OwnerOfPrefix, FindOptions.RemovePrefix | FindOptions.KeysOnly);
+        }
+        #endregion
+
+        #region Minting
+        public static ByteString Mint(UInt160 to, Map<string, object> properties)
+        {
+            if (!IsOwner()) throw new InvalidOperationException("Only owner can mint");
+            if (!to.IsValid || to.IsZero)
+                throw new ArgumentException("Invalid recipient");
+            if (TotalSupply() >= MaxSupply)
+                throw new InvalidOperationException("Max supply reached");
+            
+            // Generate new token ID
+            var tokenCounter = Storage.Get(Storage.CurrentContext, TokenCounterKey).ToBigInteger();
+            var tokenId = (ByteString)tokenCounter;
+            
+            // Set ownership
+            Storage.Put(Storage.CurrentContext, OwnerOfPrefix.Concat(tokenId), to);
+            Storage.Put(Storage.CurrentContext, TokensOfPrefix.Concat(to).Concat(tokenId), 1);
+            
+            // Store properties
+            if (properties != null)
+                Storage.Put(Storage.CurrentContext, PropertiesPrefix.Concat(tokenId), StdLib.Serialize(properties));
+            
+            // Update counters
+            Storage.Put(Storage.CurrentContext, TokenCounterKey, tokenCounter + 1);
+            Storage.Put(Storage.CurrentContext, TotalSupplyKey, TotalSupply() + 1);
+            UpdateBalance(to, 1);
+            
+            OnTransfer(null, to, 1, tokenId);
+            OnMint(to, tokenId, properties);
+            
+            return tokenId;
+        }
+        #endregion
+
+        #region Metadata
+        public static bool SetBaseURI(string baseURI)
+        {
+            if (!IsOwner()) return false;
+            Storage.Put(Storage.CurrentContext, BaseURIKey, baseURI);
+            return true;
+        }
+
+        public static string TokenURI(ByteString tokenId)
+        {
+            if (OwnerOf(tokenId) == null)
+                throw new ArgumentException("Token does not exist");
+            
+            var baseURI = Storage.Get(Storage.CurrentContext, BaseURIKey).ToString();
+            return baseURI + tokenId;
+        }
+        #endregion
+
+        #region Private Helpers
+        [InitialValue("NiHYtfX8SdAQQJYf4fVvfcvfQQddH8WMLH", ContractParameterType.Hash160)]
+        static readonly UInt160 InitialOwner = default;
+
+        private static bool IsOwner()
+        {
+            var owner = Storage.Get(Storage.CurrentContext, ContractOwnerKey);
+            var currentOwner = owner?.Length == 20 ? (UInt160)owner : InitialOwner;
+            return Runtime.CheckWitness(currentOwner);
+        }
+
+        private static void UpdateBalance(UInt160 owner, BigInteger change)
+        {
+            var balance = Storage.Get(Storage.CurrentContext, BalancePrefix.Concat(owner)).ToBigInteger();
+            balance += change;
+            
+            if (balance <= 0)
+                Storage.Delete(Storage.CurrentContext, BalancePrefix.Concat(owner));
+            else
+                Storage.Put(Storage.CurrentContext, BalancePrefix.Concat(owner), balance);
+        }
+        #endregion
+
+        #region Contract Initialization
+        public static void _deploy(object data, bool update)
+        {
+            if (!update)
+            {
+                Storage.Put(Storage.CurrentContext, TotalSupplyKey, 0);
+                Storage.Put(Storage.CurrentContext, TokenCounterKey, 1);
+                Storage.Put(Storage.CurrentContext, ContractOwnerKey, InitialOwner);
+                Storage.Put(Storage.CurrentContext, BaseURIKey, "https://api.mynft.com/metadata/");
+            }
+        }
+        #endregion
+    }
+}</code></pre>
+
+                <h2 id="oracle">Oracle Contract</h2>
+                
+                <p>A price oracle contract that fetches external data:</p>
+
+                <pre><code class="language-csharp">using Neo;
+using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
+using System;
+using System.Numerics;
+
+namespace OracleContract
+{
+    [DisplayName("PriceOracle")]
+    [ManifestExtra("Description", "Decentralized price oracle for Neo")]
+    public class PriceOracle : SmartContract
+    {
+        #region Constants
+        static readonly uint RequestTimeout = 60_000; // 60 seconds
+        static readonly ulong OracleFee = 10000000; // 0.1 GAS
+        #endregion
+
+        #region Storage Keys
+        static readonly byte[] PricePrefix = new byte[] { 0x01 };
+        static readonly byte[] RequestPrefix = new byte[] { 0x02 };
+        static readonly byte[] OwnerKey = new byte[] { 0x03 };
+        #endregion
+
+        #region Events
+        [DisplayName("PriceUpdated")]
+        public static event Action<string, BigInteger, ulong> OnPriceUpdated;
+
+        [DisplayName("OracleRequest")]
+        public static event Action<string, string, ulong> OnOracleRequest;
+        #endregion
+
+        public static void RequestPrice(string symbol, string url)
+        {
+            if (!Runtime.CheckWitness(GetOwner()))
+                throw new InvalidOperationException("Only owner can request prices");
+            
+            // Request format: JSONPath to extract price
+            var filter = $"$.data.{symbol}.price";
+            var callback = "updatePrice";
+            
+            Oracle.Request(url, filter, callback, symbol, OracleFee);
+            OnOracleRequest(symbol, url, Runtime.Time);
+        }
+
+        public static void UpdatePrice(string url, string userdata, 
+            OracleResponseCode code, string result)
+        {
+            if (Runtime.CallingScriptHash != Oracle.Hash)
+                throw new InvalidOperationException("Only oracle can update");
+            
+            if (code != OracleResponseCode.Success)
+                throw new Exception($"Oracle error: {code}");
+            
+            var symbol = userdata;
+            var price = BigInteger.Parse(result);
+            var timestamp = Runtime.Time;
+            
+            // Store price with timestamp
+            var key = PricePrefix.Concat(StdLib.Serialize(symbol));
+            var value = StdLib.Serialize(new object[] { price, timestamp });
+            Storage.Put(Storage.CurrentContext, key, value);
+            
+            OnPriceUpdated(symbol, price, timestamp);
+        }
+
+        public static object[] GetPrice(string symbol)
+        {
+            var key = PricePrefix.Concat(StdLib.Serialize(symbol));
+            var value = Storage.Get(Storage.CurrentContext, key);
+            
+            if (value == null)
+                throw new ArgumentException($"No price for {symbol}");
+            
+            return (object[])StdLib.Deserialize(value);
+        }
+
+        public static bool IsValidPrice(string symbol, uint maxAge)
+        {
+            var priceData = GetPrice(symbol);
+            var timestamp = (ulong)priceData[1];
+            return Runtime.Time - timestamp <= maxAge;
+        }
+
+        #region Owner Management
+        [InitialValue("NiHYtfX8SdAQQJYf4fVvfcvfQQddH8WMLH", ContractParameterType.Hash160)]
+        static readonly UInt160 InitialOwner = default;
+
+        public static UInt160 GetOwner()
+        {
+            var owner = Storage.Get(Storage.CurrentContext, OwnerKey);
+            return owner?.Length == 20 ? (UInt160)owner : InitialOwner;
+        }
+        #endregion
+    }
+}</code></pre>
+
+                <h2 id="dao">DAO Contract</h2>
+                
+                <p>A decentralized autonomous organization contract with voting:</p>
+
+                <pre><code class="language-csharp">using Neo;
+using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
+using System;
+using System.Numerics;
+
+namespace DAOContract
+{
+    [DisplayName("SimpleDAO")]
+    [ManifestExtra("Description", "Simple DAO with proposal voting")]
+    public class SimpleDAO : SmartContract
+    {
+        #region Constants
+        static readonly uint ProposalDuration = 7 * 24 * 3600 * 1000; // 7 days in ms
+        static readonly BigInteger MinimumQuorum = 100; // Minimum votes needed
+        #endregion
+
+        #region Storage Prefixes
+        static readonly byte[] ProposalPrefix = new byte[] { 0x01 };
+        static readonly byte[] VotePrefix = new byte[] { 0x02 };
+        static readonly byte[] MemberPrefix = new byte[] { 0x03 };
+        static readonly byte[] ProposalCounterKey = new byte[] { 0x04 };
+        static readonly byte[] TreasuryKey = new byte[] { 0x05 };
+        #endregion
+
+        #region Events
+        [DisplayName("ProposalCreated")]
+        public static event Action<BigInteger, UInt160, string> OnProposalCreated;
+
+        [DisplayName("VoteCast")]
+        public static event Action<BigInteger, UInt160, bool> OnVoteCast;
+
+        [DisplayName("ProposalExecuted")]
+        public static event Action<BigInteger, bool> OnProposalExecuted;
+        #endregion
+
+        #region Proposal Structure
+        public class Proposal
+        {
+            public UInt160 Creator;
+            public string Description;
+            public BigInteger Amount;
+            public UInt160 Recipient;
+            public ulong StartTime;
+            public ulong EndTime;
+            public BigInteger YesVotes;
+            public BigInteger NoVotes;
+            public bool Executed;
+        }
+        #endregion
+
+        #region Membership
+        public static bool AddMember(UInt160 member, BigInteger votingPower)
+        {
+            if (!IsOwner()) return false;
+            if (!member.IsValid || votingPower <= 0) return false;
+            
+            Storage.Put(Storage.CurrentContext, MemberPrefix.Concat(member), votingPower);
+            return true;
+        }
+
+        public static BigInteger GetVotingPower(UInt160 member)
+        {
+            return Storage.Get(Storage.CurrentContext, MemberPrefix.Concat(member)).ToBigInteger();
+        }
+        #endregion
+
+        #region Proposals
+        public static BigInteger CreateProposal(string description, BigInteger amount, UInt160 recipient)
+        {
+            var creator = (UInt160)Runtime.ExecutingScriptHash;
+            if (!Runtime.CheckWitness(creator)) 
+                throw new InvalidOperationException("Invalid witness");
+            
+            if (GetVotingPower(creator) <= 0)
+                throw new InvalidOperationException("Not a DAO member");
+            
+            // Get proposal ID
+            var proposalId = Storage.Get(Storage.CurrentContext, ProposalCounterKey).ToBigInteger();
+            
+            // Create proposal
+            var proposal = new Proposal
+            {
+                Creator = creator,
+                Description = description,
+                Amount = amount,
+                Recipient = recipient,
+                StartTime = Runtime.Time,
+                EndTime = Runtime.Time + ProposalDuration,
+                YesVotes = 0,
+                NoVotes = 0,
+                Executed = false
+            };
+            
+            // Store proposal
+            Storage.Put(Storage.CurrentContext, 
+                ProposalPrefix.Concat(proposalId.ToByteArray()), 
+                StdLib.Serialize(proposal));
+            
+            // Increment counter
+            Storage.Put(Storage.CurrentContext, ProposalCounterKey, proposalId + 1);
+            
+            OnProposalCreated(proposalId, creator, description);
+            return proposalId;
+        }
+
+        public static bool Vote(BigInteger proposalId, bool support)
+        {
+            var voter = (UInt160)Runtime.ExecutingScriptHash;
+            if (!Runtime.CheckWitness(voter)) return false;
+            
+            var votingPower = GetVotingPower(voter);
+            if (votingPower <= 0) return false;
+            
+            // Get proposal
+            var proposalData = Storage.Get(Storage.CurrentContext, 
+                ProposalPrefix.Concat(proposalId.ToByteArray()));
+            if (proposalData == null) return false;
+            
+            var proposal = (Proposal)StdLib.Deserialize(proposalData);
+            
+            // Check voting period
+            if (Runtime.Time < proposal.StartTime || Runtime.Time > proposal.EndTime)
+                return false;
+            
+            // Check if already voted
+            var voteKey = VotePrefix.Concat(proposalId.ToByteArray()).Concat(voter);
+            if (Storage.Get(Storage.CurrentContext, voteKey) != null)
+                return false;
+            
+            // Record vote
+            if (support)
+                proposal.YesVotes += votingPower;
+            else
+                proposal.NoVotes += votingPower;
+            
+            // Save updated proposal
+            Storage.Put(Storage.CurrentContext, 
+                ProposalPrefix.Concat(proposalId.ToByteArray()), 
+                StdLib.Serialize(proposal));
+            
+            // Mark as voted
+            Storage.Put(Storage.CurrentContext, voteKey, 1);
+            
+            OnVoteCast(proposalId, voter, support);
+            return true;
+        }
+
+        public static bool ExecuteProposal(BigInteger proposalId)
+        {
+            var proposalData = Storage.Get(Storage.CurrentContext, 
+                ProposalPrefix.Concat(proposalId.ToByteArray()));
+            if (proposalData == null) return false;
+            
+            var proposal = (Proposal)StdLib.Deserialize(proposalData);
+            
+            // Check if voting ended
+            if (Runtime.Time <= proposal.EndTime)
+                return false;
+            
+            // Check if already executed
+            if (proposal.Executed)
+                return false;
+            
+            // Check if passed (simple majority + quorum)
+            var totalVotes = proposal.YesVotes + proposal.NoVotes;
+            var passed = totalVotes >= MinimumQuorum && proposal.YesVotes > proposal.NoVotes;
+            
+            proposal.Executed = true;
+            
+            if (passed && proposal.Amount > 0)
+            {
+                // Execute transfer from treasury
+                var treasury = GetTreasury();
+                if (treasury >= proposal.Amount)
+                {
+                    GAS.Transfer(Runtime.ExecutingScriptHash, proposal.Recipient, proposal.Amount);
+                    SetTreasury(treasury - proposal.Amount);
+                }
+            }
+            
+            // Save updated proposal
+            Storage.Put(Storage.CurrentContext, 
+                ProposalPrefix.Concat(proposalId.ToByteArray()), 
+                StdLib.Serialize(proposal));
+            
+            OnProposalExecuted(proposalId, passed);
+            return true;
+        }
+        #endregion
+
+        #region Treasury
+        public static void OnNEP17Payment(UInt160 from, BigInteger amount, object data)
+        {
+            if (Runtime.CallingScriptHash == GAS.Hash)
+            {
+                var treasury = GetTreasury();
+                SetTreasury(treasury + amount);
+            }
+        }
+
+        private static BigInteger GetTreasury()
+        {
+            return Storage.Get(Storage.CurrentContext, TreasuryKey).ToBigInteger();
+        }
+
+        private static void SetTreasury(BigInteger amount)
+        {
+            Storage.Put(Storage.CurrentContext, TreasuryKey, amount);
+        }
+        #endregion
+
+        #region Owner Management
+        [InitialValue("NiHYtfX8SdAQQJYf4fVvfcvfQQddH8WMLH", ContractParameterType.Hash160)]
+        static readonly UInt160 InitialOwner = default;
+
+        private static bool IsOwner()
+        {
+            return Runtime.CheckWitness(InitialOwner);
+        }
+        #endregion
+    }
+}</code></pre>
+
+                <h2 id="defi">DeFi Examples</h2>
+                
+                <p>Common DeFi patterns and implementations:</p>
+
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('staking')">Staking</button>
+                    <button class="tab" onclick="showTab('swap')">Token Swap</button>
+                    <button class="tab" onclick="showTab('vault')">Yield Vault</button>
+                </div>
+
+                <div class="tab-content">
+                    <div id="staking" class="tab-pane active">
+                        <h3>Simple Staking Contract</h3>
+                        <pre><code class="language-csharp">public static bool Stake(BigInteger amount)
+{
+    var staker = (UInt160)Runtime.ExecutingScriptHash;
+    if (!Runtime.CheckWitness(staker)) return false;
+    if (amount <= 0) return false;
+    
+    // Transfer tokens to contract
+    var success = (bool)Contract.Call(TokenContract, "transfer", 
+        CallFlags.All, staker, Runtime.ExecutingScriptHash, amount, null);
+    if (!success) return false;
+    
+    // Update stake info
+    var stakeKey = StakePrefix.Concat(staker);
+    var stakeInfo = Storage.Get(Storage.CurrentContext, stakeKey);
+    
+    if (stakeInfo == null)
+    {
+        // New stake
+        var newStake = new object[] { amount, Runtime.Time };
+        Storage.Put(Storage.CurrentContext, stakeKey, StdLib.Serialize(newStake));
+    }
+    else
+    {
+        // Add to existing stake
+        var stake = (object[])StdLib.Deserialize(stakeInfo);
+        var totalStaked = (BigInteger)stake[0] + amount;
+        stake[0] = totalStaked;
+        Storage.Put(Storage.CurrentContext, stakeKey, StdLib.Serialize(stake));
+    }
+    
+    OnStake(staker, amount);
+    return true;
+}
+
+public static BigInteger CalculateRewards(UInt160 staker)
+{
+    var stakeInfo = Storage.Get(Storage.CurrentContext, StakePrefix.Concat(staker));
+    if (stakeInfo == null) return 0;
+    
+    var stake = (object[])StdLib.Deserialize(stakeInfo);
+    var amount = (BigInteger)stake[0];
+    var startTime = (ulong)stake[1];
+    
+    var duration = Runtime.Time - startTime;
+    var rewardRate = 10; // 10% APY
+    
+    return amount * rewardRate * duration / (365 * 24 * 3600 * 1000 * 100);
+}</code></pre>
+                    </div>
+                    
+                    <div id="swap" class="tab-pane">
+                        <h3>Automated Market Maker (AMM)</h3>
+                        <pre><code class="language-csharp">public static BigInteger Swap(UInt160 tokenIn, UInt160 tokenOut, 
+    BigInteger amountIn, BigInteger minAmountOut)
+{
+    var trader = (UInt160)Runtime.ExecutingScriptHash;
+    if (!Runtime.CheckWitness(trader)) return 0;
+    
+    // Get reserves
+    var reserveIn = GetReserve(tokenIn);
+    var reserveOut = GetReserve(tokenOut);
+    
+    // Calculate output amount (constant product formula)
+    var amountOut = GetAmountOut(amountIn, reserveIn, reserveOut);
+    
+    if (amountOut < minAmountOut)
+        throw new Exception("Insufficient output amount");
+    
+    // Transfer tokens
+    TransferToken(tokenIn, trader, Runtime.ExecutingScriptHash, amountIn);
+    TransferToken(tokenOut, Runtime.ExecutingScriptHash, trader, amountOut);
+    
+    // Update reserves
+    SetReserve(tokenIn, reserveIn + amountIn);
+    SetReserve(tokenOut, reserveOut - amountOut);
+    
+    OnSwap(trader, tokenIn, tokenOut, amountIn, amountOut);
+    return amountOut;
+}
+
+private static BigInteger GetAmountOut(BigInteger amountIn, 
+    BigInteger reserveIn, BigInteger reserveOut)
+{
+    var amountInWithFee = amountIn * 997; // 0.3% fee
+    var numerator = amountInWithFee * reserveOut;
+    var denominator = reserveIn * 1000 + amountInWithFee;
+    return numerator / denominator;
+}</code></pre>
+                    </div>
+                    
+                    <div id="vault" class="tab-pane">
+                        <h3>Yield Vault Strategy</h3>
+                        <pre><code class="language-csharp">public static BigInteger Deposit(BigInteger amount)
+{
+    var depositor = (UInt160)Runtime.ExecutingScriptHash;
+    if (!Runtime.CheckWitness(depositor)) return 0;
+    
+    // Calculate shares to mint
+    var totalAssets = GetTotalAssets();
+    var totalShares = GetTotalShares();
+    
+    BigInteger shares;
+    if (totalShares == 0)
+        shares = amount; // First deposit
+    else
+        shares = amount * totalShares / totalAssets;
+    
+    // Transfer underlying token to vault
+    TransferToken(UnderlyingToken, depositor, Runtime.ExecutingScriptHash, amount);
+    
+    // Mint shares
+    MintShares(depositor, shares);
+    
+    // Deploy capital to yield strategy
+    DeployToStrategy(amount);
+    
+    OnDeposit(depositor, amount, shares);
+    return shares;
+}
+
+private static void DeployToStrategy(BigInteger amount)
+{
+    // Example: Lend on a lending protocol
+    Contract.Call(LendingProtocol, "supply", CallFlags.All, 
+        UnderlyingToken, amount);
+}
+
+public static BigInteger Withdraw(BigInteger shares)
+{
+    var withdrawer = (UInt160)Runtime.ExecutingScriptHash;
+    if (!Runtime.CheckWitness(withdrawer)) return 0;
+    
+    var balance = GetShareBalance(withdrawer);
+    if (balance < shares) return 0;
+    
+    // Calculate assets to return
+    var totalAssets = GetTotalAssets();
+    var totalShares = GetTotalShares();
+    var assets = shares * totalAssets / totalShares;
+    
+    // Withdraw from strategy if needed
+    var vaultBalance = GetVaultBalance();
+    if (vaultBalance < assets)
+        WithdrawFromStrategy(assets - vaultBalance);
+    
+    // Burn shares and transfer assets
+    BurnShares(withdrawer, shares);
+    TransferToken(UnderlyingToken, Runtime.ExecutingScriptHash, withdrawer, assets);
+    
+    OnWithdraw(withdrawer, assets, shares);
+    return assets;
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="feature-box">
+                    <h4><i class="fas fa-lightbulb"></i> Best Practices</h4>
+                    <ul>
+                        <li>Always validate inputs and check witness</li>
+                        <li>Use events for off-chain monitoring</li>
+                        <li>Implement proper access controls</li>
+                        <li>Consider gas optimization with <code>--optimize=All</code></li>
+                        <li>Test thoroughly on TestNet before MainNet</li>
+                        <li>Use <code>--security-analysis</code> to find vulnerabilities</li>
+                        <li>Generate WebGUI for better user experience</li>
+                    </ul>
+                </div>
+
+                <div class="next-steps">
+                    <h3>Next Steps</h3>
+                    <div class="next-cards">
+                        <a href="security.html" class="next-card">
+                            <h4>Security Guide</h4>
+                            <p>Learn about smart contract security</p>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="optimization.html" class="next-card">
+                            <h4>Optimization</h4>
+                            <p>Reduce gas costs and improve performance</p>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="https://github.com/r3e-network/r3e-devpack-dotnet/tree/main/examples" class="next-card">
+                            <h4>More Examples</h4>
+                            <p>Browse the full examples repository</p>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 R3E Network. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/docs.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+</body>
+</html>

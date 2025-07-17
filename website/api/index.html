@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Reference - R3E Neo Contract DevPack</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/api.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="../index.html" class="logo">
+                    <i class="fas fa-cube"></i>
+                    <span>R3E DevPack</span>
+                </a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="../index.html#features" class="nav-link">Features</a>
+                <a href="../docs/getting-started.html" class="nav-link">Documentation</a>
+                <a href="index.html" class="nav-link active">API Reference</a>
+                <a href="../downloads.html" class="nav-link">Downloads</a>
+                <a href="https://github.com/r3e-network/r3e-devpack-dotnet" class="nav-link" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </div>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- API Hero -->
+    <section class="api-hero">
+        <div class="container">
+            <h1 class="page-title">API Reference</h1>
+            <p class="page-subtitle">Complete API documentation for R3E Neo Contract DevPack</p>
+            
+            <div class="api-search">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search API documentation..." id="apiSearch">
+            </div>
+        </div>
+    </section>
+
+    <!-- API Categories -->
+    <section class="api-content">
+        <div class="container">
+            <div class="api-grid">
+                <!-- Compiler API -->
+                <div class="api-category">
+                    <div class="category-header">
+                        <i class="fas fa-code"></i>
+                        <h2>Compiler API</h2>
+                    </div>
+                    <p>Programmatic access to the R3E Neo Contract Compiler</p>
+                    
+                    <div class="api-items">
+                        <a href="#compiler-csharp" class="api-item">
+                            <h3>C# API</h3>
+                            <p>Use RNCC as a library in your .NET applications</p>
+                        </a>
+                        <a href="#compiler-cli" class="api-item">
+                            <h3>CLI Reference</h3>
+                            <p>Complete command-line interface documentation</p>
+                        </a>
+                        <a href="#compiler-plugins" class="api-item">
+                            <h3>Compiler Plugins</h3>
+                            <p>Extend compiler functionality with custom plugins</p>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- WebGUI Service API -->
+                <div class="api-category">
+                    <div class="category-header">
+                        <i class="fas fa-globe"></i>
+                        <h2>WebGUI Service API</h2>
+                    </div>
+                    <p>REST API for WebGUI hosting and management</p>
+                    
+                    <div class="api-items">
+                        <a href="#webgui-rest" class="api-item">
+                            <h3>REST API</h3>
+                            <p>HTTP endpoints for WebGUI operations</p>
+                        </a>
+                        <a href="#webgui-sdk" class="api-item">
+                            <h3>JavaScript SDK</h3>
+                            <p>Client library for WebGUI integration</p>
+                        </a>
+                        <a href="#webgui-webhooks" class="api-item">
+                            <h3>Webhooks</h3>
+                            <p>Real-time notifications for WebGUI events</p>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Smart Contract Framework -->
+                <div class="api-category">
+                    <div class="category-header">
+                        <i class="fas fa-file-contract"></i>
+                        <h2>Smart Contract Framework</h2>
+                    </div>
+                    <p>Neo smart contract development framework APIs</p>
+                    
+                    <div class="api-items">
+                        <a href="#framework-core" class="api-item">
+                            <h3>Core Framework</h3>
+                            <p>Base classes and attributes for contracts</p>
+                        </a>
+                        <a href="#framework-services" class="api-item">
+                            <h3>Services</h3>
+                            <p>Runtime services and native contracts</p>
+                        </a>
+                        <a href="#framework-standards" class="api-item">
+                            <h3>Standards</h3>
+                            <p>NEP standards implementations</p>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Development Tools -->
+                <div class="api-category">
+                    <div class="category-header">
+                        <i class="fas fa-tools"></i>
+                        <h2>Development Tools</h2>
+                    </div>
+                    <p>APIs for development and testing tools</p>
+                    
+                    <div class="api-items">
+                        <a href="#tools-testing" class="api-item">
+                            <h3>Testing Framework</h3>
+                            <p>Unit testing utilities for contracts</p>
+                        </a>
+                        <a href="#tools-debugger" class="api-item">
+                            <h3>Debugger API</h3>
+                            <p>Debug contract execution programmatically</p>
+                        </a>
+                        <a href="#tools-analyzer" class="api-item">
+                            <h3>Code Analyzer</h3>
+                            <p>Static analysis and security scanning</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Reference -->
+            <div class="quick-reference">
+                <h2>Quick Reference</h2>
+                
+                <div class="reference-section">
+                    <h3 id="compiler-csharp">Compiler C# API</h3>
+                    <pre><code class="language-csharp">using Neo.Compiler.CSharp;
+
+// Initialize compiler
+var compiler = new CompilationEngine();
+
+// Configure options
+var options = new CompilationOptions
+{
+    OptimizationLevel = OptimizationLevel.All,
+    DebugInfo = DebugInfoLevel.Extended,
+    GenerateArtifacts = ArtifactType.All
+};
+
+// Compile contract
+var result = compiler.CompileContract("MyContract.cs", options);
+
+if (result.Success)
+{
+    // Access compiled NEF
+    byte[] nefBytes = result.Nef;
+    
+    // Access manifest
+    string manifest = result.Manifest;
+    
+    // Access debug info
+    var debugInfo = result.DebugInfo;
+}</code></pre>
+                </div>
+
+                <div class="reference-section">
+                    <h3 id="webgui-rest">WebGUI REST API</h3>
+                    <pre><code class="language-javascript">// Upload WebGUI
+POST /api/webgui/upload
+Content-Type: multipart/form-data
+Authorization: Bearer YOUR_API_KEY
+
+{
+  "files": [webgui files],
+  "contractAddress": "0x123...",
+  "network": "testnet",
+  "metadata": {
+    "name": "My Contract",
+    "description": "Contract description"
+  }
+}
+
+// Response
+{
+  "success": true,
+  "url": "https://service.neoservicelayer.com/contracts/0x123...",
+  "id": "webgui_123"
+}</code></pre>
+                </div>
+
+                <div class="reference-section">
+                    <h3 id="framework-core">Smart Contract Base Class</h3>
+                    <pre><code class="language-csharp">using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Services;
+
+[DisplayName("MyContract")]
+[ManifestExtra("Author", "Developer")]
+[ContractPermission("*", "*")]
+public class MyContract : SmartContract
+{
+    // Events
+    public static event Action<UInt160, BigInteger> OnTransfer;
+    
+    // Storage
+    private static StorageMap Balances => new(Storage.CurrentContext, "balances");
+    
+    // Methods
+    public static bool Transfer(UInt160 from, UInt160 to, BigInteger amount)
+    {
+        if (!Runtime.CheckWitness(from)) return false;
+        
+        var fromBalance = Balances.Get(from)?.ToBigInteger() ?? 0;
+        if (fromBalance < amount) return false;
+        
+        Balances.Put(from, fromBalance - amount);
+        Balances.Put(to, (Balances.Get(to)?.ToBigInteger() ?? 0) + amount);
+        
+        OnTransfer(from, amount);
+        return true;
+    }
+}</code></pre>
+                </div>
+
+                <div class="reference-section">
+                    <h3>Common Patterns</h3>
+                    <div class="pattern-grid">
+                        <div class="pattern-card">
+                            <h4>Access Control</h4>
+                            <pre><code class="language-csharp">private static bool IsOwner()
+{
+    return Runtime.CheckWitness(GetOwner());
+}
+
+public static void AdminFunction()
+{
+    if (!IsOwner()) 
+        throw new Exception("Unauthorized");
+    // Admin logic
+}</code></pre>
+                        </div>
+                        
+                        <div class="pattern-card">
+                            <h4>Storage Maps</h4>
+                            <pre><code class="language-csharp">private static StorageMap GetMap(string prefix)
+{
+    return new StorageMap(
+        Storage.CurrentContext, 
+        prefix
+    );
+}
+
+// Usage
+var balances = GetMap("balance");
+balances.Put(account, amount);</code></pre>
+                        </div>
+                        
+                        <div class="pattern-card">
+                            <h4>Safe Math</h4>
+                            <pre><code class="language-csharp">public static BigInteger SafeAdd(
+    BigInteger a, 
+    BigInteger b)
+{
+    var c = a + b;
+    if (c < a) 
+        throw new Exception("Overflow");
+    return c;
+}</code></pre>
+                        </div>
+                        
+                        <div class="pattern-card">
+                            <h4>Oracle Integration</h4>
+                            <pre><code class="language-csharp">public static void RequestData(string url)
+{
+    Oracle.Request(
+        url, 
+        "$.price", 
+        "callback", 
+        null, 
+        Oracle.MinimumResponseFee
+    );
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Navigation -->
+            <div class="api-nav">
+                <h3>API Sections</h3>
+                <ul>
+                    <li><a href="#compiler-api">Compiler API</a></li>
+                    <li><a href="#webgui-api">WebGUI Service API</a></li>
+                    <li><a href="#framework-api">Smart Contract Framework</a></li>
+                    <li><a href="#tools-api">Development Tools</a></li>
+                </ul>
+                
+                <h3>Resources</h3>
+                <ul>
+                    <li><a href="https://github.com/r3e-network/r3e-devpack-dotnet/wiki">API Wiki</a></li>
+                    <li><a href="https://docs.neo.org">Neo Documentation</a></li>
+                    <li><a href="../docs/examples.html">Code Examples</a></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>R3E DevPack</h3>
+                    <p>Professional toolkit for Neo smart contract development</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="../docs/getting-started.html">Getting Started</a></li>
+                        <li><a href="../downloads.html">Downloads</a></li>
+                        <li><a href="https://github.com/r3e-network/r3e-devpack-dotnet">GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 R3E Network. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+</body>
+</html>

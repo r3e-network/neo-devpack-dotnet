@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebGUI Service - R3E Neo Contract DevPack</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/docs.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="../index.html" class="logo">
+                    <i class="fas fa-cube"></i>
+                    <span>R3E DevPack</span>
+                </a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="../index.html#features" class="nav-link">Features</a>
+                <a href="getting-started.html" class="nav-link active">Documentation</a>
+                <a href="../api/index.html" class="nav-link">API Reference</a>
+                <a href="../downloads.html" class="nav-link">Downloads</a>
+                <a href="https://github.com/r3e-network/r3e-devpack-dotnet" class="nav-link" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </div>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Documentation Layout -->
+    <div class="docs-layout">
+        <!-- Sidebar -->
+        <aside class="docs-sidebar">
+            <div class="sidebar-header">
+                <h3>Documentation</h3>
+            </div>
+            <nav class="docs-nav">
+                <div class="nav-section">
+                    <h4>Getting Started</h4>
+                    <ul>
+                        <li><a href="getting-started.html" class="nav-item">Introduction</a></li>
+                        <li><a href="getting-started.html#installation" class="nav-item">Installation</a></li>
+                        <li><a href="getting-started.html#first-contract" class="nav-item">Your First Contract</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h4>WebGUI Service</h4>
+                    <ul>
+                        <li><a href="#overview" class="nav-item active">Overview</a></li>
+                        <li><a href="#generation" class="nav-item">Generating WebGUI</a></li>
+                        <li><a href="#deployment" class="nav-item">Deployment</a></li>
+                        <li><a href="#customization" class="nav-item">Customization</a></li>
+                        <li><a href="#hosting" class="nav-item">Self-Hosting</a></li>
+                        <li><a href="#api" class="nav-item">API Integration</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h4>Guides</h4>
+                    <ul>
+                        <li><a href="compiler-reference.html" class="nav-item">Compiler Reference</a></li>
+                        <li><a href="optimization.html" class="nav-item">Optimization Guide</a></li>
+                        <li><a href="security.html" class="nav-item">Security Best Practices</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="docs-content">
+            <article>
+                <h1 id="overview">WebGUI Service Documentation</h1>
+                
+                <p class="lead">
+                    The R3E WebGUI Service automatically generates and hosts interactive web interfaces for your Neo smart contracts,
+                    making them accessible to non-technical users through a simple web browser.
+                </p>
+
+                <div class="toc">
+                    <h3>On this page</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#generation">Generating WebGUI</a></li>
+                        <li><a href="#deployment">Deployment</a></li>
+                        <li><a href="#customization">Customization</a></li>
+                        <li><a href="#hosting">Self-Hosting</a></li>
+                        <li><a href="#api">API Integration</a></li>
+                    </ul>
+                </div>
+
+                <h2>Key Features</h2>
+                
+                <div class="features-grid" style="margin: 2rem 0;">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-magic"></i>
+                        </div>
+                        <h3>Auto-Generation</h3>
+                        <p>Automatically creates UI from contract ABI</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <h3>Wallet Integration</h3>
+                        <p>Support for NeoLine, O3, and WalletConnect</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h3>Responsive Design</h3>
+                        <p>Works perfectly on desktop and mobile</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-broadcast-tower"></i>
+                        </div>
+                        <h3>Real-time Updates</h3>
+                        <p>Live transaction status and event monitoring</p>
+                    </div>
+                </div>
+
+                <h2 id="generation">Generating WebGUI</h2>
+                
+                <p>Generate a WebGUI for your contract using the RNCC compiler:</p>
+
+                <h3>Basic Generation</h3>
+                <pre><code class="language-bash"># Generate WebGUI files locally
+rncc MyContract.cs --generate-webgui
+
+# Output files:
+# bin/sc/MyContract.WebGUI/
+#   ├── index.html        # Main application
+#   ├── app.js           # Application logic
+#   ├── style.css        # Styling
+#   ├── manifest.json    # WebGUI configuration
+#   └── assets/          # Icons and images</code></pre>
+
+                <h3>WebGUI Manifest</h3>
+                <p>The generated <code>manifest.json</code> contains metadata about your contract interface:</p>
+                
+                <pre><code class="language-json">{
+  "name": "MyContract",
+  "displayName": "My Smart Contract",
+  "description": "Interactive interface for MyContract",
+  "version": "1.0.0",
+  "contract": {
+    "address": "0x...",
+    "network": "testnet",
+    "abi": { ... }
+  },
+  "theme": {
+    "primaryColor": "#00e599",
+    "secondaryColor": "#00d4ff",
+    "darkMode": true
+  },
+  "features": {
+    "wallet": true,
+    "events": true,
+    "storage": true
+  }
+}</code></pre>
+
+                <h2 id="deployment">Deployment Options</h2>
+                
+                <p>Deploy your WebGUI using one of these methods:</p>
+
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('r3e-hosting')">R3E Hosting</button>
+                    <button class="tab" onclick="showTab('static-hosting')">Static Hosting</button>
+                    <button class="tab" onclick="showTab('ipfs')">IPFS</button>
+                </div>
+
+                <div class="tab-content">
+                    <div id="r3e-hosting" class="tab-pane active">
+                        <h3>Deploy to R3E Hosting Service</h3>
+                        <p>The easiest way to deploy your WebGUI:</p>
+                        <pre><code class="language-bash"># Generate and deploy in one command
+rncc MyContract.cs \
+  --generate-webgui \
+  --deploy-webgui \
+  --contract-address=0x1234567890abcdef... \
+  --network=testnet \
+  --deployer-address=NPvKVTGZapmFWABLsyvfreuqn73jCjJtN9
+
+# Your WebGUI will be available at:
+# https://service.neoservicelayer.com/contracts/0x1234567890abcdef...</code></pre>
+                        
+                        <div class="info-box">
+                            <h4><i class="fas fa-info-circle"></i> R3E Hosting Benefits</h4>
+                            <ul>
+                                <li>Automatic SSL certificates</li>
+                                <li>Global CDN distribution</li>
+                                <li>Built-in analytics</li>
+                                <li>No configuration required</li>
+                                <li>Free tier available</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div id="static-hosting" class="tab-pane">
+                        <h3>Deploy to Static Hosting</h3>
+                        <p>Host on any static file hosting service:</p>
+                        
+                        <h4>Netlify</h4>
+                        <pre><code class="language-bash"># Install Netlify CLI
+npm install -g netlify-cli
+
+# Deploy
+cd bin/sc/MyContract.WebGUI
+netlify deploy --prod</code></pre>
+                        
+                        <h4>GitHub Pages</h4>
+                        <pre><code class="language-bash"># Push to gh-pages branch
+git subtree push --prefix=bin/sc/MyContract.WebGUI origin gh-pages</code></pre>
+                        
+                        <h4>Vercel</h4>
+                        <pre><code class="language-bash"># Install Vercel CLI
+npm install -g vercel
+
+# Deploy
+cd bin/sc/MyContract.WebGUI
+vercel --prod</code></pre>
+                    </div>
+                    
+                    <div id="ipfs" class="tab-pane">
+                        <h3>Deploy to IPFS</h3>
+                        <p>Decentralized hosting using IPFS:</p>
+                        <pre><code class="language-bash"># Add to IPFS
+ipfs add -r bin/sc/MyContract.WebGUI
+
+# Pin the content
+ipfs pin add QmYourHashHere
+
+# Access via gateway
+# https://ipfs.io/ipfs/QmYourHashHere</code></pre>
+                        
+                        <p>Or use a pinning service like Pinata:</p>
+                        <pre><code class="language-bash"># Using Pinata CLI
+pinata-cli pin bin/sc/MyContract.WebGUI</code></pre>
+                    </div>
+                </div>
+
+                <h2 id="customization">Customization</h2>
+                
+                <p>Customize your WebGUI appearance and behavior:</p>
+
+                <h3>Theme Customization</h3>
+                <p>Edit the <code>manifest.json</code> to customize colors and branding:</p>
+                
+                <pre><code class="language-json">{
+  "theme": {
+    "primaryColor": "#ff6b6b",
+    "secondaryColor": "#4ecdc4",
+    "backgroundColor": "#1a1a1a",
+    "textColor": "#ffffff",
+    "darkMode": true,
+    "fontFamily": "Inter, sans-serif",
+    "borderRadius": "8px"
+  },
+  "branding": {
+    "logo": "assets/logo.png",
+    "favicon": "assets/favicon.ico",
+    "title": "My DApp",
+    "footer": "© 2024 My Company"
+  }
+}</code></pre>
+
+                <h3>Custom Components</h3>
+                <p>Add custom UI components by modifying the generated files:</p>
+                
+                <pre><code class="language-javascript">// app.js - Add custom validation
+function validateInput(methodName, params) {
+  if (methodName === 'transfer') {
+    if (params.amount <= 0) {
+      throw new Error('Amount must be positive');
+    }
+    if (!isValidAddress(params.to)) {
+      throw new Error('Invalid recipient address');
+    }
+  }
+  return true;
+}</code></pre>
+
+                <h3>Adding Features</h3>
+                
+                <div class="feature-box">
+                    <h4><i class="fas fa-plus-circle"></i> Common Customizations</h4>
+                    <ul>
+                        <li><strong>Custom Forms</strong>: Replace auto-generated forms with custom UI</li>
+                        <li><strong>Data Visualization</strong>: Add charts for contract data</li>
+                        <li><strong>Multi-language</strong>: Add i18n support</li>
+                        <li><strong>Advanced Wallets</strong>: Integrate additional wallet providers</li>
+                        <li><strong>Notifications</strong>: Add push notifications for events</li>
+                    </ul>
+                </div>
+
+                <h2 id="hosting">Self-Hosting WebGUI Service</h2>
+                
+                <p>Run your own instance of the R3E WebGUI hosting service:</p>
+
+                <h3>Using Docker</h3>
+                <pre><code class="language-bash"># Clone the repository
+git clone https://github.com/r3e-network/r3e-devpack-dotnet.git
+cd r3e-devpack-dotnet/src/R3E.WebGUI.Service
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your settings
+
+# Run with Docker Compose
+docker-compose -f docker-compose.production.yml up -d</code></pre>
+
+                <h3>Configuration</h3>
+                <p>Key environment variables for self-hosting:</p>
+                
+                <pre><code class="language-bash"># Database
+DB_PASSWORD=YourSecurePassword
+DOMAIN=your-domain.com
+ADMIN_EMAIL=admin@your-domain.com
+
+# Service Configuration
+R3EWebGUI__BaseDomain=your-domain.com
+R3EWebGUI__StorageBasePath=/app/webgui-storage
+R3EWebGUI__MaxFileSizeKB=5120
+R3EWebGUI__AllowedNetworks=["testnet", "mainnet"]
+
+# Rate Limiting
+R3EWebGUI__RateLimiting__EnableRateLimiting=true
+R3EWebGUI__RateLimiting__PermitLimit=100
+R3EWebGUI__RateLimiting__WindowMinutes=1
+
+# Neo RPC Endpoints
+NEO_RPC_TESTNET=https://test1.neo.coz.io:443
+NEO_RPC_MAINNET=https://mainnet1.neo.coz.io:443</code></pre>
+
+                <h3>Architecture</h3>
+                
+                <div class="info-box">
+                    <h4><i class="fas fa-server"></i> Service Components</h4>
+                    <ul>
+                        <li><strong>ASP.NET Core API</strong>: Handles WebGUI uploads and serving</li>
+                        <li><strong>SQL Server</strong>: Stores metadata and configurations</li>
+                        <li><strong>Nginx</strong>: Reverse proxy with SSL termination</li>
+                        <li><strong>File Storage</strong>: Stores WebGUI files</li>
+                        <li><strong>Let's Encrypt</strong>: Automatic SSL certificates</li>
+                    </ul>
+                </div>
+
+                <h2 id="api">API Integration</h2>
+                
+                <p>Integrate with the WebGUI Service API for advanced use cases:</p>
+
+                <h3>Upload WebGUI</h3>
+                <pre><code class="language-bash"># Upload WebGUI via API
+curl -X POST https://api.r3e-gui.com/api/webgui/upload \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: multipart/form-data" \
+  -F "files=@webgui.zip" \
+  -F "contractAddress=0x1234..." \
+  -F "network=testnet"</code></pre>
+
+                <h3>API Endpoints</h3>
+                
+                <div class="option-group">
+                    <h4><i class="fas fa-plug"></i> Available Endpoints</h4>
+                    <table class="options-table">
+                        <tr>
+                            <td><code>POST /api/webgui/upload</code></td>
+                            <td>Upload new WebGUI</td>
+                        </tr>
+                        <tr>
+                            <td><code>GET /api/webgui/{address}</code></td>
+                            <td>Get WebGUI metadata</td>
+                        </tr>
+                        <tr>
+                            <td><code>PUT /api/webgui/{address}</code></td>
+                            <td>Update existing WebGUI</td>
+                        </tr>
+                        <tr>
+                            <td><code>DELETE /api/webgui/{address}</code></td>
+                            <td>Remove WebGUI</td>
+                        </tr>
+                        <tr>
+                            <td><code>GET /api/stats/{address}</code></td>
+                            <td>Get usage statistics</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h3>JavaScript SDK</h3>
+                <pre><code class="language-javascript">// Using the R3E WebGUI SDK
+import { WebGUIClient } from '@r3e/webgui-sdk';
+
+const client = new WebGUIClient({
+  apiKey: 'YOUR_API_KEY',
+  endpoint: 'https://api.r3e-gui.com'
+});
+
+// Upload WebGUI
+const result = await client.upload({
+  files: webguiFiles,
+  contractAddress: '0x1234...',
+  network: 'testnet',
+  metadata: {
+    name: 'My Contract',
+    description: 'My awesome contract'
+  }
+});
+
+console.log('WebGUI URL:', result.url);</code></pre>
+
+                <div class="next-steps">
+                    <h3>Next Steps</h3>
+                    <div class="next-cards">
+                        <a href="examples.html" class="next-card">
+                            <h4>WebGUI Examples</h4>
+                            <p>See real-world WebGUI implementations</p>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="optimization.html" class="next-card">
+                            <h4>Performance</h4>
+                            <p>Optimize your WebGUI for speed</p>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="../api/webgui.html" class="next-card">
+                            <h4>API Reference</h4>
+                            <p>Complete WebGUI API documentation</p>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 R3E Network. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/docs.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+</body>
+</html>

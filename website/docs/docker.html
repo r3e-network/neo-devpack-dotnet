@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Integration - R3E Neo Contract DevPack</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/docs.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="../index.html" class="logo">
+                    <i class="fas fa-cube"></i>
+                    <span>R3E DevPack</span>
+                </a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="../index.html#features" class="nav-link">Features</a>
+                <a href="getting-started.html" class="nav-link active">Documentation</a>
+                <a href="../api/index.html" class="nav-link">API Reference</a>
+                <a href="../downloads.html" class="nav-link">Downloads</a>
+                <a href="https://github.com/r3e-network/r3e-devpack-dotnet" class="nav-link" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </div>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Documentation Layout -->
+    <div class="docs-layout">
+        <!-- Sidebar -->
+        <aside class="docs-sidebar">
+            <div class="sidebar-header">
+                <h3>Documentation</h3>
+            </div>
+            <nav class="docs-nav">
+                <div class="nav-section">
+                    <h4>Docker Integration</h4>
+                    <ul>
+                        <li><a href="#overview" class="nav-item active">Overview</a></li>
+                        <li><a href="#compiler-image" class="nav-item">Compiler Image</a></li>
+                        <li><a href="#webgui-service" class="nav-item">WebGUI Service</a></li>
+                        <li><a href="#development" class="nav-item">Development Setup</a></li>
+                        <li><a href="#ci-cd" class="nav-item">CI/CD Integration</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h4>Guides</h4>
+                    <ul>
+                        <li><a href="getting-started.html" class="nav-item">Getting Started</a></li>
+                        <li><a href="compiler-reference.html" class="nav-item">Compiler Reference</a></li>
+                        <li><a href="webgui-service.html" class="nav-item">WebGUI Service</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="docs-content">
+            <article>
+                <h1 id="overview">Docker Integration Guide</h1>
+                
+                <p class="lead">
+                    Use R3E DevPack with Docker for consistent development environments, 
+                    CI/CD pipelines, and production deployments.
+                </p>
+
+                <div class="toc">
+                    <h3>On this page</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#compiler-image">RNCC Docker Image</a></li>
+                        <li><a href="#webgui-service">WebGUI Service</a></li>
+                        <li><a href="#development">Development Setup</a></li>
+                        <li><a href="#ci-cd">CI/CD Integration</a></li>
+                    </ul>
+                </div>
+
+                <h2 id="compiler-image">RNCC Docker Image</h2>
+                
+                <p>Use the official RNCC Docker image for containerized compilation:</p>
+
+                <h3>Basic Usage</h3>
+                
+                <pre><code class="language-bash"># Pull the RNCC image
+docker pull r3enetwork/rncc:latest
+
+# Compile a contract
+docker run --rm -v $(pwd):/workspace r3enetwork/rncc:latest MyContract.cs
+
+# Compile with optimization
+docker run --rm -v $(pwd):/workspace r3enetwork/rncc:latest \
+  MyContract.cs --optimize=All --security-analysis</code></pre>
+
+                <h3>Custom Dockerfile</h3>
+                
+                <p>Create a custom image for your project:</p>
+                
+                <pre><code class="language-dockerfile">FROM r3enetwork/rncc:latest
+
+# Set working directory
+WORKDIR /app
+
+# Copy project files
+COPY contracts/ ./contracts/
+COPY scripts/ ./scripts/
+
+# Set default command
+CMD ["rncc", "contracts/", "--optimize=All", "--generate-artifacts=All"]</code></pre>
+
+                <h3>Multi-stage Build</h3>
+                
+                <pre><code class="language-dockerfile"># Build stage
+FROM r3enetwork/rncc:latest AS builder
+
+WORKDIR /src
+COPY contracts/ ./contracts/
+
+# Compile contracts
+RUN rncc contracts/ \
+    --optimize=All \
+    --generate-webgui \
+    --security-analysis \
+    -o /output
+
+# Runtime stage for WebGUI
+FROM nginx:alpine
+
+# Copy compiled contracts and WebGUI
+COPY --from=builder /output/ /usr/share/nginx/html/
+
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
+
+EXPOSE 80</code></pre>
+
+                <h2 id="webgui-service">WebGUI Service Deployment</h2>
+                
+                <p>Deploy the R3E WebGUI Service using Docker Compose:</p>
+
+                <h3>Docker Compose Configuration</h3>
+                
+                <pre><code class="language-yaml">version: '3.8'
+
+services:
+  r3e-webgui:
+    image: r3enetwork/webgui-service:latest
+    container_name: r3e-webgui
+    ports:
+      - "8888:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=R3EWebGUI;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=true
+      - R3EWebGUI__BaseDomain=${DOMAIN}
+      - R3EWebGUI__StorageBasePath=/app/webgui-storage
+      - NEO_RPC_TESTNET=https://test1.neo.coz.io:443
+      - NEO_RPC_MAINNET=https://mainnet1.neo.coz.io:443
+    volumes:
+      - webgui-storage:/app/webgui-storage
+      - webgui-logs:/app/logs
+    depends_on:
+      - sqlserver
+    networks:
+      - r3e-network
+    restart: unless-stopped
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: r3e-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${DB_PASSWORD}
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - r3e-network
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: r3e-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - webgui-storage:/var/www/webgui:ro
+    depends_on:
+      - r3e-webgui
+    networks:
+      - r3e-network
+    restart: unless-stopped
+
+volumes:
+  webgui-storage:
+  webgui-logs:
+  sqlserver-data:
+
+networks:
+  r3e-network:
+    driver: bridge</code></pre>
+
+                <h3>Environment Configuration</h3>
+                
+                <pre><code class="language-bash"># .env file
+DB_PASSWORD=YourSecurePassword123
+DOMAIN=your-domain.com
+ADMIN_EMAIL=admin@your-domain.com</code></pre>
+
+                <h3>Deployment Commands</h3>
+                
+                <pre><code class="language-bash"># Start services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f r3e-webgui
+
+# Scale services
+docker-compose up -d --scale r3e-webgui=3
+
+# Update services
+docker-compose pull
+docker-compose up -d</code></pre>
+
+                <h2 id="development">Development Environment</h2>
+                
+                <p>Set up a complete development environment with Docker:</p>
+
+                <h3>Development Docker Compose</h3>
+                
+                <pre><code class="language-yaml">version: '3.8'
+
+services:
+  # RNCC compiler service
+  rncc:
+    image: r3enetwork/rncc:latest
+    volumes:
+      - ./contracts:/workspace/contracts
+      - ./output:/workspace/output
+    working_dir: /workspace
+    command: tail -f /dev/null  # Keep container running
+
+  # Neo Express for local blockchain
+  neo-express:
+    image: ngdenterprise/neo-express:latest
+    ports:
+      - "10332:10332"
+      - "10333:10333"
+    volumes:
+      - neo-express-data:/data
+    command: ["neo-express", "run", "-i", "/data/default.neo-express"]
+
+  # Local WebGUI service
+  webgui-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - NEO_RPC_TESTNET=http://neo-express:10332
+    volumes:
+      - ./src:/app/src
+      - ./output:/app/webgui-storage
+    depends_on:
+      - neo-express
+
+volumes:
+  neo-express-data:</code></pre>
+
+                <h3>Development Dockerfile</h3>
+                
+                <pre><code class="language-dockerfile">FROM mcr.microsoft.com/dotnet/sdk:8.0
+
+# Install RNCC
+RUN wget -O /usr/local/bin/rncc \
+    https://github.com/r3e-network/r3e-devpack-dotnet/releases/latest/download/rncc-linux-x64 \
+    && chmod +x /usr/local/bin/rncc
+
+# Install Node.js for WebGUI development
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs
+
+WORKDIR /app
+
+# Copy project files
+COPY . .
+
+# Install dependencies
+RUN dotnet restore
+
+# Start development server
+CMD ["dotnet", "watch", "run", "--project", "src/R3E.WebGUI.Service"]</code></pre>
+
+                <h2 id="ci-cd">CI/CD Integration</h2>
+                
+                <p>Integrate RNCC with your CI/CD pipeline:</p>
+
+                <h3>GitHub Actions</h3>
+                
+                <pre><code class="language-yaml">name: Build and Deploy Contracts
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  compile-contracts:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Compile contracts with RNCC
+      run: |
+        docker run --rm -v ${{ github.workspace }}:/workspace \
+          r3enetwork/rncc:latest \
+          contracts/ \
+          --optimize=All \
+          --security-analysis \
+          --generate-artifacts=All \
+          -o /workspace/output
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: compiled-contracts
+        path: output/
+    
+    - name: Security scan results
+      run: |
+        if [ -f output/security-report.json ]; then
+          echo "Security issues found:"
+          cat output/security-report.json
+        fi
+
+  deploy-webgui:
+    needs: compile-contracts
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: compiled-contracts
+        path: output/
+    
+    - name: Deploy to staging
+      run: |
+        # Deploy WebGUI to staging environment
+        docker build -t webgui-staging .
+        docker push ${{ secrets.REGISTRY_URL }}/webgui-staging</code></pre>
+
+                <h3>GitLab CI</h3>
+                
+                <pre><code class="language-yaml">stages:
+  - compile
+  - test
+  - deploy
+
+variables:
+  RNCC_IMAGE: "r3enetwork/rncc:latest"
+
+compile-contracts:
+  stage: compile
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker run --rm -v $PWD:/workspace $RNCC_IMAGE
+        contracts/ --optimize=All --security-analysis -o output/
+  artifacts:
+    paths:
+      - output/
+    expire_in: 1 week
+
+security-analysis:
+  stage: test
+  image: alpine:latest
+  dependencies:
+    - compile-contracts
+  script:
+    - |
+      if [ -f output/security-report.json ]; then
+        echo "Checking security report..."
+        # Add security validation logic
+      fi
+
+deploy-production:
+  stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
+  dependencies:
+    - compile-contracts
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+  only:
+    - main</code></pre>
+
+                <h3>Jenkins Pipeline</h3>
+                
+                <pre><code class="language-groovy">pipeline {
+    agent any
+    
+    environment {
+        RNCC_IMAGE = 'r3enetwork/rncc:latest'
+        REGISTRY = 'your-registry.com'
+    }
+    
+    stages {
+        stage('Compile Contracts') {
+            steps {
+                script {
+                    docker.image(env.RNCC_IMAGE).inside("-v ${pwd()}:/workspace") {
+                        sh '''
+                            rncc contracts/ \
+                                --optimize=All \
+                                --security-analysis \
+                                --generate-artifacts=All \
+                                -o /workspace/output
+                        '''
+                    }
+                }
+                archiveArtifacts artifacts: 'output/**/*', fingerprint: true
+            }
+        }
+        
+        stage('Security Scan') {
+            steps {
+                script {
+                    if (fileExists('output/security-report.json')) {
+                        def report = readJSON file: 'output/security-report.json'
+                        if (report.issues && report.issues.size() > 0) {
+                            currentBuild.result = 'UNSTABLE'
+                            echo "Security issues found: ${report.issues.size()}"
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            when { branch 'main' }
+            steps {
+                script {
+                    def image = docker.build("${env.REGISTRY}/webgui:${env.BUILD_NUMBER}")
+                    image.push()
+                    image.push("latest")
+                }
+            }
+        }
+    }
+}</code></pre>
+
+                <div class="feature-box">
+                    <h4><i class="fas fa-rocket"></i> Docker Best Practices</h4>
+                    <ul>
+                        <li><strong>Multi-stage builds:</strong> Separate build and runtime environments</li>
+                        <li><strong>Layer caching:</strong> Order Dockerfile commands for optimal caching</li>
+                        <li><strong>Security scanning:</strong> Scan images for vulnerabilities</li>
+                        <li><strong>Resource limits:</strong> Set appropriate CPU and memory limits</li>
+                        <li><strong>Health checks:</strong> Add health checks for services</li>
+                        <li><strong>Secrets management:</strong> Use Docker secrets or external systems</li>
+                    </ul>
+                </div>
+
+                <div class="next-steps">
+                    <h3>Next Steps</h3>
+                    <div class="next-cards">
+                        <a href="webgui-service.html" class="next-card">
+                            <h4>WebGUI Service</h4>
+                            <p>Deploy and configure WebGUI hosting</p>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="ci-cd.html" class="next-card">
+                            <h4>CI/CD Guide</h4>
+                            <p>Advanced CI/CD pipeline patterns</p>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="optimization.html" class="next-card">
+                            <h4>Optimization</h4>
+                            <p>Optimize Docker builds and deployments</p>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 R3E Network. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/docs.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-docker.min.js"></script>
+</body>
+</html>

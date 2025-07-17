@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Downloads - R3E Neo Contract DevPack</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/downloads.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-cube"></i>
+                    <span>R3E DevPack</span>
+                </a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="index.html#features" class="nav-link">Features</a>
+                <a href="docs/getting-started.html" class="nav-link">Documentation</a>
+                <a href="api/index.html" class="nav-link">API Reference</a>
+                <a href="downloads.html" class="nav-link active">Downloads</a>
+                <a href="https://github.com/r3e-network/r3e-devpack-dotnet" class="nav-link" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </div>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Downloads Hero -->
+    <section class="downloads-hero">
+        <div class="container">
+            <h1 class="page-title">Download RNCC</h1>
+            <p class="page-subtitle">R3E Neo Contract Compiler - Available for all major platforms</p>
+        </div>
+    </section>
+
+    <!-- Latest Release -->
+    <section class="latest-release">
+        <div class="container">
+            <div class="release-info">
+                <h2>Latest Release</h2>
+                <div class="release-meta">
+                    <span class="version">v1.0.2-rncc</span>
+                    <span class="date">Released on July 17, 2024</span>
+                </div>
+            </div>
+            
+            <div class="download-grid">
+                <!-- Windows -->
+                <div class="download-card">
+                    <div class="platform-icon">
+                        <i class="fab fa-windows"></i>
+                    </div>
+                    <h3>Windows</h3>
+                    <p class="platform-info">64-bit executable</p>
+                    <a href="https://github.com/r3e-network/r3e-devpack-dotnet/releases/latest/download/rncc-win-x64.exe" 
+                       class="download-btn">
+                        <i class="fas fa-download"></i>
+                        Download for Windows
+                    </a>
+                    <div class="install-code">
+                        <pre><code># Run directly after download
+rncc-win-x64.exe MyContract.cs</code></pre>
+                    </div>
+                </div>
+
+                <!-- Linux -->
+                <div class="download-card">
+                    <div class="platform-icon">
+                        <i class="fab fa-linux"></i>
+                    </div>
+                    <h3>Linux</h3>
+                    <p class="platform-info">64-bit binary</p>
+                    <a href="https://github.com/r3e-network/r3e-devpack-dotnet/releases/latest/download/rncc-linux-x64" 
+                       class="download-btn">
+                        <i class="fas fa-download"></i>
+                        Download for Linux
+                    </a>
+                    <div class="install-code">
+                        <pre><code># Make executable and run
+chmod +x rncc-linux-x64
+./rncc-linux-x64 MyContract.cs</code></pre>
+                    </div>
+                </div>
+
+                <!-- macOS Intel -->
+                <div class="download-card">
+                    <div class="platform-icon">
+                        <i class="fab fa-apple"></i>
+                    </div>
+                    <h3>macOS (Intel)</h3>
+                    <p class="platform-info">x64 binary</p>
+                    <a href="https://github.com/r3e-network/r3e-devpack-dotnet/releases/latest/download/rncc-macos-x64" 
+                       class="download-btn">
+                        <i class="fas fa-download"></i>
+                        Download for macOS Intel
+                    </a>
+                    <div class="install-code">
+                        <pre><code># Make executable and run
+chmod +x rncc-macos-x64
+./rncc-macos-x64 MyContract.cs</code></pre>
+                    </div>
+                </div>
+
+                <!-- macOS Apple Silicon -->
+                <div class="download-card">
+                    <div class="platform-icon">
+                        <i class="fab fa-apple"></i>
+                    </div>
+                    <h3>macOS (Apple Silicon)</h3>
+                    <p class="platform-info">ARM64 binary</p>
+                    <a href="https://github.com/r3e-network/r3e-devpack-dotnet/releases/latest/download/rncc-macos-arm64" 
+                       class="download-btn">
+                        <i class="fas fa-download"></i>
+                        Download for macOS M1/M2
+                    </a>
+                    <div class="install-code">
+                        <pre><code># Make executable and run
+chmod +x rncc-macos-arm64
+./rncc-macos-arm64 MyContract.cs</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Installation Methods -->
+    <section class="installation-methods">
+        <div class="container">
+            <h2>Alternative Installation Methods</h2>
+            
+            <div class="method-tabs">
+                <button class="tab-btn active" data-tab="curl">cURL</button>
+                <button class="tab-btn" data-tab="wget">wget</button>
+                <button class="tab-btn" data-tab="powershell">PowerShell</button>
+                <button class="tab-btn" data-tab="homebrew">Homebrew</button>
+            </div>
+            
+            <div class="tab-content">
+                <div class="tab-pane active" id="curl">
+                    <pre><code># Linux/macOS - Download and install in one command
+curl -L https://github.com/r3e-network/r3e-devpack-dotnet/releases/latest/download/rncc-linux-x64 -o rncc
+chmod +x rncc
+sudo mv rncc /usr/local/bin/</code></pre>
+                </div>
+                
+                <div class="tab-pane" id="wget">
+                    <pre><code># Linux - Using wget
+wget https://github.com/r3e-network/r3e-devpack-dotnet/releases/latest/download/rncc-linux-x64
+chmod +x rncc-linux-x64
+sudo mv rncc-linux-x64 /usr/local/bin/rncc</code></pre>
+                </div>
+                
+                <div class="tab-pane" id="powershell">
+                    <pre><code># Windows PowerShell - Download to current directory
+Invoke-WebRequest -Uri "https://github.com/r3e-network/r3e-devpack-dotnet/releases/latest/download/rncc-win-x64.exe" -OutFile "rncc.exe"
+
+# Add to PATH (requires admin privileges)
+$path = [Environment]::GetEnvironmentVariable("PATH", "User")
+[Environment]::SetEnvironmentVariable("PATH", "$path;$PWD", "User")</code></pre>
+                </div>
+                
+                <div class="tab-pane" id="homebrew">
+                    <pre><code># macOS - Coming soon via Homebrew
+# brew tap r3e-network/r3e
+# brew install rncc</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- System Requirements -->
+    <section class="requirements">
+        <div class="container">
+            <h2>System Requirements</h2>
+            <div class="req-grid">
+                <div class="req-card">
+                    <h3><i class="fas fa-microchip"></i> All Platforms</h3>
+                    <ul>
+                        <li>No .NET Runtime required (self-contained)</li>
+                        <li>64-bit operating system</li>
+                        <li>Minimum 100MB disk space</li>
+                        <li>2GB RAM recommended</li>
+                    </ul>
+                </div>
+                <div class="req-card">
+                    <h3><i class="fab fa-windows"></i> Windows</h3>
+                    <ul>
+                        <li>Windows 10 version 1607+</li>
+                        <li>Windows 11</li>
+                        <li>Windows Server 2019+</li>
+                    </ul>
+                </div>
+                <div class="req-card">
+                    <h3><i class="fab fa-linux"></i> Linux</h3>
+                    <ul>
+                        <li>Ubuntu 18.04+</li>
+                        <li>Debian 10+</li>
+                        <li>RHEL 7+</li>
+                        <li>Alpine Linux 3.10+</li>
+                    </ul>
+                </div>
+                <div class="req-card">
+                    <h3><i class="fab fa-apple"></i> macOS</h3>
+                    <ul>
+                        <li>macOS 10.15+ (Intel)</li>
+                        <li>macOS 11.0+ (Apple Silicon)</li>
+                        <li>Xcode Command Line Tools</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Other Downloads -->
+    <section class="other-downloads">
+        <div class="container">
+            <h2>Additional Resources</h2>
+            <div class="resource-grid">
+                <a href="https://github.com/r3e-network/r3e-devpack-dotnet" class="resource-card">
+                    <i class="fab fa-github"></i>
+                    <h3>Source Code</h3>
+                    <p>Clone the repository and build from source</p>
+                </a>
+                <a href="docs/examples.html" class="resource-card">
+                    <i class="fas fa-code"></i>
+                    <h3>Example Contracts</h3>
+                    <p>Sample smart contracts to get started</p>
+                </a>
+                <a href="https://github.com/r3e-network/r3e-devpack-dotnet/releases" class="resource-card">
+                    <i class="fas fa-history"></i>
+                    <h3>Previous Releases</h3>
+                    <p>Access older versions and release notes</p>
+                </a>
+                <a href="docs/docker.html" class="resource-card">
+                    <i class="fab fa-docker"></i>
+                    <h3>Docker Images</h3>
+                    <p>Run RNCC in containerized environments</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Verify Section -->
+    <section class="verify-section">
+        <div class="container">
+            <h2>Verify Your Download</h2>
+            <p>After downloading, verify the installation:</p>
+            <pre><code># Check version
+./rncc-linux-x64 --version
+
+# View help
+./rncc-linux-x64 --help
+
+# Compile a test contract
+echo 'using Neo.SmartContract.Framework;
+public class Test : SmartContract {
+    public static string Hello() => "Hello, Neo!";
+}' > test.cs
+
+./rncc-linux-x64 test.cs</code></pre>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>R3E DevPack</h3>
+                    <p>Professional toolkit for Neo smart contract development</p>
+                    <div class="social-links">
+                        <a href="https://github.com/r3e-network/r3e-devpack-dotnet" target="_blank">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="https://twitter.com/r3e_network" target="_blank">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Documentation</h4>
+                    <ul>
+                        <li><a href="docs/getting-started.html">Getting Started</a></li>
+                        <li><a href="docs/compiler-reference.html">Compiler Reference</a></li>
+                        <li><a href="docs/webgui-service.html">WebGUI Service</a></li>
+                        <li><a href="api/index.html">API Reference</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="downloads.html">Downloads</a></li>
+                        <li><a href="docs/examples.html">Examples</a></li>
+                        <li><a href="https://github.com/r3e-network/r3e-devpack-dotnet/issues">Support</a></li>
+                        <li><a href="https://neo.org" target="_blank">Neo Blockchain</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <p>Join our community and stay updated</p>
+                    <a href="https://discord.gg/r3e" class="btn btn-sm btn-outline">
+                        <i class="fab fa-discord"></i> Join Discord
+                    </a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 R3E Network. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/downloads.js"></script>
+</body>
+</html>

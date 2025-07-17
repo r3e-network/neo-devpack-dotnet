@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compiler Reference - R3E Neo Contract DevPack</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/docs.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="../index.html" class="logo">
+                    <i class="fas fa-cube"></i>
+                    <span>R3E DevPack</span>
+                </a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="../index.html#features" class="nav-link">Features</a>
+                <a href="getting-started.html" class="nav-link active">Documentation</a>
+                <a href="../api/index.html" class="nav-link">API Reference</a>
+                <a href="../downloads.html" class="nav-link">Downloads</a>
+                <a href="https://github.com/r3e-network/r3e-devpack-dotnet" class="nav-link" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </div>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Documentation Layout -->
+    <div class="docs-layout">
+        <!-- Sidebar -->
+        <aside class="docs-sidebar">
+            <div class="sidebar-header">
+                <h3>Documentation</h3>
+            </div>
+            <nav class="docs-nav">
+                <div class="nav-section">
+                    <h4>Getting Started</h4>
+                    <ul>
+                        <li><a href="getting-started.html" class="nav-item">Introduction</a></li>
+                        <li><a href="getting-started.html#installation" class="nav-item">Installation</a></li>
+                        <li><a href="getting-started.html#first-contract" class="nav-item">Your First Contract</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h4>Compiler Reference</h4>
+                    <ul>
+                        <li><a href="#overview" class="nav-item active">Overview</a></li>
+                        <li><a href="#command-line" class="nav-item">Command Line Options</a></li>
+                        <li><a href="#optimization" class="nav-item">Optimization</a></li>
+                        <li><a href="#debugging" class="nav-item">Debugging</a></li>
+                        <li><a href="#artifacts" class="nav-item">Build Artifacts</a></li>
+                        <li><a href="#webgui" class="nav-item">WebGUI Generation</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h4>Guides</h4>
+                    <ul>
+                        <li><a href="webgui-service.html" class="nav-item">WebGUI Service</a></li>
+                        <li><a href="optimization.html" class="nav-item">Optimization Guide</a></li>
+                        <li><a href="security.html" class="nav-item">Security Best Practices</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="docs-content">
+            <article>
+                <h1 id="overview">RNCC Compiler Reference</h1>
+                
+                <p class="lead">
+                    Complete reference guide for the R3E Neo Contract Compiler (RNCC), including all command-line options,
+                    optimization strategies, and advanced features.
+                </p>
+
+                <div class="toc">
+                    <h3>On this page</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#command-line">Command Line Options</a></li>
+                        <li><a href="#optimization">Optimization</a></li>
+                        <li><a href="#debugging">Debugging</a></li>
+                        <li><a href="#artifacts">Build Artifacts</a></li>
+                        <li><a href="#webgui">WebGUI Generation</a></li>
+                    </ul>
+                </div>
+
+                <h2 id="command-line">Command Line Options</h2>
+                
+                <h3>Basic Usage</h3>
+                <pre><code class="language-bash">rncc [options] &lt;paths&gt;</code></pre>
+                
+                <p>Where <code>&lt;paths&gt;</code> can be:</p>
+                <ul>
+                    <li>C# source files (<code>.cs</code>)</li>
+                    <li>Project files (<code>.csproj</code>)</li>
+                    <li>Solution files (<code>.sln</code>)</li>
+                    <li>Directories (searches for compatible files)</li>
+                    <li>NEF files for optimization (<code>.nef</code>)</li>
+                </ul>
+
+                <h3>Complete Options Reference</h3>
+                
+                <div class="option-group">
+                    <h4><i class="fas fa-folder-open"></i> Output Options</h4>
+                    <table class="options-table">
+                        <tr>
+                            <td><code>-o, --output &lt;path&gt;</code></td>
+                            <td>Output directory for compiled files<br>
+                                <em>Default: <code>bin/sc</code></em></td>
+                        </tr>
+                        <tr>
+                            <td><code>--base-name &lt;name&gt;</code></td>
+                            <td>Base name for output files<br>
+                                <em>Default: derived from input filename</em></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="option-group">
+                    <h4><i class="fas fa-cog"></i> Compilation Options</h4>
+                    <table class="options-table">
+                        <tr>
+                            <td><code>--optimize &lt;level&gt;</code></td>
+                            <td>Optimization level:<br>
+                                <code>None</code> - No optimization<br>
+                                <code>Basic</code> - Basic optimizations<br>
+                                <code>Experimental</code> - Experimental features<br>
+                                <code>All</code> - Maximum optimization</td>
+                        </tr>
+                        <tr>
+                            <td><code>--nullable &lt;mode&gt;</code></td>
+                            <td>Nullable analysis mode<br>
+                                <em>Default: <code>Annotations</code></em></td>
+                        </tr>
+                        <tr>
+                            <td><code>--checked</code></td>
+                            <td>Enable overflow/underflow checking</td>
+                        </tr>
+                        <tr>
+                            <td><code>--no-inline</code></td>
+                            <td>Disable inline code generation</td>
+                        </tr>
+                        <tr>
+                            <td><code>--address-version &lt;version&gt;</code></td>
+                            <td>Neo address version<br>
+                                <em>Default: from protocol settings</em></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="option-group">
+                    <h4><i class="fas fa-bug"></i> Debug Options</h4>
+                    <table class="options-table">
+                        <tr>
+                            <td><code>-d, --debug &lt;level&gt;</code></td>
+                            <td>Debug information level:<br>
+                                <code>None</code> - No debug info<br>
+                                <code>Strict</code> - NEP-19 standard<br>
+                                <code>Extended</code> - Full debug info with ABI</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="option-group">
+                    <h4><i class="fas fa-file-code"></i> Artifact Generation</h4>
+                    <table class="options-table">
+                        <tr>
+                            <td><code>--assembly</code></td>
+                            <td>Generate assembly files (<code>.asm</code>, <code>.nef.txt</code>)</td>
+                        </tr>
+                        <tr>
+                            <td><code>--generate-artifacts &lt;mode&gt;</code></td>
+                            <td>Artifact generation mode:<br>
+                                <code>None</code> - No artifacts<br>
+                                <code>Source</code> - Source artifacts only<br>
+                                <code>Library</code> - Library artifacts<br>
+                                <code>All</code> - All artifacts</td>
+                        </tr>
+                        <tr>
+                            <td><code>--security-analysis</code></td>
+                            <td>Perform security vulnerability analysis</td>
+                        </tr>
+                        <tr>
+                            <td><code>--generate-interface</code></td>
+                            <td>Generate interface file for contracts</td>
+                        </tr>
+                        <tr>
+                            <td><code>--generate-plugin</code></td>
+                            <td>Generate Neo N3 plugin</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="option-group">
+                    <h4><i class="fas fa-globe"></i> WebGUI Options</h4>
+                    <table class="options-table">
+                        <tr>
+                            <td><code>--generate-webgui</code></td>
+                            <td>Generate interactive web interface</td>
+                        </tr>
+                        <tr>
+                            <td><code>--deploy-webgui</code></td>
+                            <td>Deploy WebGUI to R3E hosting service</td>
+                        </tr>
+                        <tr>
+                            <td><code>--webgui-service-url &lt;url&gt;</code></td>
+                            <td>R3E WebGUI service URL<br>
+                                <em>Default: <code>https://api.r3e-gui.com</code></em></td>
+                        </tr>
+                        <tr>
+                            <td><code>--contract-address &lt;address&gt;</code></td>
+                            <td>Deployed contract address for WebGUI</td>
+                        </tr>
+                        <tr>
+                            <td><code>--network &lt;network&gt;</code></td>
+                            <td>Target network: <code>testnet</code> or <code>mainnet</code><br>
+                                <em>Default: <code>testnet</code></em></td>
+                        </tr>
+                        <tr>
+                            <td><code>--deployer-address &lt;address&gt;</code></td>
+                            <td>Contract deployer's Neo address</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h2 id="optimization">Optimization Strategies</h2>
+                
+                <p>RNCC provides multiple optimization levels to balance between contract size, gas consumption, and execution speed.</p>
+
+                <h3>Optimization Levels</h3>
+                
+                <div class="info-box">
+                    <h4><i class="fas fa-tachometer-alt"></i> None</h4>
+                    <p>No optimizations applied. Useful for debugging and understanding contract behavior.</p>
+                    <pre><code class="language-bash">rncc MyContract.cs --optimize=None</code></pre>
+                </div>
+
+                <div class="info-box">
+                    <h4><i class="fas fa-balance-scale"></i> Basic (Recommended)</h4>
+                    <p>Standard optimizations that are safe and well-tested:</p>
+                    <ul>
+                        <li>Dead code elimination</li>
+                        <li>Constant folding</li>
+                        <li>Simple peephole optimizations</li>
+                    </ul>
+                    <pre><code class="language-bash">rncc MyContract.cs --optimize=Basic</code></pre>
+                </div>
+
+                <div class="info-box">
+                    <h4><i class="fas fa-flask"></i> Experimental</h4>
+                    <p>Includes experimental optimizations that may significantly reduce gas costs:</p>
+                    <ul>
+                        <li>Advanced instruction reordering</li>
+                        <li>Stack optimization</li>
+                        <li>Loop unrolling (where beneficial)</li>
+                    </ul>
+                    <pre><code class="language-bash">rncc MyContract.cs --optimize=Experimental</code></pre>
+                </div>
+
+                <div class="feature-box">
+                    <h4><i class="fas fa-rocket"></i> All (Maximum)</h4>
+                    <p>Applies all available optimizations for smallest contract size and lowest gas consumption:</p>
+                    <ul>
+                        <li>All Basic optimizations</li>
+                        <li>All Experimental optimizations</li>
+                        <li>Aggressive inlining</li>
+                        <li>Advanced pattern matching</li>
+                    </ul>
+                    <pre><code class="language-bash">rncc MyContract.cs --optimize=All</code></pre>
+                </div>
+
+                <h3>Optimization Tips</h3>
+                
+                <ol>
+                    <li><strong>Start with Basic</strong>: Use <code>--optimize=Basic</code> for most contracts</li>
+                    <li><strong>Test Thoroughly</strong>: When using Experimental or All, test extensively</li>
+                    <li><strong>Measure Gas Usage</strong>: Compare gas consumption between optimization levels</li>
+                    <li><strong>Use Security Analysis</strong>: Always run with <code>--security-analysis</code> when optimizing</li>
+                </ol>
+
+                <h2 id="debugging">Debugging Support</h2>
+                
+                <p>RNCC provides comprehensive debugging support through multiple debug levels:</p>
+
+                <h3>Debug Levels</h3>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('debug-none')">None</button>
+                    <button class="tab" onclick="showTab('debug-strict')">Strict</button>
+                    <button class="tab" onclick="showTab('debug-extended')">Extended</button>
+                </div>
+
+                <div class="tab-content">
+                    <div id="debug-none" class="tab-pane active">
+                        <h4>No Debug Information</h4>
+                        <p>Produces smallest contract size with no debug symbols:</p>
+                        <pre><code class="language-bash">rncc MyContract.cs -d None</code></pre>
+                        <p>Use for production deployments where contract size is critical.</p>
+                    </div>
+                    
+                    <div id="debug-strict" class="tab-pane">
+                        <h4>NEP-19 Standard Debug Info</h4>
+                        <p>Includes standard debug information following NEP-19:</p>
+                        <pre><code class="language-bash">rncc MyContract.cs -d Strict</code></pre>
+                        <ul>
+                            <li>Method names and parameters</li>
+                            <li>Source file references</li>
+                            <li>Line number mappings</li>
+                        </ul>
+                    </div>
+                    
+                    <div id="debug-extended" class="tab-pane">
+                        <h4>Extended Debug Information</h4>
+                        <p>Full debug support including ABI and compiler information:</p>
+                        <pre><code class="language-bash">rncc MyContract.cs -d Extended</code></pre>
+                        <ul>
+                            <li>All Strict mode information</li>
+                            <li>Complete ABI details</li>
+                            <li>Variable names and types</li>
+                            <li>Compiler version and settings</li>
+                            <li>Source code snippets</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h2 id="artifacts">Build Artifacts</h2>
+                
+                <p>RNCC can generate various artifacts to help with development, testing, and integration:</p>
+
+                <h3>Generated Files</h3>
+                
+                <div class="artifact-grid">
+                    <div class="artifact-card">
+                        <h4><i class="fas fa-file"></i> NEF File</h4>
+                        <p><code>ContractName.nef</code></p>
+                        <p>The compiled Neo Executable Format file containing bytecode</p>
+                    </div>
+                    
+                    <div class="artifact-card">
+                        <h4><i class="fas fa-file-alt"></i> Manifest</h4>
+                        <p><code>ContractName.manifest.json</code></p>
+                        <p>Contract metadata including methods, events, and permissions</p>
+                    </div>
+                    
+                    <div class="artifact-card">
+                        <h4><i class="fas fa-file-code"></i> Assembly</h4>
+                        <p><code>ContractName.asm</code></p>
+                        <p>Human-readable assembly code (with <code>--assembly</code>)</p>
+                    </div>
+                    
+                    <div class="artifact-card">
+                        <h4><i class="fas fa-shield-alt"></i> Security Report</h4>
+                        <p><code>ContractName.security.json</code></p>
+                        <p>Security analysis results (with <code>--security-analysis</code>)</p>
+                    </div>
+                    
+                    <div class="artifact-card">
+                        <h4><i class="fas fa-plug"></i> Plugin</h4>
+                        <p><code>ContractName.Plugin/</code></p>
+                        <p>Neo N3 plugin files (with <code>--generate-plugin</code>)</p>
+                    </div>
+                    
+                    <div class="artifact-card">
+                        <h4><i class="fas fa-globe"></i> WebGUI</h4>
+                        <p><code>ContractName.WebGUI/</code></p>
+                        <p>Web interface files (with <code>--generate-webgui</code>)</p>
+                    </div>
+                </div>
+
+                <h2 id="webgui">WebGUI Generation</h2>
+                
+                <p>RNCC can automatically generate interactive web interfaces for your smart contracts:</p>
+
+                <h3>Basic WebGUI Generation</h3>
+                <pre><code class="language-bash"># Generate WebGUI files
+rncc MyContract.cs --generate-webgui
+
+# Files created:
+# - bin/sc/MyContract.WebGUI/index.html
+# - bin/sc/MyContract.WebGUI/app.js
+# - bin/sc/MyContract.WebGUI/style.css
+# - bin/sc/MyContract.WebGUI/manifest.json</code></pre>
+
+                <h3>Deploy to R3E Hosting</h3>
+                <pre><code class="language-bash"># Generate and deploy in one command
+rncc MyContract.cs \
+  --generate-webgui \
+  --deploy-webgui \
+  --contract-address=0x1234567890abcdef... \
+  --network=testnet \
+  --deployer-address=NPvKVTGZapmFWABLsyvfreuqn73jCjJtN9</code></pre>
+
+                <div class="feature-box">
+                    <h4><i class="fas fa-magic"></i> WebGUI Features</h4>
+                    <ul>
+                        <li>Automatic form generation for contract methods</li>
+                        <li>Wallet integration (NeoLine, O3, etc.)</li>
+                        <li>Real-time transaction monitoring</li>
+                        <li>Mobile-responsive design</li>
+                        <li>Customizable branding</li>
+                        <li>Event subscription support</li>
+                    </ul>
+                </div>
+
+                <div class="next-steps">
+                    <h3>Next Steps</h3>
+                    <div class="next-cards">
+                        <a href="webgui-service.html" class="next-card">
+                            <h4>WebGUI Service</h4>
+                            <p>Learn about hosting and customization</p>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="optimization.html" class="next-card">
+                            <h4>Optimization Guide</h4>
+                            <p>Deep dive into optimization techniques</p>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="security.html" class="next-card">
+                            <h4>Security Analysis</h4>
+                            <p>Understanding security reports</p>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 R3E Network. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/docs.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+</body>
+</html>

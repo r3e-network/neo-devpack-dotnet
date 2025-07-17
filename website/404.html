@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found - R3E Neo Contract DevPack</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .error-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .error-content {
+            max-width: 600px;
+        }
+        
+        .error-code {
+            font-size: 8rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            line-height: 1;
+        }
+        
+        .error-message {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .error-description {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .error-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .error-links {
+            margin-top: 3rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .error-link {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.3s;
+        }
+        
+        .error-link:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-color);
+        }
+        
+        .error-link i {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-page">
+        <div class="error-content">
+            <div class="error-code">404</div>
+            <h1 class="error-message">Page Not Found</h1>
+            <p class="error-description">
+                Oops! The page you're looking for doesn't exist. 
+                It might have been moved or deleted.
+            </p>
+            
+            <div class="error-actions">
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-home"></i> Go Home
+                </a>
+                <a href="/docs/getting-started.html" class="btn btn-secondary">
+                    <i class="fas fa-book"></i> View Docs
+                </a>
+            </div>
+            
+            <div class="error-links">
+                <a href="/downloads.html" class="error-link">
+                    <i class="fas fa-download"></i>
+                    <strong>Downloads</strong>
+                    <p>Get RNCC compiler</p>
+                </a>
+                <a href="/docs/getting-started.html" class="error-link">
+                    <i class="fas fa-rocket"></i>
+                    <strong>Getting Started</strong>
+                    <p>Learn the basics</p>
+                </a>
+                <a href="https://github.com/r3e-network/r3e-devpack-dotnet" class="error-link">
+                    <i class="fab fa-github"></i>
+                    <strong>GitHub</strong>
+                    <p>View source code</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

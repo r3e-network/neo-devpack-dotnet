@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Best Practices - R3E Neo Contract DevPack</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/docs.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="../index.html" class="logo">
+                    <i class="fas fa-cube"></i>
+                    <span>R3E DevPack</span>
+                </a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="../index.html#features" class="nav-link">Features</a>
+                <a href="getting-started.html" class="nav-link active">Documentation</a>
+                <a href="../api/index.html" class="nav-link">API Reference</a>
+                <a href="../downloads.html" class="nav-link">Downloads</a>
+                <a href="https://github.com/r3e-network/r3e-devpack-dotnet" class="nav-link" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </div>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Documentation Layout -->
+    <div class="docs-layout">
+        <!-- Sidebar -->
+        <aside class="docs-sidebar">
+            <div class="sidebar-header">
+                <h3>Documentation</h3>
+            </div>
+            <nav class="docs-nav">
+                <div class="nav-section">
+                    <h4>Security</h4>
+                    <ul>
+                        <li><a href="#overview" class="nav-item active">Overview</a></li>
+                        <li><a href="#access-control" class="nav-item">Access Control</a></li>
+                        <li><a href="#input-validation" class="nav-item">Input Validation</a></li>
+                        <li><a href="#reentrancy" class="nav-item">Reentrancy</a></li>
+                        <li><a href="#storage-security" class="nav-item">Storage Security</a></li>
+                        <li><a href="#oracle-security" class="nav-item">Oracle Security</a></li>
+                        <li><a href="#testing" class="nav-item">Security Testing</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h4>Guides</h4>
+                    <ul>
+                        <li><a href="getting-started.html" class="nav-item">Getting Started</a></li>
+                        <li><a href="compiler-reference.html" class="nav-item">Compiler Reference</a></li>
+                        <li><a href="optimization.html" class="nav-item">Optimization Guide</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="docs-content">
+            <article>
+                <h1 id="overview">Smart Contract Security Guide</h1>
+                
+                <p class="lead">
+                    Learn essential security practices for Neo smart contracts using R3E DevPack. 
+                    This guide covers common vulnerabilities and how to prevent them.
+                </p>
+
+                <div class="toc">
+                    <h3>On this page</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#access-control">Access Control</a></li>
+                        <li><a href="#input-validation">Input Validation</a></li>
+                        <li><a href="#reentrancy">Reentrancy Protection</a></li>
+                        <li><a href="#storage-security">Storage Security</a></li>
+                        <li><a href="#oracle-security">Oracle Security</a></li>
+                        <li><a href="#testing">Security Testing</a></li>
+                    </ul>
+                </div>
+
+                <h2 id="access-control">Access Control Patterns</h2>
+                
+                <p>Proper access control is crucial for smart contract security. Always verify who can call sensitive functions.</p>
+
+                <h3>1. Owner-Based Access Control</h3>
+                
+                <pre><code class="language-csharp">public class SecureContract : SmartContract
+{
+    #region Owner Management
+    [InitialValue("NiHYtfX8SdAQQJYf4fVvfcvfQQddH8WMLH", ContractParameterType.Hash160)]
+    static readonly UInt160 InitialOwner = default;
+    
+    static readonly byte[] OwnerKey = new byte[] { 0xFF };
+
+    public static UInt160 GetOwner()
+    {
+        var owner = Storage.Get(Storage.CurrentContext, OwnerKey);
+        return owner?.Length == 20 ? (UInt160)owner : InitialOwner;
+    }
+
+    public static bool SetOwner(UInt160 newOwner)
+    {
+        // ✅ Only current owner can change ownership
+        if (!IsOwner()) return false;
+        if (!newOwner.IsValid || newOwner.IsZero) return false;
+        
+        Storage.Put(Storage.CurrentContext, OwnerKey, newOwner);
+        OnOwnershipTransferred(GetOwner(), newOwner);
+        return true;
+    }
+
+    private static bool IsOwner()
+    {
+        return Runtime.CheckWitness(GetOwner());
+    }
+
+    // ✅ Protected function example
+    public static bool AdminFunction()
+    {
+        if (!IsOwner()) 
+            throw new InvalidOperationException("Only owner can call this function");
+        
+        // Admin logic here
+        return true;
+    }
+    #endregion
+}</code></pre>
+
+                <h3>2. Role-Based Access Control</h3>
+                
+                <pre><code class="language-csharp">public class RoleBasedContract : SmartContract
+{
+    // Role definitions
+    static readonly byte[] AdminRole = new byte[] { 0x01 };
+    static readonly byte[] MinterRole = new byte[] { 0x02 };
+    static readonly byte[] PauserRole = new byte[] { 0x03 };
+    
+    static readonly byte[] RolePrefix = new byte[] { 0x10 };
+
+    public static bool HasRole(byte[] role, UInt160 account)
+    {
+        var key = RolePrefix.Concat(role).Concat(account);
+        return Storage.Get(Storage.CurrentContext, key) != null;
+    }
+
+    public static bool GrantRole(byte[] role, UInt160 account)
+    {
+        // ✅ Only admin can grant roles
+        if (!HasRole(AdminRole, Runtime.ExecutingScriptHash)) 
+            return false;
+        if (!account.IsValid) return false;
+        
+        var key = RolePrefix.Concat(role).Concat(account);
+        Storage.Put(Storage.CurrentContext, key, 1);
+        OnRoleGranted(role, account);
+        return true;
+    }
+
+    public static bool RevokeRole(byte[] role, UInt160 account)
+    {
+        if (!HasRole(AdminRole, Runtime.ExecutingScriptHash)) 
+            return false;
+        
+        var key = RolePrefix.Concat(role).Concat(account);
+        Storage.Delete(Storage.CurrentContext, key);
+        OnRoleRevoked(role, account);
+        return true;
+    }
+
+    // ✅ Modifier pattern for role checking
+    private static void RequireRole(byte[] role)
+    {
+        if (!HasRole(role, Runtime.ExecutingScriptHash))
+            throw new InvalidOperationException("Insufficient permissions");
+    }
+
+    public static bool Mint(UInt160 to, BigInteger amount)
+    {
+        RequireRole(MinterRole); // ✅ Check role before execution
+        
+        // Minting logic
+        return true;
+    }
+}</code></pre>
+
+                <h2 id="input-validation">Input Validation</h2>
+                
+                <p>Always validate inputs to prevent unexpected behavior and attacks.</p>
+
+                <h3>Comprehensive Input Validation</h3>
+                
+                <pre><code class="language-csharp">public static bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object data)
+{
+    // ✅ Validate all inputs
+    if (!from.IsValid || from.IsZero)
+        throw new ArgumentException("Invalid 'from' address");
+    
+    if (!to.IsValid || to.IsZero)
+        throw new ArgumentException("Invalid 'to' address");
+    
+    if (amount <= 0)
+        throw new ArgumentException("Amount must be positive");
+    
+    if (amount > MaxTransferAmount)
+        throw new ArgumentException("Amount exceeds maximum");
+    
+    // ✅ Check authorization
+    if (!Runtime.CheckWitness(from))
+        return false;
+    
+    // ✅ Check contract state
+    if (IsPaused())
+        throw new InvalidOperationException("Contract is paused");
+    
+    // ✅ Check business logic constraints
+    var balance = GetBalance(from);
+    if (balance < amount)
+        return false;
+    
+    // Execute transfer logic
+    SetBalance(from, balance - amount);
+    SetBalance(to, GetBalance(to) + amount);
+    
+    OnTransfer(from, to, amount);
+    return true;
+}
+
+// ✅ Helper validation functions
+private static bool IsValidAmount(BigInteger amount)
+{
+    return amount > 0 && amount <= MaxTransferAmount;
+}
+
+private static bool IsValidAddress(UInt160 address)
+{
+    return address.IsValid && !address.IsZero;
+}</code></pre>
+
+                <h3>Safe Math Operations</h3>
+                
+                <pre><code class="language-csharp">// ✅ Safe arithmetic operations
+public static class SafeMath
+{
+    public static BigInteger SafeAdd(BigInteger a, BigInteger b)
+    {
+        var result = a + b;
+        if (result < a || result < b)
+            throw new OverflowException("Addition overflow");
+        return result;
+    }
+    
+    public static BigInteger SafeSub(BigInteger a, BigInteger b)
+    {
+        if (b > a)
+            throw new OverflowException("Subtraction underflow");
+        return a - b;
+    }
+    
+    public static BigInteger SafeMul(BigInteger a, BigInteger b)
+    {
+        if (a == 0 || b == 0) return 0;
+        
+        var result = a * b;
+        if (result / a != b)
+            throw new OverflowException("Multiplication overflow");
+        return result;
+    }
+    
+    public static BigInteger SafeDiv(BigInteger a, BigInteger b)
+    {
+        if (b == 0)
+            throw new DivideByZeroException("Division by zero");
+        return a / b;
+    }
+}</code></pre>
+
+                <h2 id="reentrancy">Reentrancy Protection</h2>
+                
+                <p>Protect against reentrancy attacks by following the checks-effects-interactions pattern.</p>
+
+                <pre><code class="language-csharp">public class ReentrancyGuard : SmartContract
+{
+    static readonly byte[] ReentrancyLockKey = new byte[] { 0xFE };
+    
+    private static bool IsLocked()
+    {
+        return Storage.Get(Storage.CurrentContext, ReentrancyLockKey) != null;
+    }
+    
+    private static void Lock()
+    {
+        Storage.Put(Storage.CurrentContext, ReentrancyLockKey, 1);
+    }
+    
+    private static void Unlock()
+    {
+        Storage.Delete(Storage.CurrentContext, ReentrancyLockKey);
+    }
+    
+    // ✅ Reentrancy-safe function
+    public static bool SafeWithdraw(BigInteger amount)
+    {
+        // 1. Checks
+        if (IsLocked())
+            throw new InvalidOperationException("Reentrant call detected");
+        
+        var caller = Runtime.ExecutingScriptHash;
+        if (!Runtime.CheckWitness(caller)) return false;
+        
+        var balance = GetBalance(caller);
+        if (balance < amount) return false;
+        
+        // 2. Effects (update state before external calls)
+        Lock();
+        SetBalance(caller, balance - amount);
+        
+        // 3. Interactions (external calls last)
+        try
+        {
+            GAS.Transfer(Runtime.ExecutingScriptHash, caller, amount);
+            OnWithdraw(caller, amount);
+        }
+        finally
+        {
+            Unlock();
+        }
+        
+        return true;
+    }
+}</code></pre>
+
+                <h2 id="storage-security">Storage Security</h2>
+                
+                <p>Secure storage patterns prevent unauthorized access and data corruption.</p>
+
+                <h3>Secure Storage Patterns</h3>
+                
+                <pre><code class="language-csharp">public class SecureStorage : SmartContract
+{
+    // ✅ Use different prefixes for different data types
+    static readonly byte[] BalancePrefix = new byte[] { 0x01 };
+    static readonly byte[] MetadataPrefix = new byte[] { 0x02 };
+    static readonly byte[] ConfigPrefix = new byte[] { 0x03 };
+    
+    // ✅ Secure configuration storage
+    public static bool SetConfig(string key, string value)
+    {
+        if (!IsOwner()) return false;
+        if (string.IsNullOrEmpty(key)) return false;
+        
+        // Validate configuration keys
+        if (!IsValidConfigKey(key))
+            throw new ArgumentException("Invalid configuration key");
+        
+        var storageKey = ConfigPrefix.Concat(StdLib.Serialize(key));
+        Storage.Put(Storage.CurrentContext, storageKey, value);
+        
+        OnConfigUpdated(key, value);
+        return true;
+    }
+    
+    // ✅ Read-only configuration access
+    public static string GetConfig(string key)
+    {
+        var storageKey = ConfigPrefix.Concat(StdLib.Serialize(key));
+        return Storage.Get(Storage.CurrentContext, storageKey).ToString();
+    }
+    
+    // ✅ Validate configuration keys
+    private static bool IsValidConfigKey(string key)
+    {
+        // Only allow alphanumeric characters and underscores
+        return System.Text.RegularExpressions.Regex.IsMatch(key, @"^[a-zA-Z0-9_]+$");
+    }
+    
+    // ✅ Secure balance management
+    private static void SetBalance(UInt160 account, BigInteger balance)
+    {
+        var key = BalancePrefix.Concat(account);
+        
+        if (balance > 0)
+            Storage.Put(Storage.CurrentContext, key, balance);
+        else
+            Storage.Delete(Storage.CurrentContext, key); // Clean up zero balances
+    }
+}</code></pre>
+
+                <h2 id="oracle-security">Oracle Security</h2>
+                
+                <p>When using oracles, implement proper validation and fallback mechanisms.</p>
+
+                <pre><code class="language-csharp">public class SecureOracle : SmartContract
+{
+    static readonly byte[] OracleDataPrefix = new byte[] { 0x20 };
+    static readonly uint MaxDataAge = 3600 * 1000; // 1 hour in milliseconds
+    
+    public static void RequestData(string url, string filter)
+    {
+        // ✅ Only authorized callers can request oracle data
+        if (!IsAuthorized(Runtime.CallingScriptHash))
+            throw new InvalidOperationException("Unauthorized oracle request");
+        
+        // ✅ Validate URL and filter
+        if (string.IsNullOrEmpty(url) || !IsValidUrl(url))
+            throw new ArgumentException("Invalid URL");
+        
+        if (string.IsNullOrEmpty(filter))
+            throw new ArgumentException("Invalid filter");
+        
+        Oracle.Request(url, filter, "OnOracleResponse", url, Oracle.MinimumResponseFee);
+    }
+    
+    public static void OnOracleResponse(string url, string userdata, 
+        OracleResponseCode code, string result)
+    {
+        // ✅ Only oracle can call this function
+        if (Runtime.CallingScriptHash != Oracle.Hash)
+            throw new InvalidOperationException("Only oracle can call this function");
+        
+        // ✅ Validate response
+        if (code != OracleResponseCode.Success)
+        {
+            OnOracleError(url, code);
+            return;
+        }
+        
+        // ✅ Validate and sanitize result
+        if (!IsValidOracleResult(result))
+        {
+            OnOracleError(url, OracleResponseCode.Error);
+            return;
+        }
+        
+        // ✅ Store with timestamp for freshness checking
+        var dataKey = OracleDataPrefix.Concat(StdLib.Serialize(url));
+        var oracleData = new object[] { result, Runtime.Time };
+        Storage.Put(Storage.CurrentContext, dataKey, StdLib.Serialize(oracleData));
+        
+        OnOracleDataUpdated(url, result, Runtime.Time);
+    }
+    
+    public static object[] GetOracleData(string url)
+    {
+        var dataKey = OracleDataPrefix.Concat(StdLib.Serialize(url));
+        var data = Storage.Get(Storage.CurrentContext, dataKey);
+        
+        if (data == null)
+            throw new InvalidOperationException("No oracle data available");
+        
+        var oracleData = (object[])StdLib.Deserialize(data);
+        var timestamp = (ulong)oracleData[1];
+        
+        // ✅ Check data freshness
+        if (Runtime.Time - timestamp > MaxDataAge)
+            throw new InvalidOperationException("Oracle data is stale");
+        
+        return oracleData;
+    }
+    
+    private static bool IsValidUrl(string url)
+    {
+        // Implement URL validation logic
+        return url.StartsWith("https://") && url.Length <= 1000;
+    }
+    
+    private static bool IsValidOracleResult(string result)
+    {
+        // Implement result validation logic
+        return !string.IsNullOrEmpty(result) && result.Length <= 10000;
+    }
+}</code></pre>
+
+                <h2 id="testing">Security Testing</h2>
+                
+                <p>Use RNCC's built-in security analysis and testing features.</p>
+
+                <h3>Automated Security Analysis</h3>
+                
+                <pre><code class="language-bash"># Run security analysis during compilation
+rncc MyContract.cs --security-analysis --optimize=All
+
+# Generate detailed security report
+rncc MyContract.cs \
+  --security-analysis \
+  --generate-artifacts=All \
+  -o ./security-audit</code></pre>
+
+                <h3>Security Testing Checklist</h3>
+                
+                <div class="info-box">
+                    <h4><i class="fas fa-shield-alt"></i> Security Checklist</h4>
+                    <ul>
+                        <li>✅ Access control mechanisms implemented</li>
+                        <li>✅ Input validation on all public methods</li>
+                        <li>✅ Reentrancy protection where needed</li>
+                        <li>✅ Safe math operations for arithmetic</li>
+                        <li>✅ Proper error handling and recovery</li>
+                        <li>✅ Oracle data validation and freshness checks</li>
+                        <li>✅ Storage security and access controls</li>
+                        <li>✅ Event logging for audit trails</li>
+                        <li>✅ Emergency pause functionality</li>
+                        <li>✅ Contract upgrade mechanisms secured</li>
+                    </ul>
+                </div>
+
+                <h3>Emergency Controls</h3>
+                
+                <pre><code class="language-csharp">public class EmergencyControls : SmartContract
+{
+    static readonly byte[] PausedKey = new byte[] { 0xF0 };
+    static readonly byte[] EmergencyAdminKey = new byte[] { 0xF1 };
+    
+    // ✅ Emergency pause functionality
+    public static bool Pause()
+    {
+        if (!IsOwner() && !IsEmergencyAdmin())
+            return false;
+        
+        Storage.Put(Storage.CurrentContext, PausedKey, 1);
+        OnPaused(Runtime.ExecutingScriptHash);
+        return true;
+    }
+    
+    public static bool Unpause()
+    {
+        if (!IsOwner()) return false;
+        
+        Storage.Delete(Storage.CurrentContext, PausedKey);
+        OnUnpaused(Runtime.ExecutingScriptHash);
+        return true;
+    }
+    
+    public static bool IsPaused()
+    {
+        return Storage.Get(Storage.CurrentContext, PausedKey) != null;
+    }
+    
+    // ✅ Check pause state in sensitive functions
+    private static void RequireNotPaused()
+    {
+        if (IsPaused())
+            throw new InvalidOperationException("Contract is paused");
+    }
+    
+    public static bool SensitiveFunction()
+    {
+        RequireNotPaused();
+        // Function logic
+        return true;
+    }
+}</code></pre>
+
+                <div class="feature-box">
+                    <h4><i class="fas fa-bug"></i> Common Vulnerabilities to Avoid</h4>
+                    <ul>
+                        <li><strong>Reentrancy:</strong> External calls before state updates</li>
+                        <li><strong>Integer Overflow/Underflow:</strong> Unchecked arithmetic operations</li>
+                        <li><strong>Access Control Bypass:</strong> Missing or incorrect permission checks</li>
+                        <li><strong>Oracle Manipulation:</strong> Unvalidated external data</li>
+                        <li><strong>Storage Collision:</strong> Overlapping storage keys</li>
+                        <li><strong>Front-Running:</strong> Predictable transaction ordering</li>
+                        <li><strong>Denial of Service:</strong> Unbounded loops or operations</li>
+                    </ul>
+                </div>
+
+                <div class="next-steps">
+                    <h3>Next Steps</h3>
+                    <div class="next-cards">
+                        <a href="optimization.html" class="next-card">
+                            <h4>Optimization Guide</h4>
+                            <p>Optimize contracts without compromising security</p>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="examples.html" class="next-card">
+                            <h4>Secure Examples</h4>
+                            <p>Study secure contract implementations</p>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="compiler-reference.html" class="next-card">
+                            <h4>Security Analysis</h4>
+                            <p>Learn about RNCC security features</p>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 R3E Network. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/docs.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started - R3E Neo Contract DevPack</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/docs.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="../index.html" class="logo">
+                    <i class="fas fa-cube"></i>
+                    <span>R3E DevPack</span>
+                </a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="../index.html#features" class="nav-link">Features</a>
+                <a href="getting-started.html" class="nav-link active">Documentation</a>
+                <a href="../api/index.html" class="nav-link">API Reference</a>
+                <a href="../downloads.html" class="nav-link">Downloads</a>
+                <a href="https://github.com/r3e-network/r3e-devpack-dotnet" class="nav-link" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </div>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Documentation Layout -->
+    <div class="docs-layout">
+        <!-- Sidebar -->
+        <aside class="docs-sidebar">
+            <div class="sidebar-header">
+                <h3>Documentation</h3>
+            </div>
+            <nav class="docs-nav">
+                <div class="nav-section">
+                    <h4>Getting Started</h4>
+                    <ul>
+                        <li><a href="#introduction" class="nav-item active">Introduction</a></li>
+                        <li><a href="#installation" class="nav-item">Installation</a></li>
+                        <li><a href="#first-contract" class="nav-item">Your First Contract</a></li>
+                        <li><a href="#compilation" class="nav-item">Compilation</a></li>
+                        <li><a href="#deployment" class="nav-item">Deployment</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h4>Guides</h4>
+                    <ul>
+                        <li><a href="compiler-reference.html" class="nav-item">Compiler Reference</a></li>
+                        <li><a href="webgui-service.html" class="nav-item">WebGUI Service</a></li>
+                        <li><a href="optimization.html" class="nav-item">Optimization Guide</a></li>
+                        <li><a href="security.html" class="nav-item">Security Best Practices</a></li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <h4>Advanced</h4>
+                    <ul>
+                        <li><a href="plugin-development.html" class="nav-item">Plugin Development</a></li>
+                        <li><a href="docker.html" class="nav-item">Docker Integration</a></li>
+                        <li><a href="ci-cd.html" class="nav-item">CI/CD Pipelines</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="docs-content">
+            <article>
+                <h1 id="introduction">Getting Started with R3E DevPack</h1>
+                
+                <p class="lead">
+                    Welcome to the R3E Neo Contract DevPack! This guide will help you get up and running 
+                    with developing smart contracts for the Neo blockchain using our comprehensive toolkit.
+                </p>
+
+                <div class="toc">
+                    <h3>On this page</h3>
+                    <ul>
+                        <li><a href="#introduction">Introduction</a></li>
+                        <li><a href="#installation">Installation</a></li>
+                        <li><a href="#first-contract">Your First Contract</a></li>
+                        <li><a href="#compilation">Compilation</a></li>
+                        <li><a href="#deployment">Deployment</a></li>
+                    </ul>
+                </div>
+
+                <h2 id="installation">Installation</h2>
+                
+                <p>The R3E Neo Contract Compiler (RNCC) is available as a self-contained binary for all major platforms. 
+                   Choose your platform and follow the installation instructions:</p>
+
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('windows')">Windows</button>
+                    <button class="tab" onclick="showTab('linux')">Linux</button>
+                    <button class="tab" onclick="showTab('macos')">macOS</button>
+                </div>
+
+                <div class="tab-content">
+                    <div id="windows" class="tab-pane active">
+                        <h3>Windows Installation</h3>
+                        <p>Download and run the Windows executable:</p>
+                        <pre><code class="language-powershell"># Download using PowerShell
+Invoke-WebRequest -Uri "https://github.com/r3e-network/r3e-devpack-dotnet/releases/latest/download/rncc-win-x64.exe" -OutFile "rncc.exe"
+
+# Verify installation
+.\rncc.exe --version
+
+# Add to PATH (optional, requires admin)
+$path = [Environment]::GetEnvironmentVariable("PATH", "User")
+[Environment]::SetEnvironmentVariable("PATH", "$path;$PWD", "User")</code></pre>
+                    </div>
+                    
+                    <div id="linux" class="tab-pane">
+                        <h3>Linux Installation</h3>
+                        <p>Download and install on Linux:</p>
+                        <pre><code class="language-bash"># Download the binary
+wget https://github.com/r3e-network/r3e-devpack-dotnet/releases/latest/download/rncc-linux-x64
+
+# Make it executable
+chmod +x rncc-linux-x64
+
+# Move to system path (optional)
+sudo mv rncc-linux-x64 /usr/local/bin/rncc
+
+# Verify installation
+rncc --version</code></pre>
+                    </div>
+                    
+                    <div id="macos" class="tab-pane">
+                        <h3>macOS Installation</h3>
+                        <p>For Intel Macs:</p>
+                        <pre><code class="language-bash"># Download for Intel
+curl -L https://github.com/r3e-network/r3e-devpack-dotnet/releases/latest/download/rncc-macos-x64 -o rncc
+chmod +x rncc
+sudo mv rncc /usr/local/bin/
+
+# Verify
+rncc --version</code></pre>
+                        
+                        <p>For Apple Silicon (M1/M2):</p>
+                        <pre><code class="language-bash"># Download for Apple Silicon
+curl -L https://github.com/r3e-network/r3e-devpack-dotnet/releases/latest/download/rncc-macos-arm64 -o rncc
+chmod +x rncc
+sudo mv rncc /usr/local/bin/
+
+# Verify
+rncc --version</code></pre>
+                    </div>
+                </div>
+
+                <h2 id="first-contract">Your First Smart Contract</h2>
+                
+                <p>Let's create a simple "Hello World" smart contract to get familiar with the development process.</p>
+
+                <h3>1. Create the Contract File</h3>
+                <p>Create a new file called <code>HelloWorld.cs</code>:</p>
+
+                <pre><code class="language-csharp">using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
+
+namespace HelloWorld
+{
+    [DisplayName("HelloWorld")]
+    [ManifestExtra("Author", "Your Name")]
+    [ManifestExtra("Email", "your.email@example.com")]
+    [ManifestExtra("Description", "A simple Hello World contract")]
+    public class HelloWorld : SmartContract
+    {
+        // Contract owner
+        [InitialValue("NiHYtfX8SdAQQJYf4fVvfcvfQQddH8WMLH", ContractParameterType.Hash160)]
+        private static readonly UInt160 Owner = default;
+
+        // Simple greeting method
+        public static string SayHello(string name)
+        {
+            return $"Hello, {name}! Welcome to Neo blockchain.";
+        }
+
+        // Get contract owner
+        public static UInt160 GetOwner()
+        {
+            return Owner;
+        }
+
+        // Update contract (only owner can do this)
+        public static bool Update(ByteString nefFile, string manifest)
+        {
+            if (!IsOwner()) return false;
+            ContractManagement.Update(nefFile, manifest);
+            return true;
+        }
+
+        // Check if caller is owner
+        private static bool IsOwner()
+        {
+            return Runtime.CheckWitness(Owner);
+        }
+    }
+}</code></pre>
+
+                <h3>2. Understanding the Code</h3>
+                
+                <div class="info-box">
+                    <h4><i class="fas fa-info-circle"></i> Key Concepts</h4>
+                    <ul>
+                        <li><strong>SmartContract</strong>: Base class for all Neo smart contracts</li>
+                        <li><strong>Attributes</strong>: Metadata about your contract (name, author, etc.)</li>
+                        <li><strong>Methods</strong>: Public static methods become contract endpoints</li>
+                        <li><strong>Owner</strong>: Common pattern for contract administration</li>
+                        <li><strong>CheckWitness</strong>: Verifies caller's identity</li>
+                    </ul>
+                </div>
+
+                <h2 id="compilation">Compiling Your Contract</h2>
+                
+                <p>Now let's compile the contract using RNCC:</p>
+
+                <h3>Basic Compilation</h3>
+                <pre><code class="language-bash"># Compile the contract
+rncc HelloWorld.cs
+
+# This generates:
+# - bin/sc/HelloWorld.nef (compiled contract)
+# - bin/sc/HelloWorld.manifest.json (contract metadata)</code></pre>
+
+                <h3>Advanced Compilation Options</h3>
+                <pre><code class="language-bash"># Compile with optimization
+rncc HelloWorld.cs --optimize=All
+
+# Compile with debug information
+rncc HelloWorld.cs -d Extended
+
+# Generate all artifacts
+rncc HelloWorld.cs --generate-artifacts=All --security-analysis
+
+# Generate WebGUI
+rncc HelloWorld.cs --generate-webgui
+
+# Custom output directory
+rncc HelloWorld.cs -o ./build</code></pre>
+
+                <div class="feature-box">
+                    <h4><i class="fas fa-star"></i> Pro Tip: Production Build</h4>
+                    <p>For production deployments, use this command for maximum optimization and security:</p>
+                    <pre><code class="language-bash">rncc HelloWorld.cs \
+  --optimize=All \
+  --security-analysis \
+  --generate-artifacts=All \
+  -o ./dist</code></pre>
+                </div>
+
+                <h2 id="deployment">Deployment</h2>
+                
+                <p>After compilation, you're ready to deploy your contract to the Neo blockchain.</p>
+
+                <h3>1. Testing Locally</h3>
+                <p>First, test your contract using Neo Express (local blockchain):</p>
+                
+                <pre><code class="language-bash"># Install Neo Express (if not already installed)
+dotnet tool install Neo.Express -g
+
+# Create a local blockchain
+neoxp create
+
+# Deploy contract
+neoxp contract deploy HelloWorld.nef genesis</code></pre>
+
+                <h3>2. TestNet Deployment</h3>
+                <p>Deploy to Neo TestNet for public testing:</p>
+                
+                <pre><code class="language-bash"># Using neo-cli
+neo-cli
+neo> open wallet your-wallet.json
+neo> deploy HelloWorld.nef HelloWorld.manifest.json</code></pre>
+
+                <h3>3. WebGUI Deployment</h3>
+                <p>If you generated a WebGUI, deploy it to R3E hosting:</p>
+                
+                <pre><code class="language-bash"># Generate and deploy WebGUI
+rncc HelloWorld.cs \
+  --generate-webgui \
+  --deploy-webgui \
+  --contract-address=0x123... \
+  --network=testnet \
+  --deployer-address=NiHYtfX...</code></pre>
+
+                <div class="next-steps">
+                    <h3>Next Steps</h3>
+                    <div class="next-cards">
+                        <a href="compiler-reference.html" class="next-card">
+                            <h4>Compiler Reference</h4>
+                            <p>Learn about all RNCC options and features</p>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="webgui-service.html" class="next-card">
+                            <h4>WebGUI Service</h4>
+                            <p>Create web interfaces for your contracts</p>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="examples.html" class="next-card">
+                            <h4>Examples</h4>
+                            <p>Explore sample contracts and patterns</p>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 R3E Network. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/docs.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# Netlify redirects file for R3E DevPack website
+
+# Redirect /docs to getting started
+/docs /docs/getting-started.html 301
+
+# Redirect /api to API index
+/api /api/index.html 301
+
+# Handle SPA routing for docs
+/docs/* /docs/:splat 200
+
+# Custom 404 page
+/* /404.html 404
