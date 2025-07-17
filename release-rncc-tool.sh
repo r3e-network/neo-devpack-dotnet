@@ -27,6 +27,8 @@ if [ -z "$NUGET_API_KEY" ]; then
     echo -e "${RED}Error: NUGET_API_KEY environment variable not set${NC}"
     echo "Please set your NuGet API key:"
     echo "  export NUGET_API_KEY=your-api-key-here"
+    echo ""
+    echo "Note: For GitHub Actions, the key is already configured as 'NUGET' secret"
     exit 1
 fi
 
