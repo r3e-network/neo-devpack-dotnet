@@ -4,20 +4,21 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
     <AssemblyName>rncc</AssemblyName>
-    <PackageId>R3E.Compiler.CSharp.Tool</PackageId>
+    <PackageId>rncc</PackageId>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>rncc</ToolCommandName>
     <RootNamespace>Neo.Compiler.Tool</RootNamespace>
     <Nullable>enable</Nullable>
+    
+    <!-- Package Metadata -->
     <PackageTags>NEO;Blockchain;Smart Contract;Compiler;Tool;CLI;R3E;RNCC;DotNetTool</PackageTags>
     <Company>R3E Network</Company>
     <Product>RNCC - R3E Neo Contract Compiler</Product>
-    <Description>RNCC (R3E Neo Contract Compiler) - Professional CLI tool for compiling Neo smart contracts with advanced features including WebGUI generation, security analysis, and solution templates</Description>
+    <Description>RNCC - Professional Neo smart contract compiler. Full package: R3E.Compiler.CSharp.Tool</Description>
     <PackageProjectUrl>https://r3edevpack.netlify.app</PackageProjectUrl>
     <RepositoryUrl>https://github.com/r3e-network/r3e-devpack-dotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <!-- <PackageIcon>icon.png</PackageIcon> -->
     <Authors>R3E Network</Authors>
     <Copyright>Copyright (c) 2024 R3E Network</Copyright>
     <IncludeSymbols>false</IncludeSymbols>
@@ -25,6 +26,11 @@
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <!-- Reference the actual tool implementation -->
+  <ItemGroup>
+    <Compile Include="..\Neo.Compiler.CSharp.Tool\Program.cs" Link="Program.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" />

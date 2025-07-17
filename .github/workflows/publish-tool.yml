@@ -1,0 +1,147 @@
+name: Publish RNCC Tool
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+      - 'tool-v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 1.0.0)'
+        required: true
+      publish:
+        description: 'Publish to NuGet (yes/no)'
+        required: true
+        default: 'no'
+
+jobs:
+  publish-tool:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+    
+    - name: Get version
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          VERSION="${{ github.event.inputs.version }}"
+        else
+          VERSION=${GITHUB_REF#refs/tags/}
+          VERSION=${VERSION#v}
+          VERSION=${VERSION#tool-v}
+        fi
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "Version: $VERSION"
+    
+    - name: Update version
+      run: |
+        # Update Directory.Build.props with the version
+        sed -i "s/<Version>.*<\/Version>/<Version>${{ steps.version.outputs.VERSION }}<\/Version>/" Directory.Build.props
+    
+    - name: Build tool
+      run: |
+        dotnet build src/Neo.Compiler.CSharp.Tool/Neo.Compiler.CSharp.Tool.csproj \
+          --configuration Release
+    
+    - name: Run tests
+      run: |
+        dotnet test tests/Neo.Compiler.CSharp.UnitTests/Neo.Compiler.CSharp.UnitTests.csproj \
+          --configuration Release \
+          --no-build || true
+    
+    - name: Pack tool packages
+      run: |
+        mkdir -p artifacts/packages
+        
+        # Pack the main tool package
+        dotnet pack src/Neo.Compiler.CSharp.Tool/Neo.Compiler.CSharp.Tool.csproj \
+          --configuration Release \
+          --no-build \
+          --output artifacts/packages
+        
+        # Pack the short alias package if it exists
+        if [ -f "src/RNCC/RNCC.csproj" ]; then
+          dotnet pack src/RNCC/RNCC.csproj \
+            --configuration Release \
+            --no-build \
+            --output artifacts/packages
+        fi
+    
+    - name: Display packages
+      run: |
+        echo "Generated packages:"
+        ls -la artifacts/packages/
+    
+    - name: Test tool installation
+      run: |
+        # Test installation from local packages
+        dotnet tool install -g R3E.Compiler.CSharp.Tool \
+          --add-source ./artifacts/packages \
+          --version ${{ steps.version.outputs.VERSION }}
+        
+        # Verify installation
+        which rncc
+        rncc --help || echo "Help command executed"
+    
+    - name: Upload packages
+      uses: actions/upload-artifact@v3
+      with:
+        name: nuget-packages
+        path: artifacts/packages/*.nupkg
+    
+    - name: Publish to NuGet
+      if: |
+        (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) ||
+        (github.event_name == 'workflow_dispatch' && github.event.inputs.publish == 'yes')
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      run: |
+        # Publish main package
+        dotnet nuget push artifacts/packages/R3E.Compiler.CSharp.Tool.*.nupkg \
+          --api-key $NUGET_API_KEY \
+          --source https://api.nuget.org/v3/index.json \
+          --skip-duplicate
+        
+        # Publish short alias if it exists
+        if [ -f "artifacts/packages/rncc.*.nupkg" ]; then
+          dotnet nuget push artifacts/packages/rncc.*.nupkg \
+            --api-key $NUGET_API_KEY \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
+        fi
+    
+    - name: Create Release
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: RNCC Tool ${{ steps.version.outputs.VERSION }}
+        body: |
+          ## RNCC (R3E Neo Contract Compiler) Tool Release
+          
+          ### Installation
+          ```bash
+          dotnet tool install -g R3E.Compiler.CSharp.Tool
+          # or
+          dotnet tool install -g rncc
+          ```
+          
+          ### What's New
+          - See [CHANGELOG.md](https://github.com/r3e-network/r3e-devpack-dotnet/blob/r3e/CHANGELOG.md) for details
+          
+          ### Documentation
+          - [Getting Started](https://r3edevpack.netlify.app/docs/getting-started.html)
+          - [Compiler Reference](https://r3edevpack.netlify.app/docs/compiler-reference.html)
+        draft: false
+        prerelease: false

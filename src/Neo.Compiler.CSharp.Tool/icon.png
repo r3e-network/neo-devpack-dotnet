@@ -1,0 +1,15 @@
+# Package Icon Placeholder
+
+This is a placeholder for the package icon. 
+
+To add a proper icon:
+1. Create a 128x128 or 256x256 PNG icon
+2. Name it `icon.png`
+3. Place it in this directory
+4. The icon should represent RNCC/R3E branding
+
+Suggested icon elements:
+- R3E logo or text
+- Compiler/tool symbols
+- Neo blockchain elements
+- Professional, clean design

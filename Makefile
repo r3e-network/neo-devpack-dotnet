@@ -368,6 +368,11 @@ release: clean build test pack release-compiler tag-release
 	@echo "2. Run 'make publish' to publish NuGet packages"
 	@echo "3. Run 'make docker-push' to push Docker images"
 
+# Release RNCC as .NET tool
+release-tool:
+	@echo "$(YELLOW)Releasing RNCC as .NET tool...$(NC)"
+	./release-rncc-tool.sh
+
 # Development workflow shortcuts
 dev: clean build unit-tests
 	@echo "$(GREEN)Development build completed!$(NC)"

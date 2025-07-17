@@ -1,109 +1,179 @@
-# R3E.Compiler.CSharp.Tool
+# RNCC - R3E Neo Contract Compiler
 
-Neo Smart Contract Compiler CLI Tool (r3e neo contract compiler) - Command-line interface for compiling Neo smart contracts.
+[![NuGet](https://img.shields.io/nuget/v/R3E.Compiler.CSharp.Tool.svg)](https://www.nuget.org/packages/R3E.Compiler.CSharp.Tool/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/r3e-network/r3e-devpack-dotnet/blob/r3e/LICENSE)
+
+RNCC (R3E Neo Contract Compiler) is a professional command-line tool for compiling Neo smart contracts with advanced features and comprehensive solution templates.
 
 ## Installation
 
-Install as a global .NET tool:
+Install RNCC as a global .NET tool:
 
 ```bash
 dotnet tool install -g R3E.Compiler.CSharp.Tool
 ```
 
-Update to the latest version:
+After installation, the `rncc` command will be available globally.
+
+## Quick Start
+
+### Create a New Contract Solution
 
 ```bash
-dotnet tool update -g R3E.Compiler.CSharp.Tool
+# Create a complete contract solution from template
+rncc new MyContract --template=solution --author="Your Name" --email="your@email.com"
+
+# Navigate to your contract
+cd MyContract
+
+# Build the solution
+rncc build
+
+# Run tests
+dotnet test
 ```
 
-## Usage
+### Compile a Contract
 
-Once installed, the `rncc` command will be available globally.
-
-### Basic Usage
-
-Compile a C# project:
 ```bash
+# Compile a C# file
+rncc MyContract.cs
+
+# Compile a project
 rncc MyContract.csproj
+
+# Compile a solution
+rncc MyContract.sln
+
+# Compile with optimization
+rncc MyContract.cs --optimize=All
 ```
 
-Compile source files:
+## Features
+
+- 🚀 **Solution Templates** - Create complete contract solutions with testing and deployment projects
+- 🔧 **Advanced Compilation** - Optimizations, security analysis, and debug information
+- 🌐 **WebGUI Generation** - Automatically generate web interfaces for your contracts
+- 🔌 **Plugin Generation** - Create Neo N3 plugins from your contracts
+- 📊 **Security Analysis** - Built-in vulnerability scanning
+- 🎯 **Multiple Targets** - Compile files, projects, solutions, or entire directories
+
+## Command Overview
+
+### Creating New Contracts
+
 ```bash
-rncc Contract1.cs Contract2.cs
-```
-
-### Options
-
-```
-rncc [paths] [options]
-
-Arguments:
-  paths                           The path of the solution file, project file, project directory or source files.
+rncc new <name> [options]
 
 Options:
-  -o, --output <output>           Specifies the output directory.
-  --base-name <base-name>         Specifies the base name of the output files.
-  --nullable <nullable>           Represents the default state of nullable analysis. [default: Annotations]
-  --checked                       Indicates whether to check for overflow and underflow.
-  --assembly                      Indicates whether to generate assembly.
-  --generate-artifacts <kind>     Instruct the compiler how to generate artifacts.
-  --security-analysis             Whether to perform security analysis.
-  --generate-interface            Generate interface file for contracts.
-  --generate-plugin               Generate plugin from contract.
-  --inline                        Inline methods. [default: True]
-  --verbose                       Outputs additional information.
-  -d, --debug <None|Portable>     Debug type. [default: None]
-  --optimize <optimize>           Optimize output. [default: Basic]
-  --version                       Show version information.
-  -?, -h, --help                  Show help and usage information.
+  --template <template>    Template type: solution, basic, nep17, nep11, defi, multisig
+  --author <name>          Author name
+  --email <email>          Author email
+  --with-tests            Include test project
+  --with-deploy-scripts   Include deployment scripts
+  --git-init              Initialize git repository
 ```
 
-### Examples
+### Building Contracts
 
-Compile with debug information:
 ```bash
-rncc MyContract.csproj -d Portable
+rncc build [options]           # Build solution in current directory
+rncc <path> [options]          # Compile specific file/project/solution
+
+Options:
+  -o, --output <path>          Output directory
+  --optimize <level>           Optimization: None, Basic, Experimental, All
+  --debug <level>              Debug info: None, Strict, Extended
+  --generate-webgui            Generate interactive WebGUI
+  --generate-plugin            Generate Neo N3 plugin
+  --security-analysis          Run security analysis
+  --generate-artifacts <mode>  Generate artifacts: Source, Library, All
 ```
 
-Compile with optimization:
+### Deployment
+
 ```bash
-rncc MyContract.csproj --optimize All
+rncc deploy [options]
+
+Options:
+  --network <network>          Target network: testnet, mainnet
+  --config <path>              Deployment configuration file
 ```
 
-Generate contract interface:
+## Templates
+
+### Solution Template (Recommended)
+Creates a complete solution with:
+- Contract project
+- Testing project  
+- Deployment scripts
+- Documentation
+
 ```bash
-rncc MyContract.csproj --generate-interface
+rncc new MyDApp --template=solution
 ```
 
-Generate plugin from contract:
+### NEP-17 Token
+Creates a fungible token contract:
+
 ```bash
-rncc MyContract.csproj --generate-plugin
+rncc new MyToken --template=nep17 --token-name="My Token" --token-symbol="MYT"
 ```
 
-Run security analysis:
+### NEP-11 NFT
+Creates a non-fungible token contract:
+
 ```bash
-rncc MyContract.csproj --security-analysis
+rncc new MyNFT --template=nep11
 ```
 
-Compile to specific output directory:
+## Advanced Usage
+
+### WebGUI Generation
+
+Generate an interactive web interface for your contract:
+
 ```bash
-rncc MyContract.csproj -o ./build
+rncc MyContract.cs --generate-webgui --network=testnet
+```
+
+### Security Analysis
+
+Run comprehensive security checks:
+
+```bash
+rncc MyContract.cs --security-analysis --optimize=All
+```
+
+### Plugin Generation
+
+Generate a Neo N3 plugin:
+
+```bash
+rncc MyContract.cs --generate-plugin
 ```
 
 ## Output Files
 
-The compiler generates:
-- `.nef` - Neo Executable Format file
-- `.manifest.json` - Contract manifest
-- `.nefdbgnfo` - Debug information (when -d is used)
-- `.abi.json` - ABI definition
-- Interface files (when --generate-interface is used)
-- Plugin files (when --generate-plugin is used)
+After compilation, you'll find:
+- `*.nef` - Compiled contract bytecode
+- `*.manifest.json` - Contract manifest with ABI
+- `*.nefdbgnfo` - Debug information (if enabled)
+- `*.asm` - Assembly listing (if requested)
+- `webgui/` - Generated web interface (if enabled)
 
-## For Library Usage
+## Documentation
 
-If you need to integrate the compiler into your own tools or applications, use the `R3E.Compiler.CSharp` NuGet package instead.
+- [Full Documentation](https://r3edevpack.netlify.app)
+- [Getting Started Guide](https://r3edevpack.netlify.app/docs/getting-started.html)
+- [Compiler Reference](https://r3edevpack.netlify.app/docs/compiler-reference.html)
+- [GitHub Repository](https://github.com/r3e-network/r3e-devpack-dotnet)
+
+## Support
+
+- [GitHub Issues](https://github.com/r3e-network/r3e-devpack-dotnet/issues)
+- [Discord Community](https://discord.gg/r3e)
 
 ## License
 
-MIT License - see [LICENSE](https://github.com/neo-project/neo-devpack-dotnet/blob/master/LICENSE) file for details.
+MIT License - see [LICENSE](https://github.com/r3e-network/r3e-devpack-dotnet/blob/r3e/LICENSE) for details.

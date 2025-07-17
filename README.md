@@ -187,7 +187,22 @@ make.bat dev
 
 ### Installation
 
-#### Install from NuGet
+#### Install RNCC Compiler (Recommended First Step)
+
+```shell
+# Install RNCC as a global tool
+dotnet tool install -g R3E.Compiler.CSharp.Tool
+# Or use the shorter package name
+dotnet tool install -g rncc
+
+# Verify installation
+rncc --version
+
+# Create your first contract solution
+rncc new MyContract --template=solution --author="Your Name"
+```
+
+#### Install Framework Packages
 
 ```shell
 # Install the core framework
@@ -201,9 +216,6 @@ dotnet add package R3E.Compiler.CSharp --version 0.0.4
 
 # Install the deployment toolkit
 dotnet add package R3E.SmartContract.Deploy --version 0.0.4
-
-# Install the compiler global tool
-dotnet tool install -g R3E.Compiler.CSharp.Tool --version 0.0.4
 
 # Install project templates
 dotnet new install R3E.SmartContract.Template::0.0.4
