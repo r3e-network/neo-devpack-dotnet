@@ -41,8 +41,22 @@
     <!-- Downloads Hero -->
     <section class="downloads-hero">
         <div class="container">
-            <h1 class="page-title">Download RNCC</h1>
-            <p class="page-subtitle">R3E Neo Contract Compiler - Available for all major platforms</p>
+            <h1 class="page-title">Get Started with RNCC</h1>
+            <p class="page-subtitle">Install the R3E Neo Contract Compiler and create professional contract solutions</p>
+            
+            <div class="quick-start-box">
+                <h2>Quick Start with Templates</h2>
+                <pre><code class="language-bash"># Install RNCC globally
+dotnet tool install -g rncc
+
+# Create a new contract solution
+rncc new MyProject --template=solution --with-tests
+
+# Build and test
+cd MyProject
+rncc build
+dotnet test</code></pre>
+            </div>
         </div>
     </section>
 
@@ -139,6 +153,21 @@ chmod +x rncc-macos-arm64
     <!-- Installation Methods -->
     <section class="installation-methods">
         <div class="container">
+            <h2>Recommended Installation</h2>
+            <div class="recommended-install">
+                <h3><i class="fas fa-star"></i> Install as .NET Global Tool (Recommended)</h3>
+                <p>The easiest way to install RNCC is as a .NET global tool:</p>
+                <pre><code class="language-bash"># Install RNCC globally
+dotnet tool install -g rncc --version 1.0.2
+
+# Verify installation
+rncc --version
+
+# Create your first solution
+rncc new MyContract --template=solution</code></pre>
+                <p class="install-note">This method ensures RNCC is always available in your PATH and easily updatable.</p>
+            </div>
+            
             <h2>Alternative Installation Methods</h2>
             
             <div class="method-tabs">

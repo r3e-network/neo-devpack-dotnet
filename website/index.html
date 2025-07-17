@@ -43,8 +43,8 @@
             <div class="hero-content">
                 <h1 class="hero-title">R3E Neo Contract DevPack</h1>
                 <p class="hero-subtitle">
-                    A comprehensive development toolkit for building, testing, and deploying 
-                    smart contracts on the Neo blockchain
+                    Professional solution templates for building, testing, and deploying 
+                    Neo smart contracts with complete project structure
                 </p>
                 <div class="hero-buttons">
                     <a href="docs/getting-started.html" class="btn btn-primary">
@@ -55,10 +55,10 @@
                     </a>
                 </div>
                 <div class="hero-code">
-                    <pre><code class="language-bash"># Quick Install
-wget https://github.com/r3e-network/r3e-devpack-dotnet/releases/latest/download/rncc-linux-x64
-chmod +x rncc-linux-x64
-./rncc-linux-x64 MyContract.cs</code></pre>
+                    <pre><code class="language-bash"># Create a complete Neo contract solution
+rncc new MyProject --template=solution --with-tests
+cd MyProject
+rncc build</code></pre>
                 </div>
             </div>
         </div>
@@ -71,10 +71,10 @@ chmod +x rncc-linux-x64
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <i class="fas fa-code"></i>
+                        <i class="fas fa-folder-open"></i>
                     </div>
-                    <h3>RNCC Compiler</h3>
-                    <p>Advanced C# to Neo VM compiler with optimization, security analysis, and comprehensive artifact generation</p>
+                    <h3>Solution Templates</h3>
+                    <p>Professional project templates with contract, testing, and deployment projects pre-configured</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
@@ -118,39 +118,39 @@ chmod +x rncc-linux-x64
     <!-- Quick Start Section -->
     <section class="quickstart">
         <div class="container">
-            <h2 class="section-title">Quick Start</h2>
+            <h2 class="section-title">Quick Start with Solution Templates</h2>
             <div class="steps">
                 <div class="step">
                     <div class="step-number">1</div>
-                    <h3>Download RNCC</h3>
-                    <p>Get the compiler for your platform</p>
-                    <pre><code># Linux/macOS
-wget https://github.com/r3e-network/r3e-devpack-dotnet/releases/latest/download/rncc-linux-x64
-chmod +x rncc-linux-x64</code></pre>
+                    <h3>Create Solution</h3>
+                    <p>Generate a complete contract solution</p>
+                    <pre><code># Create solution with contract, tests, and deployment
+rncc new MyDApp --template=solution \
+  --author="Your Name" \
+  --with-tests</code></pre>
                 </div>
                 <div class="step">
                     <div class="step-number">2</div>
-                    <h3>Write Your Contract</h3>
-                    <p>Create a simple smart contract</p>
-                    <pre><code>using Neo.SmartContract.Framework;
-
-public class HelloWorld : SmartContract
-{
-    public static string SayHello(string name)
-    {
-        return $"Hello, {name}!";
-    }
-}</code></pre>
+                    <h3>Explore Structure</h3>
+                    <p>Solution includes everything you need</p>
+                    <pre><code>MyDApp/
+├── src/MyDApp.Contracts/     # Contract project
+├── tests/MyDApp.Tests/       # Testing project  
+├── deploy/                   # Deployment scripts
+└── MyDApp.sln               # Solution file</code></pre>
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
-                    <h3>Compile & Deploy</h3>
-                    <p>Compile with optimization and WebGUI</p>
-                    <pre><code># Compile with all features
-./rncc-linux-x64 HelloWorld.cs \
-  --optimize=All \
-  --generate-webgui \
-  --security-analysis</code></pre>
+                    <h3>Build & Test</h3>
+                    <p>Compile contracts and run tests</p>
+                    <pre><code># Build entire solution
+rncc build
+
+# Run all tests
+dotnet test
+
+# Deploy to testnet
+rncc deploy --network=testnet</code></pre>
                 </div>
             </div>
         </div>

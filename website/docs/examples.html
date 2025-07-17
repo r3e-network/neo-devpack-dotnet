@@ -75,9 +75,19 @@
                 <h1 id="overview">Smart Contract Examples</h1>
                 
                 <p class="lead">
-                    Explore real-world smart contract examples built with R3E DevPack. Each example includes
-                    full source code, compilation instructions, and WebGUI integration.
+                    Explore real-world smart contract examples built with R3E DevPack solution templates. 
+                    Each example shows how to create a complete solution with contract, testing, and deployment projects.
                 </p>
+                
+                <div class="info-box">
+                    <h4><i class="fas fa-info-circle"></i> Solution-Based Development</h4>
+                    <p>All examples follow the R3E solution structure with separate projects for:</p>
+                    <ul>
+                        <li><strong>Contracts</strong> - Smart contract implementation</li>
+                        <li><strong>Tests</strong> - Comprehensive unit and integration tests</li>
+                        <li><strong>Deploy</strong> - Deployment scripts and configuration</li>
+                    </ul>
+                </div>
 
                 <div class="toc">
                     <h3>On this page</h3>
@@ -93,7 +103,43 @@
 
                 <h2 id="token">NEP-17 Token Contract</h2>
                 
-                <p>A complete implementation of the NEP-17 token standard with additional features:</p>
+                <p>Create a complete NEP-17 token solution from template:</p>
+                
+                <h3>1. Generate Token Solution</h3>
+                <pre><code class="language-bash"># Create NEP-17 token solution
+rncc new MyToken --template=nep17 \
+  --author="Your Name" \
+  --email="your@email.com" \
+  --token-name="MyToken" \
+  --token-symbol="MYT" \
+  --decimals=8 \
+  --total-supply=100000000
+
+# Solution structure
+MyToken/
+├── src/
+│   ├── MyToken.Contracts/
+│   │   ├── TokenContract.cs         # Main token contract
+│   │   ├── TokenContract.Owner.cs   # Owner management
+│   │   ├── TokenContract.NEP17.cs   # NEP-17 implementation
+│   │   └── MyToken.Contracts.csproj
+│   └── MyToken.Shared/
+│       └── TokenSettings.cs         # Shared constants
+├── tests/
+│   └── MyToken.Tests/
+│       ├── TokenTests.cs            # Unit tests
+│       ├── IntegrationTests.cs      # Integration tests
+│       └── MyToken.Tests.csproj
+├── deploy/
+│   ├── scripts/
+│   │   ├── deploy-testnet.sh
+│   │   └── deploy-mainnet.sh
+│   └── config/
+│       └── token-config.json
+└── MyToken.sln</code></pre>
+                
+                <h3>2. Token Contract Implementation</h3>
+                <p>The generated token contract includes all NEP-17 standard methods plus additional features:</p>
 
                 <pre><code class="language-csharp">using Neo;
 using Neo.SmartContract.Framework;

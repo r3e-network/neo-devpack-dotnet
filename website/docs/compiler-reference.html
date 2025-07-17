@@ -83,7 +83,8 @@
                 <h1 id="overview">RNCC Compiler Reference</h1>
                 
                 <p class="lead">
-                    Complete reference guide for the R3E Neo Contract Compiler (RNCC), including all command-line options,
+                    Complete reference guide for the R3E Neo Contract Compiler (RNCC), designed to work with 
+                    solution-based projects generated from templates, including all command-line options,
                     optimization strategies, and advanced features.
                 </p>
 
@@ -101,16 +102,42 @@
 
                 <h2 id="command-line">Command Line Options</h2>
                 
-                <h3>Basic Usage</h3>
-                <pre><code class="language-bash">rncc [options] &lt;paths&gt;</code></pre>
+                <h3>Solution-Based Development</h3>
+                <p>RNCC is designed to work with complete Neo contract solutions generated from templates:</p>
                 
-                <p>Where <code>&lt;paths&gt;</code> can be:</p>
+                <pre><code class="language-bash"># Create a new solution from template
+rncc new MyProject --template=solution --with-tests
+
+# Build the entire solution
+rncc build
+
+# Build specific project
+rncc build src/MyProject.Contracts/MyProject.Contracts.csproj
+
+# Run tests
+dotnet test
+
+# Deploy
+rncc deploy --network=testnet</code></pre>
+                
+                <h3>Basic Usage</h3>
+                <pre><code class="language-bash">rncc [command] [options] &lt;paths&gt;</code></pre>
+                
+                <h4>Commands:</h4>
                 <ul>
-                    <li>C# source files (<code>.cs</code>)</li>
+                    <li><code>new</code> - Create new contract solution from template</li>
+                    <li><code>build</code> - Compile contracts in solution</li>
+                    <li><code>test</code> - Run contract tests</li>
+                    <li><code>deploy</code> - Deploy contracts to blockchain</li>
+                    <li><code>update</code> - Update deployed contracts</li>
+                </ul>
+                
+                <h4>Supported Paths:</h4>
+                <ul>
+                    <li>Solution files (<code>.sln</code>) - <strong>Recommended</strong></li>
                     <li>Project files (<code>.csproj</code>)</li>
-                    <li>Solution files (<code>.sln</code>)</li>
-                    <li>Directories (searches for compatible files)</li>
-                    <li>NEF files for optimization (<code>.nef</code>)</li>
+                    <li>C# source files (<code>.cs</code>) - For quick testing only</li>
+                    <li>Directories (searches for solution/project files)</li>
                 </ul>
 
                 <h3>Complete Options Reference</h3>
@@ -247,7 +274,11 @@
                 <div class="info-box">
                     <h4><i class="fas fa-tachometer-alt"></i> None</h4>
                     <p>No optimizations applied. Useful for debugging and understanding contract behavior.</p>
-                    <pre><code class="language-bash">rncc MyContract.cs --optimize=None</code></pre>
+                    <pre><code class="language-bash"># Build solution without optimization
+rncc build --optimize=None
+
+# Or for specific project
+rncc build src/MyProject.Contracts/MyProject.Contracts.csproj --optimize=None</code></pre>
                 </div>
 
                 <div class="info-box">
@@ -258,7 +289,8 @@
                         <li>Constant folding</li>
                         <li>Simple peephole optimizations</li>
                     </ul>
-                    <pre><code class="language-bash">rncc MyContract.cs --optimize=Basic</code></pre>
+                    <pre><code class="language-bash"># Build solution with basic optimization
+rncc build --optimize=Basic</code></pre>
                 </div>
 
                 <div class="info-box">
@@ -269,7 +301,8 @@
                         <li>Stack optimization</li>
                         <li>Loop unrolling (where beneficial)</li>
                     </ul>
-                    <pre><code class="language-bash">rncc MyContract.cs --optimize=Experimental</code></pre>
+                    <pre><code class="language-bash"># Build solution with experimental optimization
+rncc build --optimize=Experimental</code></pre>
                 </div>
 
                 <div class="feature-box">
@@ -281,7 +314,8 @@
                         <li>Aggressive inlining</li>
                         <li>Advanced pattern matching</li>
                     </ul>
-                    <pre><code class="language-bash">rncc MyContract.cs --optimize=All</code></pre>
+                    <pre><code class="language-bash"># Build solution with all optimizations
+rncc build --optimize=All --security-analysis</code></pre>
                 </div>
 
                 <h3>Optimization Tips</h3>
