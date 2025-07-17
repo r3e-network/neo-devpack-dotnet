@@ -68,10 +68,10 @@ help:
 	@echo "  make serve-website    - Serve website locally"
 	@echo ""
 	@echo "$(YELLOW)Contract Development:$(NC)"
-	@echo "  make new-contract     - Create a new contract from template"
-	@echo "  make build-contract   - Build contract in current directory"
-	@echo "  make test-contract    - Test contract in current directory"
-	@echo "  make deploy-contract  - Deploy contract to testnet"
+	@echo "  make new-contract     - Create a new contract solution from template"
+	@echo "  make build-contract   - Build contract solution in current directory"
+	@echo "  make test-contract    - Test contract solution in current directory"
+	@echo "  make deploy-contract  - Deploy contract solution to testnet"
 	@echo ""
 	@echo "$(YELLOW)Maintenance:$(NC)"
 	@echo "  make install-tools    - Install required .NET tools"
@@ -265,26 +265,70 @@ deploy-website:
 
 # Contract development helpers
 new-contract:
-	@echo "$(YELLOW)Creating new contract from template...$(NC)"
+	@echo "$(YELLOW)Creating new contract solution from template...$(NC)"
 	@read -p "Enter contract name: " name; \
-	read -p "Enter template (basic/nep17/nep11/defi/solution): " template; \
-	./artifacts/binaries/rncc-linux-x64 new $$name --template=$$template --with-tests
+	read -p "Enter template (solution/nep17/nep11/defi/multisig): " template; \
+	read -p "Enter author name: " author; \
+	read -p "Enter author email: " email; \
+	echo ""; \
+	echo "Creating $$name solution with $$template template..."; \
+	rncc new $$name --template=$$template \
+		--author="$$author" \
+		--email="$$email" \
+		--with-tests \
+		--with-deploy-scripts \
+		--git-init || \
+	dotnet tool run rncc new $$name --template=$$template \
+		--author="$$author" \
+		--email="$$email" \
+		--with-tests \
+		--with-deploy-scripts \
+		--git-init || \
+	./artifacts/binaries/rncc-linux-x64 new $$name --template=$$template \
+		--author="$$author" \
+		--email="$$email" \
+		--with-tests \
+		--with-deploy-scripts \
+		--git-init
+	@echo "$(GREEN)Contract solution created in ./$$name/$(NC)"
+	@echo "Next steps:"
+	@echo "  cd $$name"
+	@echo "  make build-contract"
+	@echo "  make test-contract"
 
 build-contract:
-	@echo "$(YELLOW)Building contract...$(NC)"
-	@if [ -f "*.sln" ]; then \
-		./artifacts/binaries/rncc-linux-x64 build; \
+	@echo "$(YELLOW)Building contract solution...$(NC)"
+	@if [ -f *.sln ]; then \
+		rncc build || \
+		dotnet tool run rncc build || \
+		./artifacts/binaries/rncc-linux-x64 build || \
+		dotnet build; \
+		echo "$(GREEN)Contract solution built successfully!$(NC)"; \
 	else \
 		echo "$(RED)No solution file found in current directory$(NC)"; \
+		echo "Use 'make new-contract' to create a new contract solution"; \
 	fi
 
 test-contract:
-	@echo "$(YELLOW)Testing contract...$(NC)"
-	$(DOTNET) test
+	@echo "$(YELLOW)Testing contract solution...$(NC)"
+	@if [ -f *.sln ]; then \
+		$(DOTNET) test; \
+		echo "$(GREEN)All tests passed!$(NC)"; \
+	else \
+		echo "$(RED)No solution file found in current directory$(NC)"; \
+		echo "Use 'make new-contract' to create a new contract solution"; \
+	fi
 
 deploy-contract:
 	@echo "$(YELLOW)Deploying contract to testnet...$(NC)"
-	./artifacts/binaries/rncc-linux-x64 deploy --network=testnet
+	@if [ -f *.sln ]; then \
+		rncc deploy --network=testnet || \
+		dotnet tool run rncc deploy --network=testnet || \
+		./artifacts/binaries/rncc-linux-x64 deploy --network=testnet; \
+	else \
+		echo "$(RED)No solution file found in current directory$(NC)"; \
+		echo "Use 'make new-contract' to create a new contract solution"; \
+	fi
 
 # Development tools
 install-tools:
@@ -334,14 +378,47 @@ ci: clean restore build test lint security-scan
 # Quick contract workflow
 quick-start:
 	@echo "$(YELLOW)Setting up quick start example...$(NC)"
-	make install-tools
-	mkdir -p examples/quickstart
-	cd examples/quickstart && \
-	rncc new QuickStartContract --template=solution --with-tests && \
+	@echo "This will create a complete contract solution with:"
+	@echo "  - Contract project"
+	@echo "  - Testing project"
+	@echo "  - Deployment scripts"
+	@echo "  - Full solution structure"
+	@echo ""
+	@mkdir -p examples/quickstart
+	@cd examples/quickstart && \
+	echo "Creating QuickStartContract solution..." && \
+	(rncc new QuickStartContract --template=solution \
+		--author="Quick Start Developer" \
+		--email="quickstart@example.com" \
+		--with-tests \
+		--with-deploy-scripts || \
+	dotnet tool run rncc new QuickStartContract --template=solution \
+		--author="Quick Start Developer" \
+		--email="quickstart@example.com" \
+		--with-tests \
+		--with-deploy-scripts) && \
 	cd QuickStartContract && \
-	make build-contract && \
-	make test-contract
-	@echo "$(GREEN)Quick start example ready in examples/quickstart/QuickStartContract$(NC)"
+	echo "" && \
+	echo "Building solution..." && \
+	dotnet build && \
+	echo "" && \
+	echo "Running tests..." && \
+	dotnet test
+	@echo ""
+	@echo "$(GREEN)✅ Quick start contract solution ready!$(NC)"
+	@echo ""
+	@echo "Solution structure:"
+	@echo "  examples/quickstart/QuickStartContract/"
+	@echo "  ├── src/QuickStartContract.Contracts/"
+	@echo "  ├── tests/QuickStartContract.Tests/"
+	@echo "  ├── deploy/"
+	@echo "  └── QuickStartContract.sln"
+	@echo ""
+	@echo "Next steps:"
+	@echo "  cd examples/quickstart/QuickStartContract"
+	@echo "  make build-contract"
+	@echo "  make test-contract"
+	@echo "  make deploy-contract"
 
 # Version management
 bump-version:
