@@ -155,8 +155,35 @@ Professional WebGUI hosting service for Neo smart contracts:
 
 ### Prerequisites
 
-- [.NET SDK](https://dotnet.microsoft.com/download) 9.0 or later
+- [.NET SDK](https://dotnet.microsoft.com/download) 8.0 or later
 - [Visual Studio](https://visualstudio.microsoft.com/) or [Visual Studio Code](https://code.visualstudio.com/) (optional but recommended)
+- [Make](https://www.gnu.org/software/make/) (optional, for build automation)
+
+### Quick Start with Makefile
+
+This project includes a comprehensive Makefile for easy development:
+
+```bash
+# Show all available targets
+make help
+
+# Quick development workflow
+make dev                # Clean, build, and test
+make all               # Complete build pipeline
+
+# Individual operations
+make build             # Build all projects
+make test              # Run all tests
+make pack              # Create NuGet packages
+make clean             # Clean build artifacts
+```
+
+For Windows users without Make:
+```cmd
+# Use the batch wrapper
+make.bat help
+make.bat dev
+```
 
 ### Installation
 
@@ -194,12 +221,20 @@ cd neo-devpack-dotnet
 ### Build
 
 ```shell
+# Using Makefile (recommended)
+make build
+
+# Or using dotnet directly
 dotnet build
 ```
 
 ### Run Tests
 
 ```shell
+# Using Makefile (recommended)
+make test
+
+# Or using dotnet directly
 dotnet test
 ```
 
@@ -742,13 +777,46 @@ Additional resources:
 
 ## Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions are welcome! This project includes comprehensive build automation to make contributing easy.
+
+### Quick Start for Contributors
+
+```bash
+# Set up development environment
+make install-tools
+make dev                # Clean, build, and test
+
+# Run full CI pipeline
+make ci                 # Clean, restore, build, test, lint, security scan
+```
+
+### Development Workflow
+
+```bash
+# Individual tasks
+make build              # Build all projects
+make test               # Run all tests
+make coverage           # Generate code coverage report
+make format             # Format code
+make lint               # Run linters
+make security-scan      # Check for vulnerabilities
+
+# Component-specific builds
+make compiler-only      # Build only the compiler
+make testing-only       # Build only testing framework
+make webgui-only        # Build only WebGUI service
+```
+
+For detailed contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+### Pull Request Process
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/your-feature`)
-3. Commit your changes (`git commit -am 'Add your feature'`)
-4. Push to the branch (`git push origin feature/your-feature`)
-5. Create a new Pull Request
+3. Make your changes and run `make ci` to ensure everything passes
+4. Commit your changes (`git commit -am 'Add your feature'`)
+5. Push to the branch (`git push origin feature/your-feature`)
+6. Create a new Pull Request
 
 Please ensure that your code follows the existing coding style and includes appropriate tests and documentation.
 
