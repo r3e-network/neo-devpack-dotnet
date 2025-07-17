@@ -1,0 +1,5 @@
+# Backup Netlify configuration in website directory
+# This file is here as a backup in case the root netlify.toml is not read
+
+[build]
+  publish = "."

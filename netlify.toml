@@ -1,7 +1,9 @@
 # Netlify configuration for R3E DevPack website
 
 [build]
+  base = ""
   publish = "website"
+  command = "./build.sh"
 
 [[redirects]]
   from = "/docs"
