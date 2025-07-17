@@ -211,11 +211,15 @@ code {
 .hero-code pre {
     margin: 0;
     font-family: 'JetBrains Mono', monospace;
+    overflow-x: auto;
+    white-space: pre;
 }
 
 .hero-code code {
     color: var(--primary-color);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    display: block;
+    white-space: pre;
 }
 
 /* Features Section */

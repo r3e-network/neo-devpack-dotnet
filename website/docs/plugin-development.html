@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plugin Development - R3E Neo Contract DevPack</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/docs.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="../index.html" class="logo">
+                    <i class="fas fa-cube"></i>
+                    <span>R3E DevPack</span>
+                </a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="../index.html#features" class="nav-link">Features</a>
+                <a href="getting-started.html" class="nav-link">Documentation</a>
+                <a href="../api/index.html" class="nav-link">API Reference</a>
+                <a href="../downloads.html" class="nav-link">Downloads</a>
+                <a href="https://github.com/r3e-network/r3e-devpack-dotnet" class="nav-link" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </div>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="docs-container">
+        <!-- Sidebar -->
+        <aside class="docs-sidebar">
+            <div class="sidebar-section">
+                <h3>Getting Started</h3>
+                <ul>
+                    <li><a href="getting-started.html">Installation</a></li>
+                    <li><a href="getting-started.html#first-contract">First Contract</a></li>
+                    <li><a href="getting-started.html#compilation">Compilation</a></li>
+                </ul>
+            </div>
+            <div class="sidebar-section">
+                <h3>Core Features</h3>
+                <ul>
+                    <li><a href="compiler-reference.html">RNCC Compiler</a></li>
+                    <li><a href="webgui-service.html">WebGUI Service</a></li>
+                    <li><a href="plugin-development.html" class="active">Plugin Development</a></li>
+                </ul>
+            </div>
+            <div class="sidebar-section">
+                <h3>Advanced</h3>
+                <ul>
+                    <li><a href="optimization.html">Optimization</a></li>
+                    <li><a href="security.html">Security</a></li>
+                    <li><a href="docker.html">Docker Integration</a></li>
+                </ul>
+            </div>
+            <div class="sidebar-section">
+                <h3>Examples</h3>
+                <ul>
+                    <li><a href="examples.html">Smart Contracts</a></li>
+                    <li><a href="examples.html#defi">DeFi Examples</a></li>
+                    <li><a href="examples.html#nft">NFT Examples</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="docs-main">
+            <div class="docs-content">
+                <h1>Plugin Development</h1>
+                <p class="lead">Generate Neo N3 plugins from your smart contracts for seamless integration with Neo nodes</p>
+
+                <div class="toc">
+                    <h2>Table of Contents</h2>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#plugin-generation">Plugin Generation</a></li>
+                        <li><a href="#configuration">Configuration</a></li>
+                        <li><a href="#custom-plugins">Custom Plugin Development</a></li>
+                        <li><a href="#deployment">Deployment</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview">
+                    <h2>Overview</h2>
+                    <p>The R3E DevPack provides powerful plugin generation capabilities that allow you to convert your smart contracts into Neo N3 plugins. These plugins can be loaded directly into Neo nodes to extend functionality.</p>
+
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <strong>What are Neo Plugins?</strong>
+                            <p>Neo plugins are extensions that add functionality to Neo nodes, such as RPC endpoints, event monitoring, or custom blockchain processing logic.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="plugin-generation">
+                    <h2>Plugin Generation</h2>
+                    <p>Generate a plugin from your smart contract using the <code>--generate-plugin</code> flag:</p>
+
+                    <pre><code class="language-bash"># Generate a basic plugin
+./rncc-linux-x64 MyContract.cs --generate-plugin
+
+# Generate plugin with custom configuration
+./rncc-linux-x64 MyContract.cs \
+  --generate-plugin \
+  --plugin-config=plugin.json \
+  --plugin-type=RpcServer</code></pre>
+
+                    <h3>Generated Files</h3>
+                    <p>The plugin generation process creates the following files:</p>
+                    <ul>
+                        <li><code>MyContract.Plugin.cs</code> - Main plugin implementation</li>
+                        <li><code>MyContract.Plugin.json</code> - Plugin configuration</li>
+                        <li><code>MyContract.Plugin.csproj</code> - Build project file</li>
+                        <li><code>README.md</code> - Plugin documentation</li>
+                    </ul>
+
+                    <h3>Plugin Types</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>RpcServer</code></td>
+                                <td>Adds custom RPC endpoints</td>
+                                <td>External API access</td>
+                            </tr>
+                            <tr>
+                                <td><code>ApplicationLogs</code></td>
+                                <td>Logs application execution</td>
+                                <td>Event monitoring</td>
+                            </tr>
+                            <tr>
+                                <td><code>StateService</code></td>
+                                <td>Manages state changes</td>
+                                <td>State tracking</td>
+                            </tr>
+                            <tr>
+                                <td><code>OracleService</code></td>
+                                <td>Provides oracle functionality</td>
+                                <td>External data feeds</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="configuration">
+                    <h2>Configuration</h2>
+                    <p>Configure your plugin generation with a JSON configuration file:</p>
+
+                    <pre><code class="language-json">{
+  "PluginName": "MyContractPlugin",
+  "Version": "1.0.0",
+  "Description": "Custom plugin for MyContract",
+  "Author": "Your Name",
+  "Type": "RpcServer",
+  "Dependencies": [
+    "RpcServer"
+  ],
+  "Settings": {
+    "Network": "MainNet",
+    "MaxGasInvoke": 20000000,
+    "EnableCors": true
+  },
+  "RpcMethods": [
+    {
+      "Name": "getContractData",
+      "Handler": "GetContractData",
+      "Description": "Retrieve contract data"
+    }
+  ]
+}</code></pre>
+
+                    <h3>Configuration Options</h3>
+                    <ul>
+                        <li><strong>PluginName</strong> - Name of your plugin</li>
+                        <li><strong>Type</strong> - Plugin type (see table above)</li>
+                        <li><strong>Dependencies</strong> - Required Neo plugins</li>
+                        <li><strong>Settings</strong> - Custom plugin settings</li>
+                        <li><strong>RpcMethods</strong> - Custom RPC endpoints (for RpcServer type)</li>
+                    </ul>
+                </section>
+
+                <section id="custom-plugins">
+                    <h2>Custom Plugin Development</h2>
+                    <p>Create advanced plugins by extending the generated code:</p>
+
+                    <h3>Basic Plugin Structure</h3>
+                    <pre><code class="language-csharp">using Neo;
+using Neo.Plugins;
+using Neo.SmartContract;
+using System.Threading.Tasks;
+
+namespace MyContract.Plugins
+{
+    public class MyContractPlugin : Plugin
+    {
+        public override string Name => "MyContract Plugin";
+        public override string Description => "Plugin for MyContract functionality";
+
+        protected override void Configure()
+        {
+            // Plugin configuration
+        }
+
+        protected override void OnSystemLoaded(NeoSystem system)
+        {
+            // Initialize when Neo system is loaded
+        }
+
+        // Custom RPC method
+        [RpcMethod]
+        public async Task<object> GetContractData(string parameter)
+        {
+            // Implementation
+            return await Task.FromResult(new { result = "data" });
+        }
+    }
+}</code></pre>
+
+                    <h3>Event Monitoring</h3>
+                    <pre><code class="language-csharp">// Monitor contract events
+private void OnApplicationExecuted(NeoApplicationExecutedEventArgs args)
+{
+    foreach (var notification in args.Notifications)
+    {
+        if (notification.ScriptHash == contractScriptHash)
+        {
+            ProcessContractEvent(notification);
+        }
+    }
+}
+
+private void ProcessContractEvent(NotifyEventArgs notification)
+{
+    var eventName = notification.EventName;
+    var state = notification.State;
+    
+    switch (eventName)
+    {
+        case "Transfer":
+            HandleTransfer(state);
+            break;
+        case "Mint":
+            HandleMint(state);
+            break;
+    }
+}</code></pre>
+
+                    <h3>State Management</h3>
+                    <pre><code class="language-csharp">// Track contract state changes
+public class ContractStateTracker
+{
+    private readonly Dictionary<UInt160, ContractState> states;
+
+    public void OnStateChanged(DataCache snapshot, UInt160 scriptHash)
+    {
+        var contract = NativeContract.ContractManagement.GetContract(snapshot, scriptHash);
+        if (contract != null)
+        {
+            UpdateContractState(scriptHash, contract);
+        }
+    }
+
+    private void UpdateContractState(UInt160 scriptHash, ContractState state)
+    {
+        states[scriptHash] = state;
+        // Trigger state update events
+    }
+}</code></pre>
+                </section>
+
+                <section id="deployment">
+                    <h2>Deployment</h2>
+                    <p>Deploy your generated plugin to a Neo node:</p>
+
+                    <h3>1. Build the Plugin</h3>
+                    <pre><code class="language-bash"># Navigate to plugin directory
+cd MyContract.Plugin
+
+# Build the plugin
+dotnet build -c Release
+
+# Output: MyContract.Plugin.dll</code></pre>
+
+                    <h3>2. Install on Neo Node</h3>
+                    <pre><code class="language-bash"># Copy to Neo node plugins directory
+cp bin/Release/net6.0/MyContract.Plugin.dll /path/to/neo-node/Plugins/
+
+# Copy configuration
+cp MyContract.Plugin.json /path/to/neo-node/Plugins/
+
+# Restart Neo node
+neo-cli restart</code></pre>
+
+                    <h3>3. Verify Installation</h3>
+                    <pre><code class="language-bash"># Check plugin status
+neo-cli show plugins
+
+# Test custom RPC endpoint
+curl -X POST http://localhost:10332 \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"getContractData","params":["test"],"id":1}'</code></pre>
+
+                    <div class="warning-box">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <strong>Important</strong>
+                            <p>Always test plugins on TestNet before deploying to MainNet. Incorrect plugin configuration can affect node stability.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="examples">
+                    <h2>Examples</h2>
+                    
+                    <h3>Oracle Plugin</h3>
+                    <pre><code class="language-csharp">// Oracle plugin for price feeds
+public class PriceOraclePlugin : OraclePlugin
+{
+    private readonly Dictionary<string, decimal> priceFeeds = new();
+
+    protected override async Task<OracleResponse> ProcessRequestAsync(OracleRequest request)
+    {
+        var url = request.Url;
+        if (url.StartsWith("https://api.prices.com/"))
+        {
+            var symbol = ExtractSymbol(url);
+            var price = await FetchPrice(symbol);
+            return new OracleResponse
+            {
+                Code = OracleResponseCode.Success,
+                Result = price.ToString()
+            };
+        }
+        return await base.ProcessRequestAsync(request);
+    }
+}</code></pre>
+
+                    <h3>Analytics Plugin</h3>
+                    <pre><code class="language-csharp">// Analytics plugin for contract metrics
+public class ContractAnalyticsPlugin : Plugin
+{
+    private readonly IAnalyticsService analytics;
+    
+    protected override void OnSystemLoaded(NeoSystem system)
+    {
+        system.ActorSystem.EventStream.Subscribe(self, typeof(ApplicationExecuted));
+    }
+
+    private void OnApplicationExecuted(ApplicationExecuted executed)
+    {
+        var metrics = new ContractMetrics
+        {
+            Timestamp = DateTime.UtcNow,
+            GasConsumed = executed.GasConsumed,
+            Notifications = executed.Notifications.Count,
+            Success = executed.VMState == VMState.HALT
+        };
+        
+        analytics.RecordMetrics(metrics);
+    }
+}</code></pre>
+
+                    <h3>WebSocket Plugin</h3>
+                    <pre><code class="language-csharp">// WebSocket plugin for real-time updates
+public class ContractWebSocketPlugin : Plugin
+{
+    private WebSocketServer wsServer;
+    
+    protected override void Configure()
+    {
+        wsServer = new WebSocketServer(Settings.GetValue("Port", 10334));
+        wsServer.Start();
+    }
+
+    private void BroadcastContractEvent(NotifyEventArgs notification)
+    {
+        var message = new
+        {
+            type = "contractEvent",
+            contract = notification.ScriptHash.ToString(),
+            eventName = notification.EventName,
+            data = notification.State,
+            timestamp = DateTime.UtcNow
+        };
+        
+        wsServer.BroadcastAsync(JsonSerializer.Serialize(message));
+    }
+}</code></pre>
+                </section>
+
+                <div class="nav-buttons">
+                    <a href="webgui-service.html" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> WebGUI Service
+                    </a>
+                    <a href="optimization.html" class="btn btn-primary">
+                        Optimization <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>R3E DevPack</h3>
+                    <p>Professional toolkit for Neo smart contract development</p>
+                    <div class="social-links">
+                        <a href="https://github.com/r3e-network/r3e-devpack-dotnet" target="_blank">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="https://twitter.com/r3e_network" target="_blank">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Documentation</h4>
+                    <ul>
+                        <li><a href="getting-started.html">Getting Started</a></li>
+                        <li><a href="compiler-reference.html">Compiler Reference</a></li>
+                        <li><a href="webgui-service.html">WebGUI Service</a></li>
+                        <li><a href="../api/index.html">API Reference</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="../downloads.html">Downloads</a></li>
+                        <li><a href="examples.html">Examples</a></li>
+                        <li><a href="https://github.com/r3e-network/r3e-devpack-dotnet/issues">Support</a></li>
+                        <li><a href="https://neo.org" target="_blank">Neo Blockchain</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <p>Join our community and stay updated</p>
+                    <a href="https://discord.gg/r3e" class="btn btn-sm btn-outline">
+                        <i class="fab fa-discord"></i> Join Discord
+                    </a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 R3E Network. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+</body>
+</html>

@@ -1,19 +1,34 @@
 // Tab functionality for installation methods
-document.addEventListener('DOMContentLoaded', function() {
+// Define switchInstallTab on window for onclick handlers
+window.switchInstallTab = function(tabName) {
+    // Get all tab buttons and panes
     const tabButtons = document.querySelectorAll('.tab-btn');
     const tabPanes = document.querySelectorAll('.tab-pane');
     
-    tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const targetTab = button.getAttribute('data-tab');
-            
-            // Remove active class from all buttons and panes
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            tabPanes.forEach(pane => pane.classList.remove('active'));
-            
-            // Add active class to clicked button and corresponding pane
-            button.classList.add('active');
-            document.getElementById(targetTab).classList.add('active');
+    // Remove active class from all
+    tabButtons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-tab') === tabName) {
+            btn.classList.add('active');
+        }
+    });
+    
+    tabPanes.forEach(pane => {
+        pane.classList.remove('active');
+        if (pane.id === tabName) {
+            pane.classList.add('active');
+        }
+    });
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Add click handlers to all tab buttons as backup
+    document.querySelectorAll('.tab-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const tabName = this.getAttribute('data-tab');
+            window.switchInstallTab(tabName);
         });
     });
     

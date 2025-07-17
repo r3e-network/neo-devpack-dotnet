@@ -9,6 +9,10 @@
 </p>
 
 <p align="center">
+  <strong>📚 Documentation:</strong> <a href="https://r3edevpack.netlify.app">https://r3edevpack.netlify.app</a>
+</p>
+
+<p align="center">
   <a href="https://github.com/r3e-network/r3e-devpack-dotnet/blob/r3e/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
@@ -714,8 +718,19 @@ docker-compose up -d
 
 ## Documentation
 
-For detailed documentation on Neo smart contract development with .NET:
+**📚 Full Documentation Website: [https://r3edevpack.netlify.app](https://r3edevpack.netlify.app)**
 
+The documentation website includes:
+- Getting Started Guide with Project Templates
+- Complete Compiler Reference (RNCC)
+- WebGUI Service Documentation
+- Plugin Development Guide
+- API Reference
+- Security Best Practices
+- Example Contracts
+- Downloads for All Platforms
+
+Additional resources:
 - [R3E Community Edition Repository](https://github.com/r3e-network/r3e-devpack-dotnet)
 - [Neo Official Documentation](https://docs.neo.org/)
 - [Neo Smart Contract Development Guide](https://docs.neo.org/docs/en-us/develop/write/basics.html)

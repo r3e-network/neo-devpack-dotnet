@@ -52,6 +52,8 @@
                     <ul>
                         <li><a href="#introduction" class="nav-item active">Introduction</a></li>
                         <li><a href="#installation" class="nav-item">Installation</a></li>
+                        <li><a href="#project-templates" class="nav-item">Project Templates</a></li>
+                        <li><a href="#project-structure" class="nav-item">Solution Structure</a></li>
                         <li><a href="#first-contract" class="nav-item">Your First Contract</a></li>
                         <li><a href="#compilation" class="nav-item">Compilation</a></li>
                         <li><a href="#deployment" class="nav-item">Deployment</a></li>
@@ -92,6 +94,8 @@
                     <ul>
                         <li><a href="#introduction">Introduction</a></li>
                         <li><a href="#installation">Installation</a></li>
+                        <li><a href="#project-templates">Project Templates</a></li>
+                        <li><a href="#project-structure">Solution Structure</a></li>
                         <li><a href="#first-contract">Your First Contract</a></li>
                         <li><a href="#compilation">Compilation</a></li>
                         <li><a href="#deployment">Deployment</a></li>
@@ -162,12 +166,271 @@ rncc --version</code></pre>
                     </div>
                 </div>
 
+                <h2 id="project-templates">Creating Projects from Templates</h2>
+                
+                <p>R3E DevPack provides project templates to quickly scaffold new smart contract projects with proper structure and dependencies.</p>
+
+                <h3>Using RNCC Templates</h3>
+                <p>Create a new project using the built-in templates:</p>
+
+                <pre><code class="language-bash"># Create a basic contract project
+rncc new MyProject --template=basic
+
+# Create a token contract project (NEP-17)
+rncc new MyToken --template=nep17
+
+# Create an NFT contract project (NEP-11)
+rncc new MyNFT --template=nep11
+
+# Create a DeFi contract project
+rncc new MyDeFi --template=defi
+
+# Create a full solution with tests
+rncc new MySolution --template=solution --with-tests</code></pre>
+
+                <h3>Available Templates</h3>
+                <div class="template-grid">
+                    <div class="template-card">
+                        <h4><i class="fas fa-file-code"></i> Basic Contract</h4>
+                        <code>--template=basic</code>
+                        <p>Simple smart contract with owner pattern and basic methods</p>
+                    </div>
+                    <div class="template-card">
+                        <h4><i class="fas fa-coins"></i> NEP-17 Token</h4>
+                        <code>--template=nep17</code>
+                        <p>Fungible token contract with standard NEP-17 implementation</p>
+                    </div>
+                    <div class="template-card">
+                        <h4><i class="fas fa-image"></i> NEP-11 NFT</h4>
+                        <code>--template=nep11</code>
+                        <p>Non-fungible token contract with metadata support</p>
+                    </div>
+                    <div class="template-card">
+                        <h4><i class="fas fa-chart-line"></i> DeFi Protocol</h4>
+                        <code>--template=defi</code>
+                        <p>DeFi contract with staking, rewards, and governance</p>
+                    </div>
+                    <div class="template-card">
+                        <h4><i class="fas fa-shield-alt"></i> Multi-Sig Wallet</h4>
+                        <code>--template=multisig</code>
+                        <p>Multi-signature wallet with proposal system</p>
+                    </div>
+                    <div class="template-card">
+                        <h4><i class="fas fa-folder-open"></i> Full Solution</h4>
+                        <code>--template=solution</code>
+                        <p>Complete solution with contracts, tests, and deployment scripts</p>
+                    </div>
+                </div>
+
+                <h3>Template Options</h3>
+                <pre><code class="language-bash"># Create with additional options
+rncc new MyProject --template=nep17 \
+  --author="Your Name" \
+  --email="your@email.com" \
+  --namespace="MyCompany.Contracts" \
+  --with-tests \
+  --with-deploy-scripts \
+  --git-init</code></pre>
+
+                <div class="info-box">
+                    <h4><i class="fas fa-lightbulb"></i> Quick Start Tip</h4>
+                    <p>Use <code>--template=solution</code> for a complete project setup including:</p>
+                    <ul>
+                        <li>Contract implementation</li>
+                        <li>Unit tests</li>
+                        <li>Integration tests</li>
+                        <li>Deployment scripts</li>
+                        <li>Documentation</li>
+                        <li>GitHub Actions workflow</li>
+                    </ul>
+                </div>
+
+                <h2 id="project-structure">Understanding the Solution Structure</h2>
+                
+                <p>A typical R3E smart contract solution follows a structured layout that organizes code, tests, and deployment artifacts.</p>
+
+                <h3>Basic Project Structure</h3>
+                <pre><code class="language-plaintext">MyProject/
+├── src/
+│   └── MyProject.cs              # Main contract file
+├── tests/
+│   ├── MyProject.Tests.cs        # Unit tests
+│   └── TestHelper.cs             # Test utilities
+├── scripts/
+│   ├── deploy.sh                 # Deployment script
+│   └── invoke.sh                 # Contract invocation script
+├── MyProject.csproj              # Project file
+├── nuget.config                  # NuGet configuration
+├── .gitignore                    # Git ignore file
+└── README.md                     # Project documentation</code></pre>
+
+                <h3>Full Solution Structure</h3>
+                <p>When using <code>--template=solution</code>, you get a more comprehensive structure:</p>
+                
+                <pre><code class="language-plaintext">MySolution/
+├── src/
+│   ├── MySolution.Contracts/
+│   │   ├── Main/
+│   │   │   ├── MainContract.cs          # Primary contract
+│   │   │   └── MainContract.Storage.cs  # Storage layout
+│   │   ├── Token/
+│   │   │   ├── TokenContract.cs         # Token implementation
+│   │   │   └── TokenContract.Events.cs  # Event definitions
+│   │   ├── Common/
+│   │   │   ├── Helpers.cs               # Shared helpers
+│   │   │   └── Constants.cs             # Global constants
+│   │   └── MySolution.Contracts.csproj
+│   │
+│   └── MySolution.Shared/
+│       ├── Models/
+│       │   └── DataModels.cs            # Shared data structures
+│       └── MySolution.Shared.csproj
+│
+├── tests/
+│   ├── MySolution.Tests/
+│   │   ├── Unit/
+│   │   │   ├── MainContractTests.cs     # Unit tests
+│   │   │   └── TokenContractTests.cs
+│   │   ├── Integration/
+│   │   │   └── ScenarioTests.cs         # Integration tests
+│   │   ├── TestBase.cs                  # Base test class
+│   │   └── MySolution.Tests.csproj
+│   │
+│   └── MySolution.TestUtils/
+│       ├── Extensions.cs                 # Test extensions
+│       ├── MockStorage.cs                # Mock implementations
+│       └── MySolution.TestUtils.csproj
+│
+├── deploy/
+│   ├── scripts/
+│   │   ├── deploy-testnet.sh            # TestNet deployment
+│   │   ├── deploy-mainnet.sh            # MainNet deployment
+│   │   └── verify-deployment.sh         # Verification script
+│   ├── config/
+│   │   ├── testnet.json                 # TestNet config
+│   │   └── mainnet.json                 # MainNet config
+│   └── artifacts/                       # Build artifacts
+│
+├── webgui/
+│   ├── generated/                       # Generated WebGUI
+│   └── custom/                          # Custom UI components
+│
+├── docs/
+│   ├── architecture.md                  # Architecture docs
+│   ├── deployment.md                    # Deployment guide
+│   └── api-reference.md                 # API documentation
+│
+├── .github/
+│   └── workflows/
+│       ├── build.yml                    # CI/CD pipeline
+│       └── security.yml                 # Security scanning
+│
+├── MySolution.sln                       # Solution file
+├── Directory.Build.props                # Common build props
+├── nuget.config                         # NuGet configuration
+├── .editorconfig                        # Editor configuration
+├── .gitignore                           # Git ignore rules
+└── README.md                            # Project documentation</code></pre>
+
+                <h3>Key Files and Directories</h3>
+                
+                <div class="structure-details">
+                    <h4><i class="fas fa-folder"></i> src/</h4>
+                    <p>Contains all contract source code organized by functionality:</p>
+                    <ul>
+                        <li><strong>Main contract files</strong>: Core contract logic</li>
+                        <li><strong>Storage files</strong>: Storage layout and access patterns</li>
+                        <li><strong>Event files</strong>: Event definitions and emitters</li>
+                        <li><strong>Helper files</strong>: Utility functions and common logic</li>
+                    </ul>
+
+                    <h4><i class="fas fa-vial"></i> tests/</h4>
+                    <p>Comprehensive test suite:</p>
+                    <ul>
+                        <li><strong>Unit tests</strong>: Test individual methods</li>
+                        <li><strong>Integration tests</strong>: Test contract interactions</li>
+                        <li><strong>Test utilities</strong>: Shared test helpers</li>
+                    </ul>
+
+                    <h4><i class="fas fa-rocket"></i> deploy/</h4>
+                    <p>Deployment infrastructure:</p>
+                    <ul>
+                        <li><strong>Scripts</strong>: Automated deployment scripts</li>
+                        <li><strong>Config</strong>: Network-specific configurations</li>
+                        <li><strong>Artifacts</strong>: Compiled contracts and manifests</li>
+                    </ul>
+
+                    <h4><i class="fas fa-cogs"></i> Configuration Files</h4>
+                    <ul>
+                        <li><strong>.csproj</strong>: Project configuration with Neo.SmartContract.Framework reference</li>
+                        <li><strong>nuget.config</strong>: Package sources including Neo packages</li>
+                        <li><strong>Directory.Build.props</strong>: Shared build properties across projects</li>
+                        <li><strong>.editorconfig</strong>: Code style and formatting rules</li>
+                    </ul>
+                </div>
+
+                <h3>Project File Configuration</h3>
+                <p>A typical contract project file (<code>.csproj</code>) looks like this:</p>
+
+                <pre><code class="language-xml">&lt;Project Sdk="Microsoft.NET.Sdk"&gt;
+  &lt;PropertyGroup&gt;
+    &lt;TargetFramework&gt;net7.0&lt;/TargetFramework&gt;
+    &lt;Nullable&gt;enable&lt;/Nullable&gt;
+    &lt;RootNamespace&gt;MyProject&lt;/RootNamespace&gt;
+  &lt;/PropertyGroup&gt;
+
+  &lt;ItemGroup&gt;
+    &lt;PackageReference Include="Neo.SmartContract.Framework" Version="3.6.2" /&gt;
+  &lt;/ItemGroup&gt;
+
+  &lt;Target Name="PostBuild" AfterTargets="PostBuildEvent"&gt;
+    &lt;Exec Command="rncc $(TargetPath) -o $(TargetDir)" /&gt;
+  &lt;/Target&gt;
+&lt;/Project&gt;</code></pre>
+
+                <div class="warning-box">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Important Notes</h4>
+                    <ul>
+                        <li>Always use the latest version of <code>Neo.SmartContract.Framework</code></li>
+                        <li>The post-build event automatically compiles your contract after building</li>
+                        <li>Keep sensitive information (private keys, passwords) out of source control</li>
+                        <li>Use <code>.gitignore</code> to exclude build artifacts and sensitive files</li>
+                    </ul>
+                </div>
+
                 <h2 id="first-contract">Your First Smart Contract</h2>
                 
-                <p>Let's create a simple "Hello World" smart contract to get familiar with the development process.</p>
+                <p>Let's create your first smart contract project using R3E DevPack templates. This approach ensures you start with a properly structured solution.</p>
 
-                <h3>1. Create the Contract File</h3>
-                <p>Create a new file called <code>HelloWorld.cs</code>:</p>
+                <h3>1. Generate a New Contract Project</h3>
+                <p>Use RNCC to create a new smart contract solution from a template:</p>
+
+                <pre><code class="language-bash"># Create a basic contract project
+rncc new HelloWorld --template=basic \
+  --author="Your Name" \
+  --email="your@email.com" \
+  --with-tests
+
+# Navigate to the project directory
+cd HelloWorld
+
+# View the generated structure
+ls -la</code></pre>
+
+                <div class="info-box">
+                    <h4><i class="fas fa-info-circle"></i> What's Generated</h4>
+                    <p>The template creates a complete project structure with:</p>
+                    <ul>
+                        <li><strong>src/HelloWorld.cs</strong> - Main contract file with basic functionality</li>
+                        <li><strong>tests/HelloWorld.Tests.cs</strong> - Unit tests for your contract</li>
+                        <li><strong>HelloWorld.csproj</strong> - Project configuration with Neo dependencies</li>
+                        <li><strong>README.md</strong> - Project documentation template</li>
+                        <li><strong>.gitignore</strong> - Git configuration for Neo projects</li>
+                    </ul>
+                </div>
+
+                <h3>2. Explore the Generated Contract</h3>
+                <p>The template generates a well-structured contract. Let's look at the main contract file:</p>
 
                 <pre><code class="language-csharp">using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
@@ -178,27 +441,68 @@ namespace HelloWorld
 {
     [DisplayName("HelloWorld")]
     [ManifestExtra("Author", "Your Name")]
-    [ManifestExtra("Email", "your.email@example.com")]
-    [ManifestExtra("Description", "A simple Hello World contract")]
+    [ManifestExtra("Email", "your@email.com")]
+    [ManifestExtra("Description", "A basic smart contract generated from R3E DevPack template")]
+    [ContractSourceCode("https://github.com/yourusername/HelloWorld")]
     public class HelloWorld : SmartContract
     {
-        // Contract owner
+        // Contract owner - replace with your address
         [InitialValue("NiHYtfX8SdAQQJYf4fVvfcvfQQddH8WMLH", ContractParameterType.Hash160)]
         private static readonly UInt160 Owner = default;
 
-        // Simple greeting method
+        // Storage prefix keys
+        private const byte Prefix_Config = 0x01;
+        private const byte Prefix_Data = 0x02;
+
+        // Events
+        [DisplayName("Greeting")]
+        public static event Action<UInt160, string> OnGreeting;
+
+        // Deploy method - called once during deployment
+        public static void _deploy(object data, bool update)
+        {
+            if (!update)
+            {
+                // Initialize contract during first deployment
+                Storage.Put(new StorageContext(), new byte[] { Prefix_Config, 0x01 }, "initialized");
+            }
+        }
+
+        // Main contract method
         public static string SayHello(string name)
         {
+            // Validate input
+            if (name.Length == 0 || name.Length > 100)
+                throw new Exception("Invalid name length");
+
+            // Get caller address
+            var caller = Runtime.CallingScriptHash;
+            
+            // Fire event
+            OnGreeting(caller, name);
+            
             return $"Hello, {name}! Welcome to Neo blockchain.";
         }
 
-        // Get contract owner
-        public static UInt160 GetOwner()
+        // Store a message (demonstrates storage usage)
+        public static void StoreMessage(string key, string message)
         {
-            return Owner;
+            if (!IsOwner()) throw new Exception("Only owner can store messages");
+            
+            var storageKey = new byte[] { Prefix_Data }.Concat(key.ToByteArray());
+            Storage.Put(new StorageContext(), storageKey, message);
         }
 
-        // Update contract (only owner can do this)
+        // Retrieve a message
+        public static string GetMessage(string key)
+        {
+            var storageKey = new byte[] { Prefix_Data }.Concat(key.ToByteArray());
+            return Storage.Get(new StorageContext(), storageKey);
+        }
+
+        // Contract management methods
+        public static UInt160 GetOwner() => Owner;
+
         public static bool Update(ByteString nefFile, string manifest)
         {
             if (!IsOwner()) return false;
@@ -206,7 +510,14 @@ namespace HelloWorld
             return true;
         }
 
-        // Check if caller is owner
+        public static bool Destroy()
+        {
+            if (!IsOwner()) return false;
+            ContractManagement.Destroy();
+            return true;
+        }
+
+        // Helper methods
         private static bool IsOwner()
         {
             return Runtime.CheckWitness(Owner);
@@ -214,17 +525,88 @@ namespace HelloWorld
     }
 }</code></pre>
 
-                <h3>2. Understanding the Code</h3>
+                <h3>3. Understanding the Generated Code</h3>
                 
-                <div class="info-box">
-                    <h4><i class="fas fa-info-circle"></i> Key Concepts</h4>
+                <div class="feature-box">
+                    <h4><i class="fas fa-star"></i> Template Features</h4>
+                    <p>The generated contract includes best practices:</p>
                     <ul>
-                        <li><strong>SmartContract</strong>: Base class for all Neo smart contracts</li>
-                        <li><strong>Attributes</strong>: Metadata about your contract (name, author, etc.)</li>
-                        <li><strong>Methods</strong>: Public static methods become contract endpoints</li>
-                        <li><strong>Owner</strong>: Common pattern for contract administration</li>
-                        <li><strong>CheckWitness</strong>: Verifies caller's identity</li>
+                        <li><strong>Owner Pattern</strong>: Administrative control for contract management</li>
+                        <li><strong>Storage Organization</strong>: Prefix-based storage key management</li>
+                        <li><strong>Event System</strong>: Events for important contract actions</li>
+                        <li><strong>Deploy Hook</strong>: Initialization logic during deployment</li>
+                        <li><strong>Input Validation</strong>: Proper validation of method parameters</li>
+                        <li><strong>Contract Lifecycle</strong>: Update and destroy capabilities</li>
                     </ul>
+                </div>
+
+                <h3>4. Review the Generated Tests</h3>
+                <p>The template also creates unit tests for your contract:</p>
+
+                <pre><code class="language-csharp">using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.TestingStandards;
+using Neo.VM;
+using Xunit;
+
+namespace HelloWorld.Tests
+{
+    public class HelloWorldTests : TestBase<HelloWorld>
+    {
+        [Fact]
+        public void Test_SayHello_ValidInput()
+        {
+            // Arrange
+            var snapshot = TestEngine.Snapshot;
+            var contract = TestEngine.Deploy(snapshot, ContractPath);
+            
+            // Act
+            var result = contract.SayHello("Alice");
+            
+            // Assert
+            Assert.Equal("Hello, Alice! Welcome to Neo blockchain.", result);
+        }
+
+        [Fact]
+        public void Test_SayHello_EmptyName_ThrowsException()
+        {
+            // Arrange
+            var snapshot = TestEngine.Snapshot;
+            var contract = TestEngine.Deploy(snapshot, ContractPath);
+            
+            // Act & Assert
+            Assert.Throws<TestException>(() => contract.SayHello(""));
+        }
+
+        [Fact]
+        public void Test_StoreMessage_AsOwner_Success()
+        {
+            // Arrange
+            var snapshot = TestEngine.Snapshot;
+            var contract = TestEngine.Deploy(snapshot, ContractPath);
+            TestEngine.SetSigner(Owner);
+            
+            // Act
+            contract.StoreMessage("test-key", "Hello, World!");
+            var retrieved = contract.GetMessage("test-key");
+            
+            // Assert
+            Assert.Equal("Hello, World!", retrieved);
+        }
+    }
+}</code></pre>
+
+                <h3>5. Customize Your Contract</h3>
+                <p>Now that you have a working contract, customize it for your needs:</p>
+
+                <div class="info-box">
+                    <h4><i class="fas fa-lightbulb"></i> Next Steps</h4>
+                    <ol>
+                        <li><strong>Update Owner Address</strong>: Replace the default owner address with your own</li>
+                        <li><strong>Add Methods</strong>: Implement your specific business logic</li>
+                        <li><strong>Define Events</strong>: Add events for important state changes</li>
+                        <li><strong>Write Tests</strong>: Add comprehensive test coverage</li>
+                        <li><strong>Update Metadata</strong>: Modify contract attributes and description</li>
+                    </ol>
                 </div>
 
                 <h2 id="compilation">Compiling Your Contract</h2>
