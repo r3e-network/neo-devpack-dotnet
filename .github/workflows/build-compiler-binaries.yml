@@ -53,7 +53,7 @@ jobs:
           -r ${{ matrix.runtime }} \
           --self-contained \
           -p:PublishSingleFile=true \
-          -p:PublishTrimmed=true \
+          -p:PublishTrimmed=false \
           -p:EnableCompressionInSingleFile=true \
           -p:IncludeNativeLibrariesForSelfExtract=true \
           -p:DebugType=none \
@@ -224,7 +224,7 @@ jobs:
           -r ${{ matrix.runtime }} \
           --self-contained \
           -p:PublishSingleFile=true \
-          -p:PublishTrimmed=true \
+          -p:PublishTrimmed=false \
           -p:EnableCompressionInSingleFile=true \
           -p:IncludeNativeLibrariesForSelfExtract=true \
           -p:DebugType=none \
