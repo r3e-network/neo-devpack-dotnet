@@ -14,6 +14,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multi-network deployment automation
 - Plugin marketplace and distribution system
 
+## [1.0.1] - 2025-01-18
+
+### Fixed
+- Resolved analyzer assembly loading issues
+- Fixed test coverage collection problems
+- Corrected XUnit package references for analyzer tests
+- Fixed ConcurrentSet method usage in TestCleanup
+- Updated all GitHub Actions to non-deprecated versions
+
+### Changed
+- Simplified release workflow to focus on stability
+- GitHub releases now only include binary files (NuGet packages published separately)
+- Improved build process reliability
+
+### Technical
+- Added missing `using System.Linq` in TestCleanupBase
+- Fixed `NullException` to `ArgumentNullException` in CollectionTypesUsageAnalyzer
+- Updated workflow to handle tag creation for manual releases
+
 ## [1.0.0] - 2025-01-18
 
 ### Added

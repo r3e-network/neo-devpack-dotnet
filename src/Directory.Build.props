@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Copyright>2015-2025 The Neo Project (R3E Edition)</Copyright>
     <Company>R3E Development Team</Company>
-    <VersionPrefix>1.0.0</VersionPrefix>
+    <VersionPrefix>1.0.1</VersionPrefix>
     <Authors>R3E Development Team</Authors>
     <PackageProjectUrl>https://github.com/r3e-network/r3e-devpack-dotnet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

@@ -12,7 +12,7 @@
 # Variables
 DOTNET := dotnet
 CONFIGURATION := Release
-VERSION := 1.0.0
+VERSION := 1.0.1
 RUNTIME_IDS := win-x64 linux-x64 osx-x64 osx-arm64
 OUTPUT_DIR := ./artifacts
 DOCKER_REGISTRY := ghcr.io/r3e-network

@@ -124,26 +124,37 @@ jobs:
       with:
         tag_name: v${{ env.VERSION }}
         files: |
-          ./artifacts/*.nupkg
           ./binaries/*
-          RELEASE_NOTES_v${{ env.VERSION }}.md
-          CHANGELOG.md
-          QUICK_START_v${{ env.VERSION }}.md
-          MIGRATION_GUIDE_v${{ env.VERSION }}.md
         body: |
           # R3E DevPack v${{ env.VERSION }}
           
-          ## Installation
+          ## 📦 Installation from NuGet
           ```bash
           dotnet tool install -g R3E.Compiler.CSharp.Tool --version ${{ env.VERSION }}
           ```
           
-          ## Downloads
-          - **Windows**: rncc-win-x64-v${{ env.VERSION }}.zip
-          - **Linux**: rncc-linux-x64-v${{ env.VERSION }}.tar.gz
-          - **macOS**: rncc-osx-x64-v${{ env.VERSION }}.tar.gz
+          ## 💿 Binary Downloads
+          - **Windows x64**: `rncc-win-x64-v${{ env.VERSION }}.zip`
+          - **Linux x64**: `rncc-linux-x64-v${{ env.VERSION }}.tar.gz`
+          - **macOS x64**: `rncc-osx-x64-v${{ env.VERSION }}.tar.gz`
           
-          See release notes for full details.
+          ## 📄 What's Changed
+          - Bug fixes and improvements
+          - See commit history for details
+          
+          ## 🚀 Quick Start
+          ```bash
+          # Using .NET Tool (Recommended)
+          dotnet tool install -g R3E.Compiler.CSharp.Tool --version ${{ env.VERSION }}
+          rncc new MyContract --template=solution
+          
+          # Using Binary
+          # Download, extract, and run:
+          ./rncc new MyContract --template=solution
+          ```
+          
+          ---
+          All NuGet packages have been published to [NuGet.org](https://www.nuget.org/profiles/R3E)
         name: R3E DevPack v${{ env.VERSION }}
         draft: false
         prerelease: false
