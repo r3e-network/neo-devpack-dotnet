@@ -90,11 +90,13 @@ jobs:
       env:
         NUGET_API_KEY: ${{ secrets.NUGET }}
       run: |
-        echo "🚀 Publishing packages to NuGet..."
+        echo "🚀 Publishing packages to NuGet in dependency order..."
         
-        # Publish all packages
-        for package in ./artifacts/*.nupkg; do
-          if [[ -f "$package" && ! "$package" =~ \.snupkg$ ]]; then
+        # Function to publish a package
+        publish_package() {
+          local pattern=$1
+          local package=$(ls ./artifacts/*${pattern}*.nupkg 2>/dev/null | grep -v snupkg | head -1)
+          if [[ -f "$package" ]]; then
             PKG_NAME=$(basename "$package")
             echo "📤 Publishing $PKG_NAME..."
             dotnet nuget push "$package" \
@@ -102,6 +104,54 @@ jobs:
               --api-key "$NUGET_API_KEY" \
               --skip-duplicate \
               --timeout 600 || echo "⚠️  $PKG_NAME already exists or failed"
+            # Wait a bit to ensure package is indexed
+            sleep 5
+          fi
+        }
+        
+        # Tier 1: Foundation packages (no dependencies)
+        echo "📦 Tier 1: Foundation packages"
+        publish_package "R3E.SmartContract.Framework"
+        publish_package "Neo.SmartContract.Template"
+        
+        # Tier 2: Core tools
+        echo "📦 Tier 2: Core tools"
+        publish_package "Neo.Disassembler.CSharp"
+        
+        # Tier 3: Testing framework (depends on Disassembler)
+        echo "📦 Tier 3: Testing framework"
+        publish_package "Neo.SmartContract.Testing"
+        
+        # Tier 4: Compiler (depends on Framework and Testing)
+        echo "📦 Tier 4: Compiler"
+        publish_package "R3E.Compiler.CSharp.${{ env.VERSION }}.nupkg"
+        
+        # Tier 5: CLI tools and deployment (depend on Compiler)
+        echo "📦 Tier 5: CLI tools and deployment"
+        publish_package "rncc.${{ env.VERSION }}.nupkg"
+        publish_package "R3E.Compiler.CSharp.Tool"
+        publish_package "Neo.SmartContract.Deploy"
+        publish_package "R3E.WebGUI.Deploy"
+        
+        # Tier 6: Services and analyzers
+        echo "📦 Tier 6: Services and analyzers"
+        publish_package "R3E.WebGUI.Service"
+        publish_package "Neo.SmartContract.Analyzer"
+        
+        # Publish any remaining packages
+        echo "📦 Publishing any remaining packages..."
+        for package in ./artifacts/*.nupkg; do
+          if [[ -f "$package" && ! "$package" =~ \.snupkg$ ]]; then
+            PKG_NAME=$(basename "$package")
+            # Check if already published
+            if ! echo "$PKG_NAME" | grep -qE "(Framework|Template|Disassembler|Testing|Compiler|rncc|Tool|Deploy|WebGUI|Analyzer)"; then
+              echo "📤 Publishing remaining package: $PKG_NAME..."
+              dotnet nuget push "$package" \
+                --source https://api.nuget.org/v3/index.json \
+                --api-key "$NUGET_API_KEY" \
+                --skip-duplicate \
+                --timeout 600 || echo "⚠️  $PKG_NAME already exists or failed"
+            fi
           fi
         done
         

@@ -37,6 +37,7 @@ help:
 	@echo "  make test             - Run all tests"
 	@echo "  make clean            - Clean all build artifacts"
 	@echo "  make pack             - Create NuGet packages"
+	@echo "  make ordered-build-pack - Build and pack in dependency order"
 	@echo ""
 	@echo "$(YELLOW)Component Builds:$(NC)"
 	@echo "  make compiler-only    - Build only the compiler"
@@ -53,6 +54,7 @@ help:
 	@echo ""
 	@echo "$(YELLOW)Publishing:$(NC)"
 	@echo "  make publish          - Publish all packages to NuGet"
+	@echo "  make ordered-publish  - Publish packages in correct dependency order"
 	@echo "  make release          - Create a full release (build, test, pack, tag)"
 	@echo "  make release-compiler - Release RNCC binaries for all platforms"
 	@echo "  make release-binaries - Build platform-specific binaries"
@@ -189,6 +191,88 @@ publish: pack
 			--skip-duplicate; \
 	done
 	@echo "$(GREEN)Packages published!$(NC)"
+
+# Ordered build and pack for proper dependency resolution
+ordered-build-pack:
+	@echo "$(YELLOW)Building and packing in dependency order...$(NC)"
+	# Tier 1: Foundation packages
+	@echo "$(YELLOW)Building Tier 1: Foundation packages...$(NC)"
+	$(DOTNET) build src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj --configuration $(CONFIGURATION)
+	$(DOTNET) pack src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj --configuration $(CONFIGURATION) --no-build --output $(OUTPUT_DIR)
+	$(DOTNET) build src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj --configuration $(CONFIGURATION)
+	$(DOTNET) pack src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj --configuration $(CONFIGURATION) --no-build --output $(OUTPUT_DIR)
+	
+	# Tier 2: Core tools
+	@echo "$(YELLOW)Building Tier 2: Core tools...$(NC)"
+	$(DOTNET) build src/Neo.Disassembler.CSharp/Neo.Disassembler.CSharp.csproj --configuration $(CONFIGURATION)
+	$(DOTNET) pack src/Neo.Disassembler.CSharp/Neo.Disassembler.CSharp.csproj --configuration $(CONFIGURATION) --no-build --output $(OUTPUT_DIR)
+	
+	# Tier 3: Testing framework
+	@echo "$(YELLOW)Building Tier 3: Testing framework...$(NC)"
+	$(DOTNET) build src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj --configuration $(CONFIGURATION)
+	$(DOTNET) pack src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj --configuration $(CONFIGURATION) --no-build --output $(OUTPUT_DIR)
+	
+	# Tier 4: Compiler
+	@echo "$(YELLOW)Building Tier 4: Compiler...$(NC)"
+	$(DOTNET) build src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj --configuration $(CONFIGURATION)
+	$(DOTNET) pack src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj --configuration $(CONFIGURATION) --no-build --output $(OUTPUT_DIR)
+	
+	# Tier 5: CLI tools and deployment
+	@echo "$(YELLOW)Building Tier 5: CLI tools and deployment...$(NC)"
+	$(DOTNET) build src/Neo.Compiler.CSharp.Tool/Neo.Compiler.CSharp.Tool.csproj --configuration $(CONFIGURATION)
+	$(DOTNET) pack src/Neo.Compiler.CSharp.Tool/Neo.Compiler.CSharp.Tool.csproj --configuration $(CONFIGURATION) --no-build --output $(OUTPUT_DIR)
+	$(DOTNET) build src/Neo.SmartContract.Deploy/Neo.SmartContract.Deploy.csproj --configuration $(CONFIGURATION)
+	$(DOTNET) pack src/Neo.SmartContract.Deploy/Neo.SmartContract.Deploy.csproj --configuration $(CONFIGURATION) --no-build --output $(OUTPUT_DIR)
+	$(DOTNET) build src/R3E.WebGUI.Deploy/R3E.WebGUI.Deploy.csproj --configuration $(CONFIGURATION)
+	$(DOTNET) pack src/R3E.WebGUI.Deploy/R3E.WebGUI.Deploy.csproj --configuration $(CONFIGURATION) --no-build --output $(OUTPUT_DIR)
+	
+	# Tier 6: Services and analyzers
+	@echo "$(YELLOW)Building Tier 6: Services and analyzers...$(NC)"
+	$(DOTNET) build src/R3E.WebGUI.Service/R3E.WebGUI.Service.csproj --configuration $(CONFIGURATION)
+	$(DOTNET) pack src/R3E.WebGUI.Service/R3E.WebGUI.Service.csproj --configuration $(CONFIGURATION) --no-build --output $(OUTPUT_DIR)
+	$(DOTNET) build src/Neo.SmartContract.Analyzer/Neo.SmartContract.Analyzer.csproj --configuration $(CONFIGURATION)
+	$(DOTNET) pack src/Neo.SmartContract.Analyzer/Neo.SmartContract.Analyzer.csproj --configuration $(CONFIGURATION) --no-build --output $(OUTPUT_DIR)
+	
+	@echo "$(GREEN)Ordered build and pack completed!$(NC)"
+
+# Ordered publish for proper dependency resolution
+ordered-publish: ordered-build-pack
+	@echo "$(YELLOW)Publishing packages to NuGet in dependency order...$(NC)"
+	# Function to publish with delay
+	@publish_pkg() { \
+		if [ -f "$$1" ]; then \
+			echo "Publishing $$1..."; \
+			$(DOTNET) nuget push "$$1" \
+				--source https://api.nuget.org/v3/index.json \
+				--api-key $(NUGET_API_KEY) \
+				--skip-duplicate || true; \
+			sleep 5; \
+		fi \
+	}; \
+	\
+	echo "$(YELLOW)Tier 1: Foundation packages$(NC)"; \
+	publish_pkg "$(OUTPUT_DIR)/R3E.SmartContract.Framework.$(VERSION).nupkg"; \
+	publish_pkg "$(OUTPUT_DIR)/Neo.SmartContract.Template.$(VERSION).nupkg"; \
+	\
+	echo "$(YELLOW)Tier 2: Core tools$(NC)"; \
+	publish_pkg "$(OUTPUT_DIR)/Neo.Disassembler.CSharp.$(VERSION).nupkg"; \
+	\
+	echo "$(YELLOW)Tier 3: Testing framework$(NC)"; \
+	publish_pkg "$(OUTPUT_DIR)/Neo.SmartContract.Testing.$(VERSION).nupkg"; \
+	\
+	echo "$(YELLOW)Tier 4: Compiler$(NC)"; \
+	publish_pkg "$(OUTPUT_DIR)/R3E.Compiler.CSharp.$(VERSION).nupkg"; \
+	\
+	echo "$(YELLOW)Tier 5: CLI tools and deployment$(NC)"; \
+	publish_pkg "$(OUTPUT_DIR)/rncc.$(VERSION).nupkg"; \
+	publish_pkg "$(OUTPUT_DIR)/R3E.Compiler.CSharp.Tool.$(VERSION).nupkg"; \
+	publish_pkg "$(OUTPUT_DIR)/Neo.SmartContract.Deploy.$(VERSION).nupkg"; \
+	publish_pkg "$(OUTPUT_DIR)/R3E.WebGUI.Deploy.$(VERSION).nupkg"; \
+	\
+	echo "$(YELLOW)Tier 6: Services and analyzers$(NC)"; \
+	publish_pkg "$(OUTPUT_DIR)/R3E.WebGUI.Service.$(VERSION).nupkg"; \
+	publish_pkg "$(OUTPUT_DIR)/Neo.SmartContract.Analyzer.$(VERSION).nupkg"
+	@echo "$(GREEN)Ordered publishing completed!$(NC)"
 
 # Release compiler binaries
 release-binaries:
