@@ -150,7 +150,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                     {
                         File.WriteAllText(artifactsPath, artifact);
                         Console.WriteLine($"{typeName} artifact was updated");
-                        UpdatedArtifactNames.Add(typeName);
+                        UpdatedArtifactNames.TryAdd(typeName);
                     }
                     catch (Exception ex)
                     {
