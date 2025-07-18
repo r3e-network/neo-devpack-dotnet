@@ -29,10 +29,15 @@ jobs:
         echo "🏷️ Building release for version: $VERSION"
 
     # Build and Pack
+    - name: Restore dependencies
+      run: |
+        echo "📦 Restoring dependencies..."
+        dotnet restore
+        
     - name: Build solution
       run: |
         echo "🔨 Building solution..."
-        dotnet build -c Release
+        dotnet build -c Release --no-restore
 
     - name: Run tests
       run: |
@@ -148,7 +153,7 @@ jobs:
               FAILED=$((FAILED + 1))
             fi
           else
-            echo "⚠️ Package $PKG not found"
+            echo "⚠️ Package $PKG not found, skipping..."
           fi
           sleep 1
         done
@@ -159,6 +164,22 @@ jobs:
         echo "❌ Failed: $FAILED packages"
 
     # Create GitHub Release
+    - name: Prepare release files
+      run: |
+        echo "📋 Checking release files..."
+        ls -la rncc-*.tar.gz rncc-*.zip || echo "⚠️ Some binaries not found"
+        ls -la ./nupkgs/*.nupkg | grep -v snupkg || echo "⚠️ No packages found"
+        
+        # Copy documentation files if they exist
+        if [ -f "RELEASE_NOTES_v${{ env.VERSION }}.md" ]; then
+          echo "✓ Found RELEASE_NOTES_v${{ env.VERSION }}.md"
+        else
+          echo "⚠️ RELEASE_NOTES_v${{ env.VERSION }}.md not found, using generic message"
+          echo "# R3E DevPack v${{ env.VERSION }}" > RELEASE_NOTES_v${{ env.VERSION }}.md
+          echo "" >> RELEASE_NOTES_v${{ env.VERSION }}.md
+          echo "First major release of R3E DevPack." >> RELEASE_NOTES_v${{ env.VERSION }}.md
+        fi
+        
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
@@ -176,6 +197,7 @@ jobs:
         draft: false
         prerelease: false
         generate_release_notes: false
+        fail_on_unmatched_files: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

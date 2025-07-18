@@ -305,12 +305,10 @@ jobs:
           name: deployment-results
 
       - name: Create deployment release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: deployment-${{ github.run_number }}
-          release_name: Contract Deployment ${{ github.run_number }}
+          name: Contract Deployment ${{ github.run_number }}
           body: |
             ## Deployed Contracts
             
@@ -326,3 +324,6 @@ jobs:
             - Commit: ${{ github.sha }}
           draft: false
           prerelease: false
+          files: deployed-contracts.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

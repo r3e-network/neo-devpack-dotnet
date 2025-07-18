@@ -19,7 +19,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.300
+        dotnet-version: '9.0.x'
 
     - name: Extract version from tag
       run: |
@@ -27,8 +27,11 @@ jobs:
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "Publishing version: $VERSION"
 
+    - name: Restore dependencies
+      run: dotnet restore
+      
     - name: Build
-      run: dotnet build -c Release
+      run: dotnet build -c Release --no-restore
 
     - name: Pack all projects
       run: |
@@ -109,6 +112,7 @@ jobs:
         name: R3E DevPack v${{ env.VERSION }}
         draft: false
         prerelease: false
+        fail_on_unmatched_files: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

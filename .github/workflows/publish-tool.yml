@@ -20,14 +20,14 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
     
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '8.0.x'
+        dotnet-version: '9.0.x'
     
     - name: Get version
       id: version
@@ -93,7 +93,7 @@ jobs:
         rncc --help || echo "Help command executed"
     
     - name: Upload packages
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: nuget-packages
         path: artifacts/packages/*.nupkg
@@ -121,12 +121,9 @@ jobs:
     
     - name: Create Release
       if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ github.ref }}
-        release_name: RNCC Tool ${{ steps.version.outputs.VERSION }}
+        name: RNCC Tool ${{ steps.version.outputs.VERSION }}
         body: |
           ## RNCC (R3E Neo Contract Compiler) Tool Release
           
@@ -145,3 +142,6 @@ jobs:
           - [Compiler Reference](https://r3edevpack.netlify.app/docs/compiler-reference.html)
         draft: false
         prerelease: false
+        files: artifacts/packages/*.nupkg
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
