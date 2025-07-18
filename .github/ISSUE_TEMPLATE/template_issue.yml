@@ -1,0 +1,69 @@
+name: Template Issue
+description: Report an issue with contract templates
+title: "[Template]: "
+labels: ["template", "bug"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Found an issue with one of the contract templates? Let us know!
+
+  - type: dropdown
+    id: template
+    attributes:
+      label: Template Type
+      description: Which template has the issue?
+      options:
+        - solution (Complete solution)
+        - nep17 (NEP-17 Token)
+        - nep11 (NEP-11 NFT)
+        - oracle (Oracle Contract)
+        - owner (Ownable Contract)
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue
+    attributes:
+      label: Issue Description
+      description: Describe the issue with the template
+      placeholder: The generated code has...
+    validations:
+      required: true
+
+  - type: textarea
+    id: commands
+    attributes:
+      label: Commands Used
+      description: What commands did you run?
+      render: shell
+      placeholder: |
+        rncc new MyContract --template=solution
+        cd MyContract
+        dotnet build
+    validations:
+      required: true
+
+  - type: textarea
+    id: error
+    attributes:
+      label: Error Message
+      description: Please paste the full error message
+      render: shell
+
+  - type: input
+    id: rncc-version
+    attributes:
+      label: RNCC Version
+      description: Output of `rncc --version`
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: fix
+    attributes:
+      label: Suggested Fix
+      description: If you have a suggestion for fixing this issue
