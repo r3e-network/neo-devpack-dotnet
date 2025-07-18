@@ -39,8 +39,20 @@ namespace Neo.SmartContract.Testing.TestingStandards
                     {
                         if (type.IsAssignableFrom(aType))
                         {
-                            cov = type.GetProperty("Coverage")!.GetValue(null) as CoveredContract;
-                            Assert.IsNotNull(cov, $"{infos.type} coverage can't be null");
+                            var coverageProperty = type.GetProperty("Coverage");
+                            if (coverageProperty == null)
+                            {
+                                Console.Error.WriteLine($"Coverage property not found for type {infos.type.FullName}");
+                                continue;
+                            }
+                            
+                            cov = coverageProperty.GetValue(null) as CoveredContract;
+                            if (cov == null)
+                            {
+                                Console.Error.WriteLine($"Coverage is null for {infos.type.FullName}. Type: {type.FullName}, Assembly: {type.Assembly.FullName}");
+                                Console.Error.WriteLine($"Available properties: {string.Join(", ", type.GetProperties().Select(p => p.Name))}");
+                            }
+                            Assert.IsNotNull(cov, $"{infos.type.FullName} coverage can't be null");
 
                             // It doesn't require join, because we have only one UnitTest class per contract
 

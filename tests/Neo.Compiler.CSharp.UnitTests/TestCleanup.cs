@@ -150,13 +150,15 @@ namespace Neo.Compiler.CSharp.UnitTests
                     {
                         File.WriteAllText(artifactsPath, artifact);
                         Console.WriteLine($"{typeName} artifact was updated");
+                        UpdatedArtifactNames.Add(typeName);
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine($"Error writing artifact for {typeName}: {ex.Message}");
                     }
                 });
-                return null;
+                // Return debug info even if artifact was updated, to allow coverage collection
+                return debug;
             }
 
             return debug;
