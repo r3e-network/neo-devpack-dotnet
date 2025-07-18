@@ -1,0 +1,126 @@
+name: Publish Release to NuGet
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*.*.*'
+      - '!v*.*.*-*'  # Exclude pre-release tags
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.300
+
+    - name: Extract version from tag
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "Publishing version: $VERSION"
+
+    - name: Build
+      run: dotnet build -c Release
+
+    - name: Pack all projects
+      run: |
+        echo "Packing all packages for v${{ env.VERSION }}..."
+        dotnet pack -c Release --no-build -o ./nupkgs
+        
+        echo "Listing all generated packages:"
+        ls -la ./nupkgs/*.nupkg
+        
+        echo "Package count by prefix:"
+        echo "Neo packages: $(ls ./nupkgs/Neo*.nupkg 2>/dev/null | wc -l)"
+        echo "R3E packages: $(ls ./nupkgs/R3E*.nupkg 2>/dev/null | wc -l)"
+
+    - name: Verify critical packages
+      run: |
+        # List of critical packages that must be present
+        CRITICAL_PACKAGES=(
+          "R3E.Compiler.CSharp.Tool"
+          "R3E.SmartContract.Framework"
+          "R3E.SmartContract.Testing"
+          "R3E.SmartContract.Deploy"
+          "R3E.WebGUI.Service"
+          "R3E.WebGUI.Deploy"
+        )
+        
+        echo "Verifying critical packages..."
+        MISSING=0
+        for pkg in "${CRITICAL_PACKAGES[@]}"; do
+          if ls ./nupkgs/${pkg}.*.nupkg >/dev/null 2>&1; then
+            echo "✓ Found $pkg"
+          else
+            echo "✗ Missing $pkg"
+            MISSING=$((MISSING + 1))
+          fi
+        done
+        
+        if [ $MISSING -gt 0 ]; then
+          echo "ERROR: $MISSING critical packages are missing!"
+          exit 1
+        fi
+
+    - name: Publish Neo packages to NuGet
+      run: |
+        echo "Publishing Neo packages..."
+        for package in ./nupkgs/Neo*.nupkg; do
+          if [[ -f "$package" && ! "$package" =~ \.snupkg$ ]]; then
+            echo "Publishing $package..."
+            dotnet nuget push "$package" \
+              --source https://api.nuget.org/v3/index.json \
+              --api-key ${{ secrets.NUGET }} \
+              --skip-duplicate || true
+          fi
+        done
+
+    - name: Publish R3E packages to NuGet
+      run: |
+        echo "Publishing R3E packages..."
+        for package in ./nupkgs/R3E*.nupkg; do
+          if [[ -f "$package" && ! "$package" =~ \.snupkg$ ]]; then
+            echo "Publishing $package..."
+            dotnet nuget push "$package" \
+              --source https://api.nuget.org/v3/index.json \
+              --api-key ${{ secrets.NUGET }} \
+              --skip-duplicate || true
+          fi
+        done
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          ./nupkgs/*.nupkg
+          RELEASE_NOTES_v${{ env.VERSION }}.md
+          CHANGELOG.md
+          QUICK_START_v${{ env.VERSION }}.md
+          MIGRATION_GUIDE_v${{ env.VERSION }}.md
+        body_path: RELEASE_NOTES_v${{ env.VERSION }}.md
+        name: R3E DevPack v${{ env.VERSION }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Summary
+      run: |
+        echo "## 🎉 Release v${{ env.VERSION }} Published!"
+        echo ""
+        echo "### 📦 Published Packages:"
+        echo "```"
+        ls -1 ./nupkgs/*.nupkg | grep -v snupkg | sed 's|./nupkgs/||'
+        echo "```"
+        echo ""
+        echo "### 🔗 Links:"
+        echo "- [GitHub Release](https://github.com/${{ github.repository }}/releases/tag/v${{ env.VERSION }})"
+        echo "- [NuGet Packages](https://www.nuget.org/profiles/R3E)"
