@@ -107,10 +107,22 @@ jobs:
         
         echo "✅ Publishing completed!"
 
+    - name: Create or update tag for manual release
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        # Delete tag if it exists (locally and remotely)
+        git tag -d v${{ env.VERSION }} || true
+        git push origin :refs/tags/v${{ env.VERSION }} || true
+        # Create new tag
+        git tag -a v${{ env.VERSION }} -m "Release v${{ env.VERSION }}"
+        git push origin v${{ env.VERSION }}
+
     - name: Create GitHub Release
-      if: github.event_name == 'push'
       uses: softprops/action-gh-release@v1
       with:
+        tag_name: v${{ env.VERSION }}
         files: |
           ./artifacts/*.nupkg
           ./binaries/*
