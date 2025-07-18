@@ -90,7 +90,7 @@ namespace Neo.SmartContract.Analyzer
             if (context.Operation is not IVariableDeclarationOperation variableDeclaration) return;
 
             var variableType = variableDeclaration.GetDeclaredVariables()[0].Type;
-            var originalType = variableType.OriginalDefinition.ToString() ?? throw new NullException("originalType is null");
+            var originalType = variableType.OriginalDefinition.ToString() ?? throw new ArgumentNullException("originalType");
 
             if (_unsupportedCollectionTypes.Contains(originalType))
             {

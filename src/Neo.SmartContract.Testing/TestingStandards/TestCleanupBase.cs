@@ -15,6 +15,7 @@ using Neo.SmartContract.Testing.Coverage.Formats;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace Neo.SmartContract.Testing.TestingStandards
