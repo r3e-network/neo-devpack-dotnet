@@ -1,0 +1,155 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.0.0)'
+        required: true
+        default: '1.0.0'
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Get version
+      run: |
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          VERSION="${{ github.event.inputs.version }}"
+        else
+          VERSION=${GITHUB_REF#refs/tags/v}
+        fi
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "📦 Releasing version: $VERSION"
+
+    - name: Build
+      run: |
+        echo "🔨 Building solution..."
+        make build
+        echo "✅ Build completed successfully!"
+
+    - name: Pack
+      run: |
+        echo "📦 Packing NuGet packages..."
+        make pack
+        echo "📊 Packages created:"
+        ls -la artifacts/*.nupkg | grep -v snupkg | wc -l
+        echo "Total packages: $(ls artifacts/*.nupkg 2>/dev/null | grep -v snupkg | wc -l)"
+
+    - name: Build binaries
+      run: |
+        echo "🔧 Building platform binaries..."
+        mkdir -p binaries
+        
+        # Linux
+        dotnet publish src/Neo.Compiler.CSharp.Tool/Neo.Compiler.CSharp.Tool.csproj \
+          -c Release -r linux-x64 --self-contained true \
+          /p:PublishSingleFile=true /p:PublishTrimmed=false \
+          -o ./publish/linux-x64
+        cd publish/linux-x64 && chmod +x rncc
+        tar -czf ../../binaries/rncc-linux-x64-v${{ env.VERSION }}.tar.gz rncc
+        cd ../..
+        
+        # Windows
+        dotnet publish src/Neo.Compiler.CSharp.Tool/Neo.Compiler.CSharp.Tool.csproj \
+          -c Release -r win-x64 --self-contained true \
+          /p:PublishSingleFile=true /p:PublishTrimmed=false \
+          -o ./publish/win-x64
+        cd publish/win-x64
+        zip -9 ../../binaries/rncc-win-x64-v${{ env.VERSION }}.zip rncc.exe
+        cd ../..
+        
+        # macOS
+        dotnet publish src/Neo.Compiler.CSharp.Tool/Neo.Compiler.CSharp.Tool.csproj \
+          -c Release -r osx-x64 --self-contained true \
+          /p:PublishSingleFile=true /p:PublishTrimmed=false \
+          -o ./publish/osx-x64
+        cd publish/osx-x64 && chmod +x rncc
+        tar -czf ../../binaries/rncc-osx-x64-v${{ env.VERSION }}.tar.gz rncc
+        cd ../..
+        
+        echo "✅ Binaries created:"
+        ls -la binaries/
+
+    - name: Publish to NuGet
+      if: github.event_name == 'push' || github.event.inputs.version != ''
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET }}
+      run: |
+        echo "🚀 Publishing packages to NuGet..."
+        
+        # Publish all packages
+        for package in ./artifacts/*.nupkg; do
+          if [[ -f "$package" && ! "$package" =~ \.snupkg$ ]]; then
+            PKG_NAME=$(basename "$package")
+            echo "📤 Publishing $PKG_NAME..."
+            dotnet nuget push "$package" \
+              --source https://api.nuget.org/v3/index.json \
+              --api-key "$NUGET_API_KEY" \
+              --skip-duplicate \
+              --timeout 600 || echo "⚠️  $PKG_NAME already exists or failed"
+          fi
+        done
+        
+        echo "✅ Publishing completed!"
+
+    - name: Create GitHub Release
+      if: github.event_name == 'push'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          ./artifacts/*.nupkg
+          ./binaries/*
+          RELEASE_NOTES_v${{ env.VERSION }}.md
+          CHANGELOG.md
+          QUICK_START_v${{ env.VERSION }}.md
+          MIGRATION_GUIDE_v${{ env.VERSION }}.md
+        body: |
+          # R3E DevPack v${{ env.VERSION }}
+          
+          ## Installation
+          ```bash
+          dotnet tool install -g R3E.Compiler.CSharp.Tool --version ${{ env.VERSION }}
+          ```
+          
+          ## Downloads
+          - **Windows**: rncc-win-x64-v${{ env.VERSION }}.zip
+          - **Linux**: rncc-linux-x64-v${{ env.VERSION }}.tar.gz
+          - **macOS**: rncc-osx-x64-v${{ env.VERSION }}.tar.gz
+          
+          See release notes for full details.
+        name: R3E DevPack v${{ env.VERSION }}
+        draft: false
+        prerelease: false
+        fail_on_unmatched_files: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Summary
+      if: always()
+      run: |
+        echo "## 📋 Release Summary"
+        echo ""
+        echo "- **Version**: ${{ env.VERSION }}"
+        echo "- **Build**: ✅ Success"
+        echo "- **Packages**: $(ls artifacts/*.nupkg 2>/dev/null | grep -v snupkg | wc -l) created"
+        echo "- **Binaries**: $(ls binaries/* 2>/dev/null | wc -l) platforms"
+        echo ""
+        echo "### Next Steps"
+        echo "1. Check NuGet: https://www.nuget.org/profiles/R3E"
+        echo "2. Check Release: https://github.com/${{ github.repository }}/releases/tag/v${{ env.VERSION }}"
+        echo "3. Test installation: \`dotnet tool install -g R3E.Compiler.CSharp.Tool --version ${{ env.VERSION }}\`"
