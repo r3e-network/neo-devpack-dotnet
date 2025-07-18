@@ -21,8 +21,15 @@ public class LocalStorageServiceTests : IDisposable
         _testStoragePath = Path.Combine(Path.GetTempPath(), $"webgui-test-{Guid.NewGuid()}");
         
         _mockConfiguration = new Mock<IConfiguration>();
-        _mockConfiguration.Setup(c => c.GetValue<string>("Storage:LocalPath"))
-            .Returns(_testStoragePath);
+        
+        // Create a mock IConfigurationSection for the GetValue extension method to work
+        var mockConfigurationSection = new Mock<IConfigurationSection>();
+        mockConfigurationSection.Setup(x => x.Value).Returns(_testStoragePath);
+        mockConfigurationSection.Setup(x => x.Path).Returns("Storage:LocalPath");
+        
+        // Set up the configuration to return the section when accessed
+        _mockConfiguration.Setup(x => x.GetSection("Storage:LocalPath"))
+            .Returns(mockConfigurationSection.Object);
         
         _mockLogger = new Mock<ILogger<LocalStorageService>>();
         _service = new LocalStorageService(_mockConfiguration.Object, _mockLogger.Object);

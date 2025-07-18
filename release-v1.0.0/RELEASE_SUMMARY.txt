@@ -1,0 +1,49 @@
+R3E DevPack v1.0.0 Release
+==========================
+
+Release Date: 2025-07-18 08:51:50 UTC
+
+NuGet Packages:
+--------------
+Neo.1.0.0.nupkg
+Neo.Cryptography.BLS12_381.1.0.0.nupkg
+Neo.Extensions.1.0.0.nupkg
+Neo.IO.1.0.0.nupkg
+Neo.Json.1.0.0.nupkg
+Neo.VM.1.0.0.nupkg
+R3E.Compiler.CSharp.1.0.0.nupkg
+R3E.Compiler.CSharp.Tool.1.0.0.nupkg
+R3E.Disassembler.CSharp.1.0.0.nupkg
+R3E.SmartContract.Analyzer.1.0.0.nupkg
+R3E.SmartContract.Deploy.1.0.0.nupkg
+R3E.SmartContract.Framework.1.0.0.nupkg
+R3E.SmartContract.Template.1.0.0.nupkg
+R3E.SmartContract.Testing.1.0.0.nupkg
+R3E.WebGUI.Deploy.1.0.0.nupkg
+R3E.WebGUI.Service.1.0.0.nupkg
+
+Binary Archives:
+---------------
+- rncc-linux-x64-v1.0.0.tar.gz
+
+Installation:
+------------
+To install RNCC CLI tool:
+  dotnet tool install -g R3E.Compiler.CSharp.Tool --version 1.0.0
+
+To add framework to your project:
+  <PackageReference Include="R3E.SmartContract.Framework" Version="1.0.0" />
+
+Quick Start:
+-----------
+  rncc new MyContract --template=solution
+  cd MyContract
+  dotnet build
+  dotnet test
+
+Documentation:
+-------------
+- Full release notes: RELEASE_NOTES_v1.0.0.md
+- Changelog: CHANGELOG.md
+- Online docs: https://r3edevpack.netlify.app
+

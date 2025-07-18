@@ -8,8 +8,11 @@
         <AssemblyName>R3E.Disassembler.CSharp</AssemblyName>
         <RootNamespace>Neo.Disassembler.CSharp</RootNamespace>
         <PackageId>R3E.Disassembler.CSharp</PackageId>
-        <PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
-        <Description>Disassembler for NEO smart contract.</Description>
+        <Product>R3E Disassembler for C#</Product>
+        <PackageTags>NEO;Blockchain;Smart Contract;Disassembler;R3E</PackageTags>
+        <Description>R3E edition of the Neo Smart Contract Disassembler - Analyze and disassemble Neo VM bytecode back to readable format</Description>
+        <Authors>R3E Network</Authors>
+        <Company>R3E Network</Company>
         <IncludeContentInPack>true</IncludeContentInPack>
         <ContentTargetFolders>content</ContentTargetFolders>
         <Nullable>enable</Nullable>

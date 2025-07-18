@@ -132,9 +132,14 @@ namespace Neo.SmartContract.Testing.Native
                     if (task == null)
                         throw new Exception($"Error: {native.Name}.OnPersistAsync returned null");
 
-                    // Use dynamic to access GetAwaiter() since ContractTask is internal
-                    dynamic dynamicTask = task;
-                    dynamicTask.GetAwaiter().GetResult();
+                    // Use reflection to access GetAwaiter() since ContractTask is internal
+                    var getAwaiterMethod = task.GetType().GetMethod("GetAwaiter");
+                    if (getAwaiterMethod != null)
+                    {
+                        var awaiter = getAwaiterMethod.Invoke(task, null);
+                        var getResultMethod = awaiter?.GetType().GetMethod("GetResult");
+                        getResultMethod?.Invoke(awaiter, null);
+                    }
                     if (engine.Execute() != VM.VMState.HALT)
                         throw new Exception($"Error executing {native.Name}.OnPersistAsync");
                 }
@@ -150,9 +155,14 @@ namespace Neo.SmartContract.Testing.Native
                     if (task == null)
                         throw new Exception($"Error: {native.Name}.PostPersistAsync returned null");
 
-                    // Use dynamic to access GetAwaiter() since ContractTask is internal
-                    dynamic dynamicTask = task;
-                    dynamicTask.GetAwaiter().GetResult();
+                    // Use reflection to access GetAwaiter() since ContractTask is internal
+                    var getAwaiterMethod = task.GetType().GetMethod("GetAwaiter");
+                    if (getAwaiterMethod != null)
+                    {
+                        var awaiter = getAwaiterMethod.Invoke(task, null);
+                        var getResultMethod = awaiter?.GetType().GetMethod("GetResult");
+                        getResultMethod?.Invoke(awaiter, null);
+                    }
                     if (engine.Execute() != VM.VMState.HALT)
                         throw new Exception($"Error executing {native.Name}.PostPersistAsync");
                 }

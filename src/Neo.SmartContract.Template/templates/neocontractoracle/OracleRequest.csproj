@@ -20,7 +20,7 @@
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Message Text="Start NeoContract converter, Source File: &quot;$(ProjectPath)&quot;" Importance="high">
     </Message>
-    <Exec Command="rncc $(BaseNameArgument) $(NullableArgument) $(CheckedArgument) $(DebugArgument) &quot;$(ProjectPath)&quot;" />
+    <Exec Command="dotnet tool run rncc $(BaseNameArgument) $(NullableArgument) $(CheckedArgument) $(DebugArgument) &quot;$(ProjectPath)&quot;" />
   </Target>
 
 </Project>

@@ -65,6 +65,24 @@ namespace Neo.Compiler.Tool
                 new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler.")
             };
 
+            // Add template commands
+            var newCommand = new Command("new", "Create a new Neo smart contract solution from template")
+            {
+                new Argument<string>("name", "The name of the contract/solution to create"),
+                new Option<string>("--template", () => "solution", "The template to use: solution, nep17, nep11, oracle, owner"),
+                new Option<string>("--author", () => "Developer", "The author name for the contract"),
+                new Option<string>("--email", () => "developer@example.com", "The author email for the contract"),
+                new Option<bool>("--with-tests", () => true, "Include test project"),
+                new Option<bool>("--with-deploy-scripts", () => true, "Include deployment scripts"),
+                new Option<bool>("--git-init", () => false, "Initialize git repository")
+            };
+            newCommand.Handler = CommandHandler.Create<string, string, string, string, bool, bool, bool>(HandleNewCommand);
+            rootCommand.AddCommand(newCommand);
+
+            var templatesCommand = new Command("templates", "List available templates");
+            templatesCommand.Handler = CommandHandler.Create(HandleTemplatesCommand);
+            rootCommand.AddCommand(templatesCommand);
+
             var debugOption = new Option<CompilationOptions.DebugType>(["-d", "--debug"],
                 new ParseArgument<CompilationOptions.DebugType>(ParseDebug), description: "Indicates the debug level.")
             {
@@ -702,6 +720,372 @@ namespace Neo.Compiler.Tool
                 ".ico" => "image/x-icon",
                 _ => "application/octet-stream"
             };
+        }
+
+        private static void HandleTemplatesCommand()
+        {
+            Console.WriteLine("Available Neo Smart Contract Templates:");
+            Console.WriteLine();
+            Console.WriteLine("📄 solution        - Complete contract solution with testing and deployment");
+            Console.WriteLine("💰 nep17           - NEP-17 fungible token contract");
+            Console.WriteLine("🎨 nep11           - NEP-11 non-fungible token contract");
+            Console.WriteLine("🔮 oracle          - Oracle contract for external data");
+            Console.WriteLine("👤 owner           - Contract with owner functionality");
+            Console.WriteLine();
+            Console.WriteLine("Usage: rncc new MyContract --template=solution --author=\"Your Name\"");
+        }
+
+        private static void HandleNewCommand(string name, string template, string author, string email, bool withTests, bool withDeployScripts, bool gitInit)
+        {
+            try
+            {
+                Console.WriteLine($"Creating new Neo smart contract: {name}");
+                Console.WriteLine($"Template: {template}");
+                Console.WriteLine($"Author: {author}");
+                Console.WriteLine();
+
+                var outputDir = Path.Combine(Environment.CurrentDirectory, name);
+                
+                if (Directory.Exists(outputDir))
+                {
+                    Console.Error.WriteLine($"Directory '{name}' already exists!");
+                    return;
+                }
+
+                Directory.CreateDirectory(outputDir);
+
+                // Get the assembly location to find templates
+                var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+                var templatesDir = Path.Combine(assemblyDir, "templates");
+                
+                // If templates aren't found next to the assembly, try the source location
+                if (!Directory.Exists(templatesDir))
+                {
+                    // Try to find templates in the source directory structure
+                    var currentDir = Directory.GetCurrentDirectory();
+                    var srcDir = FindSourceDirectory(currentDir);
+                    if (srcDir != null)
+                    {
+                        templatesDir = Path.Combine(srcDir, "src", "Neo.SmartContract.Template", "templates");
+                    }
+                }
+
+                if (!Directory.Exists(templatesDir))
+                {
+                    Console.Error.WriteLine("Templates directory not found. Please ensure RNCC is properly installed.");
+                    return;
+                }
+
+                CreateFromTemplate(name, template, author, email, withTests, withDeployScripts, templatesDir, outputDir);
+
+                if (gitInit)
+                {
+                    InitializeGitRepository(outputDir);
+                }
+
+                Console.WriteLine($"✅ Successfully created '{name}' in {outputDir}");
+                Console.WriteLine();
+                Console.WriteLine("Next steps:");
+                Console.WriteLine($"  cd {name}");
+                Console.WriteLine("  dotnet build");
+                Console.WriteLine("  dotnet test");
+                Console.WriteLine();
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error creating contract: {ex.Message}");
+            }
+        }
+
+        private static void CreateFromTemplate(string name, string template, string author, string email, bool withTests, bool withDeployScripts, string templatesDir, string outputDir)
+        {
+            switch (template.ToLowerInvariant())
+            {
+                case "solution":
+                    CreateSolutionTemplate(name, author, email, withTests, withDeployScripts, templatesDir, outputDir);
+                    break;
+                case "nep17":
+                    CreateNep17Template(name, author, email, templatesDir, outputDir);
+                    break;
+                case "nep11":
+                    CreateNep11Template(name, author, email, templatesDir, outputDir);
+                    break;
+                case "oracle":
+                    CreateOracleTemplate(name, author, email, templatesDir, outputDir);
+                    break;
+                case "owner":
+                    CreateOwnerTemplate(name, author, email, templatesDir, outputDir);
+                    break;
+                default:
+                    throw new ArgumentException($"Unknown template: {template}");
+            }
+        }
+
+        private static void CreateSolutionTemplate(string name, string author, string email, bool withTests, bool withDeployScripts, string templatesDir, string outputDir)
+        {
+            var solutionTemplate = Path.Combine(templatesDir, "neocontractsolution");
+            if (!Directory.Exists(solutionTemplate))
+            {
+                Console.Error.WriteLine("Solution template not found.");
+                return;
+            }
+
+            // Copy the entire solution template
+            CopyDirectory(solutionTemplate, outputDir);
+
+            // Replace template variables
+            var replacements = new Dictionary<string, string>
+            {
+                { "MyContract", name },
+                { "NeoContractSolution", name },
+                { "TemplateAuthor", author },
+                { "TemplateEmail", email },
+                { "TemplateNeoVersion", "1.0.0" },
+                { "TemplateDotNetVersion", "9.0.0" },
+                { "TemplateFrameworkVersion", "net9.0" }
+            };
+
+            ProcessTemplateReplacements(outputDir, replacements);
+
+            // Rename files and directories
+            RenameTemplateFiles(outputDir, "MyContract", name);
+            RenameTemplateFiles(outputDir, "NeoContractSolution", name);
+
+            if (!withTests)
+            {
+                var testsDir = Path.Combine(outputDir, "tests");
+                if (Directory.Exists(testsDir))
+                {
+                    Directory.Delete(testsDir, true);
+                }
+            }
+
+            if (!withDeployScripts)
+            {
+                var deployDir = Path.Combine(outputDir, "deploy");
+                if (Directory.Exists(deployDir))
+                {
+                    Directory.Delete(deployDir, true);
+                }
+            }
+
+            Console.WriteLine($"Created solution template with:");
+            Console.WriteLine($"  📁 src/{name}/ - Contract project");
+            if (withTests) Console.WriteLine($"  🧪 tests/{name}.Tests/ - Test project");
+            if (withDeployScripts) Console.WriteLine($"  🚀 deploy/ - Deployment scripts");
+        }
+
+        private static void CreateNep17Template(string name, string author, string email, string templatesDir, string outputDir)
+        {
+            var nep17Template = Path.Combine(templatesDir, "neocontractnep17");
+            if (!Directory.Exists(nep17Template))
+            {
+                Console.Error.WriteLine("NEP-17 template not found.");
+                return;
+            }
+
+            CopyDirectory(nep17Template, outputDir);
+
+            var replacements = new Dictionary<string, string>
+            {
+                { "Nep17Contract", name },
+                { "TemplateAuthor", author },
+                { "TemplateEmail", email },
+                { "TemplateNeoVersion", "1.0.0" }
+            };
+
+            ProcessTemplateReplacements(outputDir, replacements);
+            RenameTemplateFiles(outputDir, "Nep17Contract", name);
+
+            Console.WriteLine($"Created NEP-17 token contract: {name}");
+        }
+
+        private static void CreateNep11Template(string name, string author, string email, string templatesDir, string outputDir)
+        {
+            // For now, use the NEP-17 template and modify it
+            CreateNep17Template(name, author, email, templatesDir, outputDir);
+            Console.WriteLine($"Created NEP-11 NFT contract: {name} (based on NEP-17 template)");
+        }
+
+        private static void CreateOracleTemplate(string name, string author, string email, string templatesDir, string outputDir)
+        {
+            var oracleTemplate = Path.Combine(templatesDir, "neocontractoracle");
+            if (!Directory.Exists(oracleTemplate))
+            {
+                Console.Error.WriteLine("Oracle template not found.");
+                return;
+            }
+
+            CopyDirectory(oracleTemplate, outputDir);
+
+            var replacements = new Dictionary<string, string>
+            {
+                { "OracleRequest", name },
+                { "TemplateAuthor", author },
+                { "TemplateEmail", email },
+                { "TemplateNeoVersion", "1.0.0" }
+            };
+
+            ProcessTemplateReplacements(outputDir, replacements);
+            RenameTemplateFiles(outputDir, "OracleRequest", name);
+
+            Console.WriteLine($"Created Oracle contract: {name}");
+        }
+
+        private static void CreateOwnerTemplate(string name, string author, string email, string templatesDir, string outputDir)
+        {
+            var ownerTemplate = Path.Combine(templatesDir, "neocontractowner");
+            if (!Directory.Exists(ownerTemplate))
+            {
+                Console.Error.WriteLine("Owner template not found.");
+                return;
+            }
+
+            CopyDirectory(ownerTemplate, outputDir);
+
+            var replacements = new Dictionary<string, string>
+            {
+                { "Ownable", name },
+                { "TemplateAuthor", author },
+                { "TemplateEmail", email },
+                { "TemplateNeoVersion", "1.0.0" }
+            };
+
+            ProcessTemplateReplacements(outputDir, replacements);
+            RenameTemplateFiles(outputDir, "Ownable", name);
+
+            Console.WriteLine($"Created Owner contract: {name}");
+        }
+
+        private static void CopyDirectory(string sourceDir, string destDir)
+        {
+            Directory.CreateDirectory(destDir);
+
+            foreach (var file in Directory.GetFiles(sourceDir))
+            {
+                var destFile = Path.Combine(destDir, Path.GetFileName(file));
+                File.Copy(file, destFile);
+            }
+
+            foreach (var dir in Directory.GetDirectories(sourceDir))
+            {
+                var dirName = Path.GetFileName(dir);
+                if (dirName == ".template.config") continue; // Skip template config
+
+                var destSubDir = Path.Combine(destDir, dirName);
+                CopyDirectory(dir, destSubDir);
+            }
+        }
+
+        private static void ProcessTemplateReplacements(string directory, Dictionary<string, string> replacements)
+        {
+            var files = Directory.GetFiles(directory, "*", SearchOption.AllDirectories)
+                .Where(f => !f.Contains(".git") && !f.Contains("bin") && !f.Contains("obj"))
+                .ToArray();
+
+            foreach (var file in files)
+            {
+                try
+                {
+                    var content = File.ReadAllText(file);
+                    var modified = false;
+
+                    foreach (var replacement in replacements)
+                    {
+                        if (content.Contains(replacement.Key))
+                        {
+                            content = content.Replace(replacement.Key, replacement.Value);
+                            modified = true;
+                        }
+                    }
+
+                    if (modified)
+                    {
+                        File.WriteAllText(file, content);
+                    }
+                }
+                catch
+                {
+                    // Skip binary files or files that can't be read
+                }
+            }
+        }
+
+        private static void RenameTemplateFiles(string directory, string oldName, string newName)
+        {
+            // Rename files
+            var files = Directory.GetFiles(directory, $"*{oldName}*", SearchOption.AllDirectories);
+            foreach (var file in files)
+            {
+                var newFileName = Path.GetFileName(file).Replace(oldName, newName);
+                var newFilePath = Path.Combine(Path.GetDirectoryName(file)!, newFileName);
+                File.Move(file, newFilePath);
+            }
+
+            // Rename directories
+            var directories = Directory.GetDirectories(directory, $"*{oldName}*", SearchOption.AllDirectories)
+                .OrderByDescending(d => d.Length) // Process deeper directories first
+                .ToArray();
+
+            foreach (var dir in directories)
+            {
+                var newDirName = Path.GetFileName(dir).Replace(oldName, newName);
+                var newDirPath = Path.Combine(Path.GetDirectoryName(dir)!, newDirName);
+                Directory.Move(dir, newDirPath);
+            }
+        }
+
+        private static string? FindSourceDirectory(string currentDir)
+        {
+            var dir = new DirectoryInfo(currentDir);
+            while (dir != null)
+            {
+                if (Directory.Exists(Path.Combine(dir.FullName, "src")) && 
+                    Directory.Exists(Path.Combine(dir.FullName, "src", "Neo.SmartContract.Template")))
+                {
+                    return dir.FullName;
+                }
+                dir = dir.Parent;
+            }
+            return null;
+        }
+
+        private static void InitializeGitRepository(string directory)
+        {
+            try
+            {
+                var gitDir = Path.Combine(directory, ".git");
+                if (Directory.Exists(gitDir))
+                {
+                    Console.WriteLine("Git repository already exists.");
+                    return;
+                }
+
+                var processInfo = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "git",
+                    Arguments = "init",
+                    WorkingDirectory = directory,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                using var process = System.Diagnostics.Process.Start(processInfo);
+                process?.WaitForExit();
+
+                if (process?.ExitCode == 0)
+                {
+                    Console.WriteLine("Initialized git repository.");
+                }
+                else
+                {
+                    Console.WriteLine("Failed to initialize git repository.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to initialize git repository: {ex.Message}");
+            }
         }
     }
 

@@ -7,10 +7,14 @@
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <IsRoslynComponent>true</IsRoslynComponent>
     <RootNamespace>Neo.SmartContract.Analyzer</RootNamespace>
+    <Title>R3E Smart Contract Analyzer</Title>
+    <AssemblyName>R3E.SmartContract.Analyzer</AssemblyName>
     <PackageId>R3E.SmartContract.Analyzer</PackageId>
-    <PackageTags>NEO;Blockchain;Smart Contract;Analyzer</PackageTags>
-    <Product>R3E.SmartContract.Analyzer.CSharp</Product>
-    <Description>R3E.SmartContract.Analyzer.CSharp</Description>
+    <PackageTags>NEO;Blockchain;Smart Contract;Analyzer;R3E;Roslyn</PackageTags>
+    <Product>R3E Smart Contract Analyzer</Product>
+    <Description>R3E edition of the Neo Smart Contract Analyzer - Roslyn-based code analyzer for Neo smart contract development</Description>
+    <Authors>R3E Network</Authors>
+    <Company>R3E Network</Company>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 

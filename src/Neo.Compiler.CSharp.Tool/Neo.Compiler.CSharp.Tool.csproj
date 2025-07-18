@@ -12,7 +12,7 @@
     <PackageTags>NEO;Blockchain;Smart Contract;Compiler;Tool;CLI;R3E;RNCC;DotNetTool</PackageTags>
     <Company>R3E Network</Company>
     <Product>RNCC - R3E Neo Contract Compiler</Product>
-    <Description>RNCC (R3E Neo Contract Compiler) - Professional CLI tool for compiling Neo smart contracts with advanced features including WebGUI generation, security analysis, and solution templates</Description>
+    <Description>RNCC v1.0.0 - R3E Neo Contract Compiler CLI tool. Create, compile, and deploy Neo smart contracts with ease. Features include project templates, WebGUI generation, security analysis, and cross-platform support. Use 'rncc new' to get started!</Description>
     <PackageProjectUrl>https://r3edevpack.netlify.app</PackageProjectUrl>
     <RepositoryUrl>https://github.com/r3e-network/r3e-devpack-dotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -24,6 +24,7 @@
     <IsPackable>true</IsPackable>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <NoDefaultExcludes>true</NoDefaultExcludes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -37,6 +38,7 @@
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
+    <None Include="../Neo.SmartContract.Template/templates/**/*" Pack="true" PackagePath="templates/" />
   </ItemGroup>
 
 </Project>

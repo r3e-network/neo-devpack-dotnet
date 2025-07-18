@@ -44,7 +44,7 @@ public class WebGUIControllerTests
     }
 
     [Fact]
-    public async Task DeployWebGUI_ValidRequest_ReturnsOkResult()
+    public async Task DeployWebGUI_AnyRequest_ReturnsBadRequestWithDeprecationMessage()
     {
         // Arrange
         var request = new DeployWebGUIRequest
@@ -57,38 +57,22 @@ public class WebGUIControllerTests
             WebGUIFiles = CreateMockFiles()
         };
 
-        var expectedResult = new ContractWebGUI
-        {
-            Subdomain = "testcontract",
-            ContractAddress = request.ContractAddress
-        };
-
-        _mockService.Setup(s => s.DeployWebGUIAsync(
-            request.ContractAddress,
-            request.ContractName,
-            request.Network,
-            request.WebGUIFiles,
-            request.DeployerAddress,
-            request.Description))
-            .ReturnsAsync(expectedResult);
-
         // Act
         var result = await _controller.DeployWebGUI(request);
 
         // Assert
-        result.Should().BeOfType<OkObjectResult>();
-        var okResult = result as OkObjectResult;
-        var response = okResult!.Value;
+        result.Should().BeOfType<BadRequestObjectResult>();
+        var badRequestResult = result as BadRequestObjectResult;
+        var response = badRequestResult!.Value;
         
         response.Should().NotBeNull();
         var responseObj = response!.GetType();
-        responseObj.GetProperty("success")!.GetValue(response).Should().Be(true);
-        responseObj.GetProperty("subdomain")!.GetValue(response).Should().Be("testcontract");
-        responseObj.GetProperty("url")!.GetValue(response).Should().Be("https://testcontract.r3e-gui.com");
+        responseObj.GetProperty("error")!.GetValue(response).Should().Be("This endpoint is deprecated");
+        responseObj.GetProperty("newEndpoint")!.GetValue(response).Should().Be("/api/webgui/deploy-from-manifest");
     }
 
     [Fact]
-    public async Task DeployWebGUI_NoFiles_ReturnsBadRequest()
+    public async Task DeployWebGUI_NoFiles_StillReturnsBadRequestWithDeprecationMessage()
     {
         // Arrange
         var request = new DeployWebGUIRequest
@@ -104,11 +88,13 @@ public class WebGUIControllerTests
         // Assert
         result.Should().BeOfType<BadRequestObjectResult>();
         var badRequestResult = result as BadRequestObjectResult;
-        badRequestResult!.Value.Should().Be("No WebGUI files provided");
+        var response = badRequestResult!.Value;
+        var responseObj = response!.GetType();
+        responseObj.GetProperty("error")!.GetValue(response).Should().Be("This endpoint is deprecated");
     }
 
     [Fact]
-    public async Task DeployWebGUI_ServiceThrowsException_ReturnsInternalServerError()
+    public async Task DeployWebGUI_ServiceWouldThrowException_StillReturnsBadRequestWithDeprecationMessage()
     {
         // Arrange
         var request = new DeployWebGUIRequest
@@ -118,17 +104,17 @@ public class WebGUIControllerTests
             WebGUIFiles = CreateMockFiles()
         };
 
-        _mockService.Setup(s => s.DeployWebGUIAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), 
-            It.IsAny<IFormFileCollection>(), It.IsAny<string>(), It.IsAny<string>()))
-            .ThrowsAsync(new InvalidOperationException("Service error"));
+        // Note: Service is never called because endpoint returns deprecation message immediately
 
         // Act
         var result = await _controller.DeployWebGUI(request);
 
         // Assert
-        result.Should().BeOfType<ObjectResult>();
-        var objectResult = result as ObjectResult;
-        objectResult!.StatusCode.Should().Be(500);
+        result.Should().BeOfType<BadRequestObjectResult>();
+        var badRequestResult = result as BadRequestObjectResult;
+        var response = badRequestResult!.Value;
+        var responseObj = response!.GetType();
+        responseObj.GetProperty("error")!.GetValue(response).Should().Be("This endpoint is deprecated");
     }
 
     [Fact]
@@ -242,7 +228,7 @@ public class WebGUIControllerTests
     }
 
     [Fact]
-    public async Task UpdateWebGUI_ValidRequest_ReturnsOkResult()
+    public async Task UpdateWebGUI_AnyRequest_ReturnsBadRequestWithDeprecationMessage()
     {
         // Arrange
         var subdomain = "testcontract";
@@ -252,26 +238,15 @@ public class WebGUIControllerTests
             WebGUIFiles = CreateMockFiles()
         };
 
-        var updatedWebGUI = new ContractWebGUI
-        {
-            Subdomain = subdomain,
-            Description = request.Description
-        };
-
-        _mockService.Setup(s => s.UpdateWebGUIAsync(subdomain, request.WebGUIFiles, request.Description))
-            .ReturnsAsync(updatedWebGUI);
-
         // Act
         var result = await _controller.UpdateWebGUI(subdomain, request);
 
         // Assert
-        result.Should().BeOfType<OkObjectResult>();
-        var okResult = result as OkObjectResult;
-        var response = okResult!.Value;
-        
-        response.Should().NotBeNull();
+        result.Should().BeOfType<BadRequestObjectResult>();
+        var badRequestResult = result as BadRequestObjectResult;
+        var response = badRequestResult!.Value;
         var responseObj = response!.GetType();
-        responseObj.GetProperty("success")!.GetValue(response).Should().Be(true);
+        responseObj.GetProperty("error")!.GetValue(response).Should().Be("This endpoint is deprecated");
     }
 
     private IFormFileCollection CreateMockFiles()

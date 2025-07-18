@@ -25,6 +25,5 @@ NC4022  | Usage    | Warning  | BigIntegerUsingUsageAnalyzer
 NC4023  | Usage    | Error    | StaticFieldInitializationAnalyzer          
 NC4024  | Usage    | Error    | MultipleCatchBlockAnalyzer                 
 NC4025  | Method   | Error    | EnumMethodsUsageAnalyzer                   
-NC4026  | Usage    | Error    | SystemDiagnosticsUsageAnalyzer             
 NC4027  | Usage    | Warning  | CatchOnlySystemExceptionAnalyzer           
-NC4028  | Usage    | Error    | SystemThreadingUsageAnalyzer
+NC4028  | Usage    | Error    | SystemDiagnosticsUsageAnalyzer

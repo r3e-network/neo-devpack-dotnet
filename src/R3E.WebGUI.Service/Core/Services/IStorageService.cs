@@ -42,7 +42,8 @@ public class LocalStorageService : IStorageService
         {
             if (file.Length > 0)
             {
-                var fileName = Path.GetFileName(file.FileName);
+                // Preserve the full relative path from the file name
+                var fileName = file.FileName;
                 var filePath = Path.Combine(subdomainPath, fileName);
                 
                 // Create subdirectories if needed

@@ -12,7 +12,7 @@
 # Variables
 DOTNET := dotnet
 CONFIGURATION := Release
-VERSION := 0.0.4
+VERSION := 1.0.0
 RUNTIME_IDS := win-x64 linux-x64 osx-x64 osx-arm64
 OUTPUT_DIR := ./artifacts
 DOCKER_REGISTRY := ghcr.io/r3e-network
@@ -47,6 +47,7 @@ help:
 	@echo "$(YELLOW)Testing:$(NC)"
 	@echo "  make unit-tests       - Run unit tests only"
 	@echo "  make integration-tests- Run integration tests only"
+	@echo "  make workflow-test    - Test full workflow (template to deployment)"
 	@echo "  make coverage         - Run tests with code coverage"
 	@echo "  make benchmarks       - Run performance benchmarks"
 	@echo ""
@@ -117,7 +118,7 @@ deploy-only:
 
 webgui-only:
 	@echo "$(YELLOW)Building WebGUI service only...$(NC)"
-	$(DOTNET) build src/Neo.WebGUI.Service/Neo.WebGUI.Service.csproj --configuration $(CONFIGURATION)
+	$(DOTNET) build src/R3E.WebGUI.Service/R3E.WebGUI.Service.csproj --configuration $(CONFIGURATION)
 
 # Testing targets
 test: unit-tests integration-tests
@@ -132,11 +133,24 @@ unit-tests:
 
 integration-tests:
 	@echo "$(YELLOW)Running integration tests...$(NC)"
+	@echo "Installing RNCC tool if not present..."
+	@$(DOTNET) tool install -g R3E.Compiler.CSharp.Tool --add-source ./artifacts || true
+	@export PATH="$$PATH:$$HOME/.dotnet/tools" && \
 	$(DOTNET) test --configuration $(CONFIGURATION) --no-build \
 		--filter "Category=Integration" \
 		--logger "console;verbosity=minimal" \
 		--logger "trx;LogFileName=integration-tests.trx"
 	@echo "$(GREEN)Integration tests completed!$(NC)"
+
+workflow-test: pack install-local
+	@echo "$(YELLOW)Running full workflow integration tests...$(NC)"
+	@echo "This will test the complete workflow from template creation to deployment"
+	@export PATH="$$PATH:$$HOME/.dotnet/tools" && \
+	$(DOTNET) test tests/Neo.Compiler.CSharp.IntegrationTests/Neo.Compiler.CSharp.IntegrationTests.csproj \
+		--configuration $(CONFIGURATION) \
+		--filter "FullName~EndToEndWorkflowTests" \
+		--logger "console;verbosity=detailed"
+	@echo "$(GREEN)Workflow tests completed!$(NC)"
 
 coverage:
 	@echo "$(YELLOW)Running tests with code coverage...$(NC)"
@@ -182,7 +196,7 @@ release-binaries:
 	mkdir -p $(OUTPUT_DIR)/binaries
 	@for rid in $(RUNTIME_IDS); do \
 		echo "Building for $$rid..."; \
-		$(DOTNET) publish src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj \
+		$(DOTNET) publish src/Neo.Compiler.CSharp.Tool/Neo.Compiler.CSharp.Tool.csproj \
 			--configuration $(CONFIGURATION) \
 			--runtime $$rid \
 			--self-contained true \
@@ -191,9 +205,9 @@ release-binaries:
 			/p:PublishTrimmed=true \
 			/p:Version=$(VERSION); \
 		if [ "$$rid" = "win-x64" ]; then \
-			mv $(OUTPUT_DIR)/binaries/$$rid/nccs.exe $(OUTPUT_DIR)/binaries/rncc-$$rid.exe; \
+			mv $(OUTPUT_DIR)/binaries/$$rid/rncc.exe $(OUTPUT_DIR)/binaries/rncc-$$rid.exe; \
 		else \
-			mv $(OUTPUT_DIR)/binaries/$$rid/nccs $(OUTPUT_DIR)/binaries/rncc-$$rid; \
+			mv $(OUTPUT_DIR)/binaries/$$rid/rncc $(OUTPUT_DIR)/binaries/rncc-$$rid; \
 			chmod +x $(OUTPUT_DIR)/binaries/rncc-$$rid; \
 		fi; \
 		rm -rf $(OUTPUT_DIR)/binaries/$$rid; \
@@ -217,7 +231,7 @@ docker-build:
 	@echo "$(YELLOW)Building Docker images...$(NC)"
 	docker build -t $(DOCKER_REGISTRY)/webgui-service:$(VERSION) \
 		-t $(DOCKER_REGISTRY)/webgui-service:latest \
-		-f src/Neo.WebGUI.Service/Dockerfile .
+		-f src/R3E.WebGUI.Service/Dockerfile .
 	@echo "$(GREEN)Docker images built!$(NC)"
 
 docker-push: docker-build
@@ -236,11 +250,11 @@ docker-run:
 
 docker-compose-up:
 	@echo "$(YELLOW)Starting services with docker-compose...$(NC)"
-	cd src/Neo.WebGUI.Service && docker-compose up -d
+	cd src/R3E.WebGUI.Service && docker-compose up -d
 
 docker-compose-down:
 	@echo "$(YELLOW)Stopping services...$(NC)"
-	cd src/Neo.WebGUI.Service && docker-compose down
+	cd src/R3E.WebGUI.Service && docker-compose down
 
 # Website targets
 website:
@@ -338,6 +352,26 @@ install-tools:
 	$(DOTNET) tool install -g security-scan || true
 	$(DOTNET) tool install -g rncc || true
 	@echo "$(GREEN)Tools installed!$(NC)"
+
+install-rncc:
+	@echo "$(YELLOW)Installing RNCC globally...$(NC)"
+	$(DOTNET) tool install -g --add-source ./artifacts R3E.Compiler.CSharp.Tool || \
+	$(DOTNET) tool update -g --add-source ./artifacts R3E.Compiler.CSharp.Tool || \
+	$(DOTNET) pack src/Neo.Compiler.CSharp.Tool/Neo.Compiler.CSharp.Tool.csproj \
+		--configuration Release \
+		--output ./artifacts && \
+	$(DOTNET) tool install -g --add-source ./artifacts R3E.Compiler.CSharp.Tool
+	@echo "$(GREEN)RNCC installed globally!$(NC)"
+
+install-local:
+	@echo "$(YELLOW)Installing RNCC from local build...$(NC)"
+	$(DOTNET) build src/Neo.Compiler.CSharp.Tool/Neo.Compiler.CSharp.Tool.csproj --configuration Release
+	$(DOTNET) pack src/Neo.Compiler.CSharp.Tool/Neo.Compiler.CSharp.Tool.csproj \
+		--configuration Release \
+		--output ./artifacts
+	$(DOTNET) tool install -g --add-source ./artifacts R3E.Compiler.CSharp.Tool --version $(VERSION) || \
+	$(DOTNET) tool update -g --add-source ./artifacts R3E.Compiler.CSharp.Tool --version $(VERSION)
+	@echo "$(GREEN)RNCC installed from local build!$(NC)"
 
 format:
 	@echo "$(YELLOW)Formatting code...$(NC)"
@@ -444,7 +478,7 @@ profile:
 # Database setup for WebGUI service
 setup-db:
 	@echo "$(YELLOW)Setting up database for WebGUI service...$(NC)"
-	cd src/Neo.WebGUI.Service && \
+	cd src/R3E.WebGUI.Service && \
 	$(DOTNET) ef database update
 
 # Show project statistics

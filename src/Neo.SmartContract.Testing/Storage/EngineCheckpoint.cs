@@ -37,7 +37,12 @@ namespace Neo.SmartContract.Testing.Storage
 
             foreach (var entry in snapshot.Seek(Array.Empty<byte>(), SeekDirection.Forward))
             {
-                list.Add((entry.Key.ToArray(), entry.Value.ToArray()));
+                // Store the complete storage key (including contract ID) as raw bytes
+                var keyBytes = new byte[sizeof(int) + entry.Key.Key.Length];
+                BinaryPrimitives.WriteInt32LittleEndian(keyBytes, entry.Key.Id);
+                entry.Key.Key.CopyTo(keyBytes.AsMemory(sizeof(int)));
+                
+                list.Add((keyBytes, entry.Value.ToArray()));
             }
 
             Data = list.ToArray();
@@ -88,7 +93,11 @@ namespace Neo.SmartContract.Testing.Storage
 
             foreach (var entry in Data)
             {
-                snapshot.Add(new StorageKey { Id = 0, Key = entry.key }, new StorageItem(entry.value));
+                // Reconstruct the original storage key from the raw bytes
+                var contractId = BinaryPrimitives.ReadInt32LittleEndian(entry.key);
+                var keyData = entry.key.AsSpan(sizeof(int)).ToArray();
+                
+                snapshot.Add(new StorageKey { Id = contractId, Key = keyData }, new StorageItem(entry.value));
             }
         }
 

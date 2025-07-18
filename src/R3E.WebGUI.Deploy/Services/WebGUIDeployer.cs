@@ -8,10 +8,10 @@ public class WebGUIDeployer
     private readonly HttpClient _httpClient;
     private readonly string _serviceUrl;
 
-    public WebGUIDeployer(string serviceUrl)
+    public WebGUIDeployer(string serviceUrl, HttpClient? httpClient = null)
     {
         _serviceUrl = serviceUrl;
-        _httpClient = new HttpClient();
+        _httpClient = httpClient ?? new HttpClient();
     }
 
     public async Task DeployAsync(
@@ -69,6 +69,7 @@ public class WebGUIDeployer
                 var errorContent = await response.Content.ReadAsStringAsync();
                 Console.WriteLine($"❌ Deployment failed: {response.StatusCode}");
                 Console.WriteLine($"Error: {errorContent}");
+                throw new Exception($"Deployment failed with status {response.StatusCode}: {errorContent}");
             }
         }
         catch (Exception ex)
@@ -81,6 +82,11 @@ public class WebGUIDeployer
     private async Task AddFilesToForm(MultipartFormDataContent form, string webguiPath)
     {
         var files = Directory.GetFiles(webguiPath, "*", SearchOption.AllDirectories);
+        
+        if (files.Length == 0)
+        {
+            throw new InvalidOperationException($"No files found in directory: {webguiPath}");
+        }
         
         Console.WriteLine($"📁 Adding {files.Length} files...");
 

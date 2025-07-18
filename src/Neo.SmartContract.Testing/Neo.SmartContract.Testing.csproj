@@ -2,14 +2,17 @@
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
-        <Title>R3E.SmartContract.Testing</Title>
+        <Title>R3E Smart Contract Testing Framework</Title>
         <LangVersion>latest</LangVersion>
         <AssemblyTitle>R3E.SmartContract.Testing</AssemblyTitle>
-        <AssemblyName>Neo.SmartContract.Testing</AssemblyName>
+        <AssemblyName>R3E.SmartContract.Testing</AssemblyName>
         <RootNamespace>Neo.SmartContract.Testing</RootNamespace>
         <PackageId>R3E.SmartContract.Testing</PackageId>
-        <PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
-        <Description>TestEngine for NEO smart contract testing.</Description>
+        <Product>R3E Smart Contract Testing Framework</Product>
+        <PackageTags>NEO;Blockchain;Smart Contract;Testing;R3E</PackageTags>
+        <Description>R3E Smart Contract Testing Framework v1.0.0 - Comprehensive testing framework for Neo smart contracts. Includes unit testing, integration testing, Neo Express support, mock implementations, and test coverage reporting</Description>
+        <Authors>R3E Network</Authors>
+        <Company>R3E Network</Company>
         <IncludeContentInPack>true</IncludeContentInPack>
         <ContentTargetFolders>content</ContentTargetFolders>
         <Nullable>enable</Nullable>

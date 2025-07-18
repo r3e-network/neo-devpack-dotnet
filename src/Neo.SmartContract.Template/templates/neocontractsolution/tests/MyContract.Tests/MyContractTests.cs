@@ -101,7 +101,7 @@ namespace NeoContractSolution.Tests
         }
     }
 
-    public abstract class MyContract : SmartContract.Testing.SmartContract
+    public abstract class MyContract : Neo.SmartContract.Testing.SmartContract
     {
         public abstract UInt160 GetOwner();
         public abstract bool SetOwner(UInt160 newOwner);

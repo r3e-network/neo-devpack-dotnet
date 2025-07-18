@@ -1,5 +1,6 @@
 using Neo;
 using Neo.SmartContract.Deploy;
+using Neo.SmartContract.Deploy.Models;
 using Microsoft.Extensions.Logging;
 
 namespace NeoContractSolution.Deploy;

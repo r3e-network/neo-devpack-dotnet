@@ -7,7 +7,12 @@
     <AssemblyTitle>R3E.SmartContract.Framework</AssemblyTitle>
     <AssemblyName>R3E.SmartContract.Framework</AssemblyName>
     <PackageId>R3E.SmartContract.Framework</PackageId>
-    <Description>R3E.SmartContract.Framework</Description>
+    <Title>R3E Smart Contract Framework</Title>
+    <Product>R3E Smart Contract Framework</Product>
+    <Description>R3E Smart Contract Framework v1.0.0 - Enhanced framework for developing Neo blockchain smart contracts with additional features, better type safety, and comprehensive standard library extensions</Description>
+    <Authors>R3E Network</Authors>
+    <Company>R3E Network</Company>
+    <PackageTags>NEO;Blockchain;Smart Contract;Framework;R3E</PackageTags>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>

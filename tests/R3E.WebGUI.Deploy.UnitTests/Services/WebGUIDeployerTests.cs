@@ -59,7 +59,7 @@ public class WebGUIDeployerTests : IDisposable
                 Content = new StringContent(responseContent, Encoding.UTF8, "application/json")
             });
 
-        var deployer = new WebGUIDeployer(serviceUrl);
+        var deployer = new WebGUIDeployer(serviceUrl, _httpClient);
 
         // Capture console output
         var output = new StringWriter();
@@ -120,7 +120,7 @@ public class WebGUIDeployerTests : IDisposable
                 Content = new StringContent("Server error")
             });
 
-        var deployer = new WebGUIDeployer(serviceUrl);
+        var deployer = new WebGUIDeployer(serviceUrl, _httpClient);
 
         // Capture console output
         var output = new StringWriter();
@@ -174,7 +174,7 @@ public class WebGUIDeployerTests : IDisposable
                 Content = new StringContent(JsonSerializer.Serialize(expectedResponse))
             });
 
-        var deployer = new WebGUIDeployer(serviceUrl);
+        var deployer = new WebGUIDeployer(serviceUrl, _httpClient);
 
         // Capture console output
         var output = new StringWriter();
@@ -248,17 +248,14 @@ public class WebGUIDeployerTests : IDisposable
         var output = new StringWriter();
         Console.SetOut(output);
 
-        // Act
-        await deployer.DeployAsync(
-            "0x1234567890abcdef1234567890abcdef12345678",
-            "TestContract",
-            "testnet",
-            "0xabcdef1234567890abcdef1234567890abcdef12",
-            emptyDir);
-
-        // Assert
-        var consoleOutput = output.ToString();
-        consoleOutput.Should().Contain("📁 Adding 0 files...");
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            deployer.DeployAsync(
+                "0x1234567890abcdef1234567890abcdef12345678",
+                "TestContract",
+                "testnet",
+                "0xabcdef1234567890abcdef1234567890abcdef12",
+                emptyDir));
     }
 
     public void Dispose()

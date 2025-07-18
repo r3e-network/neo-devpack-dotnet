@@ -48,8 +48,11 @@ Features:
 });
 
 // Database
-builder.Services.AddDbContext<WebGUIDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+if (builder.Environment.EnvironmentName != "Testing")
+{
+    builder.Services.AddDbContext<WebGUIDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+}
 
 // Core Services
 builder.Services.AddScoped<IWebGUIRepository, WebGUIRepository>();
@@ -78,8 +81,11 @@ builder.Services.AddCors(options =>
 });
 
 // Health checks
-builder.Services.AddHealthChecks()
-    .AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")!);
+var healthChecks = builder.Services.AddHealthChecks();
+if (builder.Environment.EnvironmentName != "Testing")
+{
+    healthChecks.AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")!);
+}
 
 // Logging
 builder.Services.AddLogging();

@@ -6,10 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
+    <AssemblyName>R3E.SmartContract.Deploy</AssemblyName>
     <PackageId>R3E.SmartContract.Deploy</PackageId>
-    <PackageTags>NEO;Blockchain;Smart Contract;Deploy;Deployment</PackageTags>
-    <Title>Neo Smart Contract Deployment Toolkit</Title>
-    <Description>A comprehensive deployment toolkit for Neo N3 smart contracts, providing infrastructure for deploying, initializing, and managing smart contracts.</Description>
+    <PackageTags>NEO;Blockchain;Smart Contract;Deploy;Deployment;R3E</PackageTags>
+    <Title>R3E Smart Contract Deployment Toolkit</Title>
+    <Product>R3E Smart Contract Deployment Toolkit</Product>
+    <Description>R3E Smart Contract Deploy v1.0.0 - Simplified deployment toolkit for Neo smart contracts. Features environment management, multi-contract deployment, verification tools, and deployment automation. Perfect for mainnet and testnet deployments</Description>
     <Authors>R3E Development Team</Authors>
     <Company>R3E Community</Company>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

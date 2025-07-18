@@ -1,6 +1,6 @@
 # Neo N3 Smart Contract DevPack for .NET (R3E Community Edition)
 
-**Version 0.0.4**
+**Version 1.0.0** 🎉
 
 <p align="center">
   <a href="https://github.com/r3e-network/">
@@ -33,6 +33,16 @@
 This is the R3E Community Edition of the Neo N3 Smart Contract DevPack for .NET - a comprehensive suite of development tools for building smart contracts and decentralized applications (dApps) on the Neo blockchain platform using .NET. This toolkit enables developers to write, compile, test, and deploy Neo smart contracts using C# and other .NET languages.
 
 The R3E Community maintains this fork of the official Neo DevPack with the goal of providing enhanced features and tools for the Neo developer community. All contracts compiled with this DevPack run on the Neo blockchain.
+
+### 🎉 What's New in v1.0.0
+
+- **RNCC CLI Tool**: New `rncc new` command for instant project scaffolding
+- **Template System**: Multiple contract templates (solution, NEP-17, oracle, owner)
+- **Enhanced Testing**: Full integration test support with Neo Express
+- **Better Developer Experience**: Improved error messages and diagnostics
+- **Production Ready**: First stable release with comprehensive documentation
+
+See [RELEASE_NOTES_v1.0.0.md](RELEASE_NOTES_v1.0.0.md) for full details.
 
 ## Available Packages
 
@@ -206,19 +216,19 @@ rncc new MyContract --template=solution --author="Your Name"
 
 ```shell
 # Install the core framework
-dotnet add package R3E.SmartContract.Framework --version 0.0.4
+dotnet add package R3E.SmartContract.Framework --version 0.0.5
 
 # Install the testing framework
-dotnet add package R3E.SmartContract.Testing --version 0.0.4
+dotnet add package R3E.SmartContract.Testing --version 0.0.5
 
 # Install the compiler library
-dotnet add package R3E.Compiler.CSharp --version 0.0.4
+dotnet add package R3E.Compiler.CSharp --version 0.0.5
 
 # Install the deployment toolkit
-dotnet add package R3E.SmartContract.Deploy --version 0.0.4
+dotnet add package R3E.SmartContract.Deploy --version 0.0.5
 
 # Install project templates
-dotnet new install R3E.SmartContract.Template::0.0.4
+dotnet new install R3E.SmartContract.Template::0.0.5
 ```
 
 #### Build from Source

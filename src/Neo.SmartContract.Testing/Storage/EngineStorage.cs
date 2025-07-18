@@ -147,28 +147,13 @@ namespace Neo.SmartContract.Testing.Storage
         /// </summary>
         public JObject Export()
         {
-            var buffer = new byte[sizeof(int)];
             JObject ret = new();
 
-            foreach ((var key, var value) in Snapshot.Seek([], SeekDirection.Forward))
+            foreach (var entry in Store.Find([], SeekDirection.Forward))
             {
+                // Export raw key-value pairs from the store
                 // "key":"value" in base64
-
-                JObject prefix;
-                BinaryPrimitives.WriteInt32LittleEndian(buffer, key.Id);
-                var keyId = Convert.ToBase64String(buffer);
-
-                if (ret.ContainsProperty(keyId))
-                {
-                    prefix = (JObject)ret[keyId]!;
-                }
-                else
-                {
-                    prefix = new();
-                    ret[keyId] = prefix;
-                }
-
-                prefix[Convert.ToBase64String(key.Key.ToArray())] = Convert.ToBase64String(value.Value.ToArray());
+                ret[Convert.ToBase64String(entry.Key)] = Convert.ToBase64String(entry.Value);
             }
 
             return ret;

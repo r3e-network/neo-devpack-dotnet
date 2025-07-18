@@ -95,6 +95,20 @@ jobs:
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_MERGE_WITH }} \
         ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
+        /p:CoverletOutput=${{ github.workspace }}/coverage-join/ \
+        /p:CoverletOutputFormat=json
+    - name: Install RNCC Tool
+      run: |
+        dotnet pack ./src/Neo.Compiler.CSharp.Tool/Neo.Compiler.CSharp.Tool.csproj --configuration Debug
+        dotnet tool install -g --add-source ./artifacts R3E.Compiler.CSharp.Tool || true
+        echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+    - name: Test Neo.Compiler.CSharp.IntegrationTests
+      run: |
+        dotnet test ./tests/Neo.Compiler.CSharp.IntegrationTests \
+        --filter "Category=Integration" \
+        ${{ env.DOTNET_TEST_PARAMETERS }} \
+        ${{ env.COVERLET_MERGE_WITH }} \
+        ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
         /p:CoverletOutput=${{ github.workspace }}/coverage/lcov \
         /p:CoverletOutputFormat=lcov
     - name: Coveralls

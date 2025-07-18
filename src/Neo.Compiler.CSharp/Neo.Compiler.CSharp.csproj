@@ -9,10 +9,12 @@
     <PackageId>R3E.Compiler.CSharp</PackageId>
     <RootNamespace>Neo.Compiler</RootNamespace>
     <Nullable>enable</Nullable>
-    <PackageTags>NEO;Blockchain;Smart Contract;Compiler</PackageTags>
-    <Company>The Neo Project</Company>
-    <Product>R3E.Compiler.CSharp</Product>
-    <Description>Neo Smart Contract Compiler for C# - Compiles C# code to Neo VM bytecode</Description>
+    <Title>R3E Smart Contract Compiler for C#</Title>
+    <PackageTags>NEO;Blockchain;Smart Contract;Compiler;R3E;C#</PackageTags>
+    <Company>R3E Network</Company>
+    <Product>R3E Smart Contract Compiler for C#</Product>
+    <Description>R3E edition of the Neo Smart Contract Compiler - Advanced C# to Neo VM bytecode compiler with optimization and security features</Description>
+    <Authors>R3E Network</Authors>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

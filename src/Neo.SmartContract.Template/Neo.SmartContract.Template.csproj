@@ -3,11 +3,14 @@
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <Title>R3E.SmartContract.Template</Title>
+    <Title>R3E Smart Contract Templates</Title>
     <PackageType>Template</PackageType>
     <PackageId>R3E.SmartContract.Template</PackageId>
-    <PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
-    <Description>Templates to use when creating a smart contract for NEO.</Description>
+    <Product>R3E Smart Contract Templates</Product>
+    <PackageTags>NEO;Blockchain;Smart Contract;Templates;R3E;dotnet-new</PackageTags>
+    <Description>R3E edition of Neo Smart Contract templates - Professional project templates for creating Neo smart contracts, including NEP-17 tokens, oracles, and complete solutions</Description>
+    <Authors>R3E Network</Authors>
+    <Company>R3E Network</Company>
     <IncludeContentInPack>true</IncludeContentInPack>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <ContentTargetFolders>content</ContentTargetFolders>

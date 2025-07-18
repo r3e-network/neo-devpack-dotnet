@@ -9,7 +9,7 @@ namespace Neo.SmartContract.Template
     {
         private static readonly Dictionary<string, string> TemplateVariables = new()
         {
-            { "TemplateNeoVersion", "3.8.1-*" },
+            { "TemplateNeoVersion", "0.0.5" },
             { "TemplateDotNetVersion", "9.0.0" },
             { "TemplateFrameworkVersion", "net9.0" }
         };
