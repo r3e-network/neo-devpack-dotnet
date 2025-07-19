@@ -1,6 +1,6 @@
 # Neo N3 Smart Contract DevPack for .NET (R3E Community Edition)
 
-**Version 1.0.0** 🎉
+**Version 1.0.2** 🎉
 
 <p align="center">
   <a href="https://github.com/r3e-network/">
@@ -34,15 +34,15 @@ This is the R3E Community Edition of the Neo N3 Smart Contract DevPack for .NET 
 
 The R3E Community maintains this fork of the official Neo DevPack with the goal of providing enhanced features and tools for the Neo developer community. All contracts compiled with this DevPack run on the Neo blockchain.
 
-### 🎉 What's New in v1.0.0
+### 🎉 What's New in v1.0.2
 
-- **RNCC CLI Tool**: New `rncc new` command for instant project scaffolding
-- **Template System**: Multiple contract templates (solution, NEP-17, oracle, owner)
-- **Enhanced Testing**: Full integration test support with Neo Express
-- **Better Developer Experience**: Improved error messages and diagnostics
-- **Production Ready**: First stable release with comprehensive documentation
+- **Solution Template Fixed**: `dotnet new solution` now creates complete project structure
+- **Production Ready**: Removed all placeholders, fully implemented features
+- **Azure Key Vault**: Integrated secure credential management
+- **Configurable RPC**: All network endpoints now configurable
+- **Enhanced Security**: Address to script hash conversion, improved error handling
 
-See [RELEASE_NOTES_v1.0.0.md](RELEASE_NOTES_v1.0.0.md) for full details.
+See [RELEASE_NOTES_v1.0.2.md](RELEASE_NOTES_v1.0.2.md) for full details.
 
 ## Available Packages
 
