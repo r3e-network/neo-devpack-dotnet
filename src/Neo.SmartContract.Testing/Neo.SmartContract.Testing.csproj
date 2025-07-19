@@ -10,7 +10,7 @@
         <PackageId>R3E.SmartContract.Testing</PackageId>
         <Product>R3E Smart Contract Testing Framework</Product>
         <PackageTags>NEO;Blockchain;Smart Contract;Testing;R3E</PackageTags>
-        <Description>R3E Smart Contract Testing Framework v1.0.0 - Comprehensive testing framework for Neo smart contracts. Includes unit testing, integration testing, Neo Express support, mock implementations, and test coverage reporting</Description>
+        <Description>R3E Smart Contract Testing Framework v1.0.2 - Comprehensive testing framework for Neo smart contracts. Includes unit testing, integration testing, Neo Express support, mock implementations, and test coverage reporting</Description>
         <Authors>R3E Network</Authors>
         <Company>R3E Network</Company>
         <IncludeContentInPack>true</IncludeContentInPack>

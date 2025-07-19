@@ -125,6 +125,11 @@ webgui-only:
 # Testing targets
 test: unit-tests integration-tests
 
+clean-artifacts:
+	@echo "$(YELLOW)Cleaning testing artifacts...$(NC)"
+	@rm -rf tests/TestingArtifacts/*.cs
+	@echo "$(GREEN)Artifacts cleaned!$(NC)"
+
 unit-tests:
 	@echo "$(YELLOW)Running unit tests...$(NC)"
 	$(DOTNET) test --configuration $(CONFIGURATION) --no-build \

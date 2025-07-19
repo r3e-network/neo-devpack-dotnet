@@ -9,7 +9,7 @@
     <PackageId>R3E.SmartContract.Framework</PackageId>
     <Title>R3E Smart Contract Framework</Title>
     <Product>R3E Smart Contract Framework</Product>
-    <Description>R3E Smart Contract Framework v1.0.0 - Enhanced framework for developing Neo blockchain smart contracts with additional features, better type safety, and comprehensive standard library extensions</Description>
+    <Description>R3E Smart Contract Framework v1.0.2 - Enhanced framework for developing Neo blockchain smart contracts with additional features, better type safety, and comprehensive standard library extensions</Description>
     <Authors>R3E Network</Authors>
     <Company>R3E Network</Company>
     <PackageTags>NEO;Blockchain;Smart Contract;Framework;R3E</PackageTags>

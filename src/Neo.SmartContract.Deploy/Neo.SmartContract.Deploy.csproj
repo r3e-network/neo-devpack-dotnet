@@ -11,7 +11,7 @@
     <PackageTags>NEO;Blockchain;Smart Contract;Deploy;Deployment;R3E</PackageTags>
     <Title>R3E Smart Contract Deployment Toolkit</Title>
     <Product>R3E Smart Contract Deployment Toolkit</Product>
-    <Description>R3E Smart Contract Deploy v1.0.0 - Simplified deployment toolkit for Neo smart contracts. Features environment management, multi-contract deployment, verification tools, and deployment automation. Perfect for mainnet and testnet deployments</Description>
+    <Description>R3E Smart Contract Deploy v1.0.2 - Simplified deployment toolkit for Neo smart contracts. Features environment management, multi-contract deployment, verification tools, and deployment automation. Perfect for mainnet and testnet deployments</Description>
     <Authors>R3E Development Team</Authors>
     <Company>R3E Community</Company>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -34,6 +34,10 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.6" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.1" />
+    
+    <!-- Security and credential management -->
+    <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.7.0" />
+    <PackageReference Include="Azure.Identity" Version="1.13.3" />
     
     <!-- Neo SDK for deployment functionality -->
     <PackageReference Include="Neo" Version="3.8.1-*" />

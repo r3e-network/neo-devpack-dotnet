@@ -33,7 +33,7 @@ public class RpcHealthCheck : IHealthCheck
 
         try
         {
-            var rpcUrl = _configuration["Network:RpcUrl"] ?? "http://localhost:10332";
+            var rpcUrl = _configuration["Network:RpcUrl"] ?? _configuration["Network:DefaultRpcUrl"] ?? "http://localhost:10332";
             var client = _rpcClientFactory.CreateClient(rpcUrl);
 
             // Check basic connectivity by getting block count

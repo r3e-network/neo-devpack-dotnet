@@ -138,13 +138,13 @@ namespace Neo.SmartContract.Framework.UnitTests
                     {
                         File.WriteAllText(artifactsPath, artifact);
                         Console.WriteLine($"{typeName} artifact was updated");
+                        UpdatedArtifactNames.TryAdd(typeName);
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine($"Error writing artifact for {typeName}: {ex.Message}");
                     }
                 });
-                return null;
             }
 
             return debug;

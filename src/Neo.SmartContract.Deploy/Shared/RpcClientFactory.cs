@@ -78,12 +78,12 @@ public class RpcClientFactory : IRpcClientFactory
             return _networkConfig.RpcUrl;
         }
 
-        // Fallback to well-known networks
+        // Fallback to well-known networks with configurable defaults
         return network.ToLowerInvariant() switch
         {
-            "mainnet" => "https://rpc10.n3.nspcc.ru:10331",
-            "testnet" => "https://rpc10.n3.neotracker.io:443",
-            "local" or "private" => "http://localhost:50012",
+            "mainnet" => _configuration["Network:MainnetRpcUrl"] ?? "https://rpc10.n3.nspcc.ru:10331",
+            "testnet" => _configuration["Network:TestnetRpcUrl"] ?? "https://rpc10.n3.neotracker.io:443",
+            "local" or "private" => _configuration["Network:LocalRpcUrl"] ?? "http://localhost:50012",
             _ => throw new InvalidOperationException($"Unknown network '{network}' and no RPC URL configured")
         };
     }

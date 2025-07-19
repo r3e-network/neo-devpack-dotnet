@@ -460,15 +460,58 @@ class NeoTransactionBuilder {
     }
 
     addressToScriptHash(address) {
-        // This would normally use a proper Neo SDK function
-        // For now, return as-is if it looks like a script hash
+        // Return as-is if it looks like a script hash
         if (address.startsWith('0x') && address.length === 42) {
             return address.slice(2);
         }
         
-        // If it's an address, we would need to convert it
-        // This is a placeholder - in production, use proper Neo SDK
-        throw new Error('Address to script hash conversion not implemented');
+        // Convert Neo address to script hash
+        if (address.startsWith('N') && address.length === 34) {
+            // Neo address format: Base58Check encoded
+            // This is a simplified implementation of address to script hash conversion
+            try {
+                // Decode Base58
+                const decoded = this.base58Decode(address);
+                // Remove version byte (0x35 for Neo3) and checksum (last 4 bytes)
+                const scriptHash = decoded.slice(1, 21);
+                // Convert to hex and reverse byte order (little-endian)
+                return Array.from(scriptHash).reverse().map(b => b.toString(16).padStart(2, '0')).join('');
+            } catch (error) {
+                throw new Error(`Failed to convert address to script hash: ${error.message}`);
+            }
+        }
+        
+        throw new Error('Invalid address format. Expected Neo address (34 chars starting with N) or script hash (0x + 40 hex chars)');
+    }
+
+    base58Decode(input) {
+        const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+        const base = alphabet.length;
+        const bytes = [];
+        
+        // Convert base58 string to bytes
+        let decimal = 0n;
+        for (const char of input) {
+            const index = alphabet.indexOf(char);
+            if (index === -1) {
+                throw new Error(`Invalid character '${char}' in base58 string`);
+            }
+            decimal = decimal * BigInt(base) + BigInt(index);
+        }
+        
+        // Convert to bytes
+        while (decimal > 0n) {
+            bytes.unshift(Number(decimal % 256n));
+            decimal = decimal / 256n;
+        }
+        
+        // Add leading zeros
+        for (const char of input) {
+            if (char !== '1') break;
+            bytes.unshift(0);
+        }
+        
+        return new Uint8Array(bytes);
     }
 }
 

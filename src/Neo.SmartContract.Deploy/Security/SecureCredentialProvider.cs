@@ -142,10 +142,6 @@ public class SecureCredentialProvider : ICredentialProvider, IDisposable
     /// </summary>
     private async Task<string?> TryGetFromKeyVaultAsync(string secretName)
     {
-        // This is a placeholder for Key Vault integration
-        // In a real implementation, you would use Azure.Security.KeyVault.Secrets
-        // or AWS Secrets Manager, HashiCorp Vault, etc.
-
         var keyVaultUrl = _configuration["Security:KeyVaultUrl"];
         if (string.IsNullOrEmpty(keyVaultUrl))
         {
@@ -154,17 +150,35 @@ public class SecureCredentialProvider : ICredentialProvider, IDisposable
 
         try
         {
-            // Example implementation:
-            // var client = new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
-            // var secret = await client.GetSecretAsync(secretName);
-            // return secret.Value.Value;
+            // Support different authentication methods based on configuration
+            var authMethod = _configuration["Security:KeyVaultAuthMethod"] ?? "DefaultAzureCredential";
+            
+            Azure.Core.TokenCredential credential = authMethod switch
+            {
+                "ManagedIdentity" => new Azure.Identity.ManagedIdentityCredential(),
+                "ClientSecret" => new Azure.Identity.ClientSecretCredential(
+                    _configuration["Security:TenantId"] ?? throw new InvalidOperationException("TenantId required for ClientSecret auth"),
+                    _configuration["Security:ClientId"] ?? throw new InvalidOperationException("ClientId required for ClientSecret auth"),
+                    _configuration["Security:ClientSecret"] ?? throw new InvalidOperationException("ClientSecret required for ClientSecret auth")
+                ),
+                "Environment" => new Azure.Identity.EnvironmentCredential(),
+                _ => new Azure.Identity.DefaultAzureCredential()
+            };
 
-            _logger.LogDebug("Key Vault integration not implemented. Returning null.");
-            return await Task.FromResult<string?>(null);
+            var client = new Azure.Security.KeyVault.Secrets.SecretClient(new Uri(keyVaultUrl), credential);
+            var secret = await client.GetSecretAsync(secretName);
+            
+            _logger.LogDebug("Successfully retrieved secret from Key Vault");
+            return secret.Value.Value;
+        }
+        catch (Azure.RequestFailedException ex) when (ex.Status == 404)
+        {
+            _logger.LogDebug("Secret {SecretName} not found in Key Vault", secretName);
+            return null;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to retrieve secret from Key Vault");
+            _logger.LogError(ex, "Failed to retrieve secret {SecretName} from Key Vault", secretName);
             return null;
         }
     }
